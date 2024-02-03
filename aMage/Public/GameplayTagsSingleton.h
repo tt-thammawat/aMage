@@ -22,9 +22,9 @@ public:
  FGameplayTag Attributes_Primary_Vigor; // HP
  
  //Declare Gameplay Tags For Secondary Attributes
- FGameplayTag Attributes_Secondary_Fire;
- FGameplayTag Attributes_Secondary_Ice;
- FGameplayTag Attributes_Secondary_Electric;
+ FGameplayTag Attributes_Secondary_FireRes;
+ FGameplayTag Attributes_Secondary_IceRes;
+ FGameplayTag Attributes_Secondary_ElectricRes;
  FGameplayTag Attributes_Secondary_MaxHealth;
  FGameplayTag Attributes_Secondary_MaxMana;
  //Vital Attributes

@@ -51,6 +51,16 @@ struct FEffectProperties
 		
 };
 
+// template for modern c++ need to specifier Template manually but more Versatile
+// TStaticFunctionPtr<FGameplayAttribute()>
+// TStaticFunctionPtr<float(int32,float,int32)> RandomFunc;
+// static float Random(int32 x,float y, int32 c);
+// RandomFunc = Random;
+// float result = RandomFunc(5,6.2f,8);
+//Generic to any signature
+template<class T>
+using TStaticFunctionPtr = typename TBaseStaticDelegateInstance<T,FDefaultDelegateUserPolicy>::FFuncPtr;
+
 //Can Use In Blueprint
 UCLASS(BlueprintType)
 class AMAGE_API UBaseAttributeSet : public UAttributeSet
@@ -60,11 +70,12 @@ public:
 	UBaseAttributeSet();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-public:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+	//Map Tags To GetAttribute Function
+	TMap<FGameplayTag,TStaticFunctionPtr<FGameplayAttribute()>> TagsToAttributes;
 
+	
 	// Primary Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Strength,Category = "Primary Attributes")
 	FGameplayAttributeData Strength;
@@ -78,32 +89,31 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Vigor,Category = "Primary Attributes")
 	FGameplayAttributeData Vigor;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,Vigor);
-	
-	// Vital Attributes
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Health,Category = "Vital Attributes")
-	FGameplayAttributeData Health;
-	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,Health);
-	
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealth,Category = "Vital Attributes")
+	// Secondary Attributes
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxMana,Category = "Secondary  Attributes")
+	FGameplayAttributeData MaxMana;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,MaxMana);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealth,Category = "Secondary Attributes")
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,MaxHealth);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireRes,Category = "Secondary Attributes")
+	FGameplayAttributeData FireRes;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,FireRes);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_IceRes,Category = "Secondary Attributes")
+	FGameplayAttributeData IceRes;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,IceRes);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ElectricRes,Category = "Secondary Attributes")
+	FGameplayAttributeData ElectricRes;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,ElectricRes);
 	
+	// Vital Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Mana,Category = "Vital Attributes")
 	FGameplayAttributeData Mana;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,Mana);
-	
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxMana,Category = "Vital Attributes")
-	FGameplayAttributeData MaxMana;
-	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,MaxMana);
-	
-	UFUNCTION()
-	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
-	UFUNCTION()
-	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const;
-	UFUNCTION()
-	void OnRep_Mana(const FGameplayAttributeData& OldMana) const;
-	UFUNCTION()
-	void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) const;
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Health,Category = "Vital Attributes")
+	FGameplayAttributeData Health;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,Health);
+
 	UFUNCTION()
 	void OnRep_Strength(const FGameplayAttributeData& OldStrength) const;
 	UFUNCTION()
@@ -112,6 +122,25 @@ public:
 	void OnRep_Resilience(const FGameplayAttributeData& OldResilience) const;
 	UFUNCTION()
 	void OnRep_Vigor(const FGameplayAttributeData& OldVigor) const;
+
+	UFUNCTION()
+	void OnRep_FireRes(const FGameplayAttributeData& OldFireRes) const;
+	UFUNCTION()
+	void OnRep_IceRes(const FGameplayAttributeData& OldIceRes) const;
+	UFUNCTION()
+	void OnRep_ElectricRes(const FGameplayAttributeData& OldElectricRes) const;
+
+	UFUNCTION()
+	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const;
+
+	UFUNCTION()
+	void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) const;
+
+	UFUNCTION()
+	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
+	UFUNCTION()
+	void OnRep_Mana(const FGameplayAttributeData& OldMana) const;
+	
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data,FEffectProperties& Props) const;
 };

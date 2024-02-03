@@ -16,9 +16,9 @@ void FMainGameplayTags::InitializeNativeGameplayTags()
 	MainGameplayTags.Attributes_Primary_Vigor = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Primary.Vigor"),FString("Increase Health And MaxHealth"));
 	//-------------------------------------------------------------------------------------------------------------//
 	//Secondary Attributes--------------------------------------------------------------------------------------------------------//
-	MainGameplayTags.Attributes_Secondary_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Fire"),FString("Increase Fire Resistance"));
-	MainGameplayTags.Attributes_Secondary_Ice = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Ice"),FString("Increase Ice Resistance"));
-	MainGameplayTags.Attributes_Secondary_Electric = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Electric"),FString("Increase Electric Resistance"));
+	MainGameplayTags.Attributes_Secondary_FireRes = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Fire"),FString("Increase Fire Resistance"));
+	MainGameplayTags.Attributes_Secondary_IceRes = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Ice"),FString("Increase Ice Resistance"));
+	MainGameplayTags.Attributes_Secondary_ElectricRes = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.Electric"),FString("Increase Electric Resistance"));
 	MainGameplayTags.Attributes_Secondary_MaxHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.MaxHealth"),FString("Increase Max Health"));
 	MainGameplayTags.Attributes_Secondary_MaxMana = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.MaxMana"),FString("Increase Max Mana"));
 	//-------------------------------------------------------------------------------------------------------------//

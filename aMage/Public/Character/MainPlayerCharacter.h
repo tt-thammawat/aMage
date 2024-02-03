@@ -27,6 +27,10 @@ public:
 	AMainPlayerCharacter();
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
+
+	//CombatInterface
+	FORCEINLINE virtual  int32 GetPlayerLevel() override;
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
 	virtual void BeginPlay() override;
@@ -34,7 +38,8 @@ protected:
 	//Init GAS
 	virtual void InitAbilityActorInfo() override;
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
-	
+
+	//TODO : MAy Remove Below
 	//Replicated ItemData
 	UPROPERTY(ReplicatedUsing=OnRep_ItemDataChange,BlueprintReadOnly)
 	FItemData ItemData;

@@ -3,9 +3,7 @@
 
 #include "Character/MainPlayerCharacter.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
-#include "AbilitySystem/Spell/Projectile.h"
 #include "Actor/PickUpEffectActor.h"
-#include "Engine/SkeletalMeshSocket.h"
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
@@ -31,12 +29,21 @@ void AMainPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	InitAbilityActorInfo();
+	AddCharacterAbilities();
+
 }
 
 void AMainPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	InitAbilityActorInfo();
+}
+
+int32 AMainPlayerCharacter::GetPlayerLevel()
+{
+	const AMainPlayerState* MainPlayerState = GetPlayerState<AMainPlayerState>();
+	check(MainPlayerState);
+	return MainPlayerState->GetPlayerLevel();
 }
 
 void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -63,6 +70,8 @@ void AMainPlayerCharacter::InitAbilityActorInfo()
 	AttributeSet = MainPlayerState->GetPlayerStateAttributeSet();
 	
 	TrySetupHUD(MainPlayerState);
+	InitDefaultAttributes();
+
 }
 
 void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
