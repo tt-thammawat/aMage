@@ -48,6 +48,7 @@ void APickUpEffectActor::OnEndInteractWithActor(AActor* TargetActor)
 	}
 }
 
+
 void APickUpEffectActor::DestroyAfterPickUp(AActor* TargetActor)
 {
 	OnOverlap(TargetActor);

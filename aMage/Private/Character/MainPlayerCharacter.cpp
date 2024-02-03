@@ -215,7 +215,6 @@ void AMainPlayerCharacter::ServerEquipButtonPressed_Implementation()
 	if(AbilitySystemComponent->HasMatchingGameplayTag(EquipedStaffTag)) return;
 			if(ItemData.ItemTag.MatchesTag(EquipedStaffTag))
 			{
-				ItemData = PickUpEffectActor->GetItemData();
 				PickUpEffectActor->DestroyAfterPickUp(this);
 				OnRep_ItemDataChange();
 			}

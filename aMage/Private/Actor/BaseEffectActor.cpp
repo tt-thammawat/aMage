@@ -86,12 +86,14 @@ void ABaseEffectActor::OnOverlap(AActor* TargetActor)
 			default:
 				break;
 			}
-			//Case InfiniteEffect
-			if(EffectData->InfiniteGameplayEffectClass)
+		}
+
+		//Case InfiniteEffect
+		if(EffectData->InfiniteGameplayEffectClass)
+		{
+			switch (EffectData->InfiniteEffectApplicationPolicy)
 			{
-				switch (EffectData->InfiniteEffectApplicationPolicy)
-				{
-				case EEffectApplicationPolicy::ApplyOnOverlap:
+			case EEffectApplicationPolicy::ApplyOnOverlap:
 					if(EffectData->InfiniteGameplayEffectClass)
 					{
 						ApplyEffectToTarget(TargetActor,EffectData->InfiniteGameplayEffectClass,EffectData->ActorLevel);
@@ -99,7 +101,6 @@ void ABaseEffectActor::OnOverlap(AActor* TargetActor)
 					break;
 				default:
 					break;
-				}
 			}
 		}
 	}

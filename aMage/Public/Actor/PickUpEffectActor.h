@@ -19,7 +19,7 @@ public:
 	APickUpEffectActor();
 	//PlayerPickup
 	virtual void DestroyAfterPickUp(AActor* TargetActor);
-
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -28,6 +28,8 @@ protected:
 	virtual void OnInteractWithActor(AActor* TargetActor);
 	UFUNCTION(BlueprintCallable)
 	virtual void OnEndInteractWithActor(AActor* TargetActor);
+
+
 	
 	UFUNCTION(BlueprintCallable)
 	void ShowDetail();
