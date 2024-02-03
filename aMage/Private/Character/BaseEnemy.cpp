@@ -49,7 +49,6 @@ void ABaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	InitAbilityActorInfo();
-
 }
 
 void ABaseEnemy::Tick(float DeltaSeconds)

@@ -9,6 +9,9 @@
 #include "GameFramework/PlayerController.h"
 #include "MainPlayerController.generated.h"
 
+class UBaseAbilitySystemComponent;
+struct FGameplayTag;
+class UMainInputConfig;
 class UCombatActorComponent;
 /**
  * 
@@ -69,14 +72,19 @@ private:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	UInputAction* CrouchAction;
-
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* CastAction;
-
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* FireAction;
-
 	
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	//Input With Abilities LMB RMB 1 2 TODO:Add More Button
+	UPROPERTY(EditDefaultsOnly,Category = "Input")
+	TObjectPtr<UMainInputConfig> InputConfig;
+
+	UPROPERTY()
+	TObjectPtr<UBaseAbilitySystemComponent> BaseAbilitySystemComponent;
+	UBaseAbilitySystemComponent* GetBaseAbilitySystemComponent();
+
 	ITargetInterface* LastActor;
 	ITargetInterface* ThisActor;
 
