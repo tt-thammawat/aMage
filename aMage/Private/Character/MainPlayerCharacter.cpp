@@ -24,11 +24,7 @@ AMainPlayerCharacter::AMainPlayerCharacter()
 	//Turn To That Movement
 	GetCharacterMovement()->bOrientRotationToMovement =true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f,400.f,0.f);
-
-	//Initialize Weapon
-	Weapon=CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
-	Weapon->SetupAttachment(GetMesh(),FName("WeaponHandSocket"));
-	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 }
 
 void AMainPlayerCharacter::PossessedBy(AController* NewController)
@@ -87,7 +83,7 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 //Don't ForGet To Set ItemData ChangeHere
 void AMainPlayerCharacter::OnRep_ItemDataChange()
 {
-	Weapon->SetSkeletalMesh(ItemData.ItemMesh);
+	
 }
 
 //Interact Item Here
@@ -181,20 +177,7 @@ void AMainPlayerCharacter::MulticastFire_Implementation(const FVector_NetQuantiz
 
 void AMainPlayerCharacter::FireSpell(const FVector_NetQuantize& HitTarget)
 {
-	const USkeletalMeshSocket* StaffMeshSocket=  Weapon->GetSocketByName(FName("FireSocket"));
-	if(StaffMeshSocket)
-	{
-		FTransform SocketTransform = StaffMeshSocket->GetSocketTransform(GetWeaponMesh());
-		UWorld* World = GetWorld();
-		if(World)
-		{
-			World->SpawnActor<AProjectile>(
-				ProjectileClass,
-				SocketTransform.GetLocation(),
-				SocketTransform.GetRotation().Rotator()			
-			);
-		}
-	}
+
 }
 
 void AMainPlayerCharacter::PlayFireMontage()

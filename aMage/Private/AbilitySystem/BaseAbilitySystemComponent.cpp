@@ -2,6 +2,7 @@
 
 
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/MainGameplayAbility.h"
 
 void UBaseAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -9,8 +10,57 @@ void UBaseAbilitySystemComponent::AbilityActorInfoSet()
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this,&UBaseAbilitySystemComponent::ClientEffectApplied);
 }
 
+void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartUpAbilities)
+{
+	for (const TSubclassOf<UGameplayAbility> AbilityClass : StartUpAbilities)
+	{
+		// init FGameplayAbilitySpec Struct
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass,1);
+		//if Ability is derived from MainGameplayAbility it will have InputTag Button 1 23 4 LMB RMB
+		if(const UMainGameplayAbility* MainGameplayAbility = Cast<UMainGameplayAbility>(AbilitySpec.Ability))
+		{
+			//Add InputTag from StartupInputTag from MainGameplayAbility To DynamicAbilityTags ( FGameplayContainer )
+			AbilitySpec.DynamicAbilityTags.AddTag(MainGameplayAbility->StartupInputTag);
+			//Add StartUp Abilities if it derives from MainGameplayAbility
+			GiveAbility(AbilitySpec);
+			//	GiveAbilityAndActivateOnce(AbilitySpec);
+		}
+	}
+}
+
+void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
+{
+	if(!InputTag.IsValid()) return;
+
+	// Check If We Have Activatable Abilities
+	for(FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		//If a match is found, it first marks the ability as pressed [GAS]
+		AbilitySpecInputPressed(AbilitySpec);
+		if(!AbilitySpec.IsActive())
+		{
+			//TryActivate Abilities may fail if logic failed
+			TryActivateAbility(AbilitySpec.Handle);
+		}
+	}
+}
+
+void UBaseAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
+{
+	if(!InputTag.IsValid()) return;
+
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if(AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			//If a match is found, it marks the ability as released [GAS]
+			AbilitySpecInputReleased(AbilitySpec);
+		}
+	}
+}
+
 void UBaseAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
-	const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveGameplayEffectHandle)
+                                                                     const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveGameplayEffectHandle)
 {
 	{
 		FGameplayTagContainer TagContainer;

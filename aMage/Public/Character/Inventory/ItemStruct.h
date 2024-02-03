@@ -30,6 +30,6 @@ struct FItemData
 	TArray<UEffectDataAsset*> ItemEffectDataAssets;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 ItemDurability;	
+	int32 ItemDurability=1;	
 		
 };

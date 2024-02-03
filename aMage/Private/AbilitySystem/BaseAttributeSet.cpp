@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameFramework/Character.h"
 #include "GameplayEffectExtension.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 UBaseAttributeSet::UBaseAttributeSet()
@@ -97,6 +98,8 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if(Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(),0.f,GetMaxHealth()));
+		FString Message = FString::Printf(TEXT("Changed Health On %s, Health %f"), *Props.TargetAvatarActor->GetName(), GetHealth());
+		UKismetSystemLibrary::PrintString(GetWorld(), Message, true, false, FLinearColor::Red, 3.0f);
 	}
 	if(Data.EvaluatedData.Attribute == GetManaAttribute())
 	{

@@ -34,10 +34,6 @@ protected:
 	//Init GAS
 	virtual void InitAbilityActorInfo() override;
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
-
-	//Weapon
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Combat")
-	TObjectPtr<USkeletalMeshComponent> Weapon;
 	
 	//Replicated ItemData
 	UPROPERTY(ReplicatedUsing=OnRep_ItemDataChange,BlueprintReadOnly)
@@ -71,7 +67,6 @@ protected:
 
 public:
 	void SetInteractObjectActor(AActor* Actor) {InteractObjectActor = Actor;};
-	USkeletalMeshComponent* GetWeaponMesh() const {return Weapon;};
 
 
 //Montage For Animation
