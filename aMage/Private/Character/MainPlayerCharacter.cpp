@@ -7,10 +7,8 @@
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
-#include "Character/PlayerAnimInstance.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
 
 AMainPlayerCharacter::AMainPlayerCharacter()
 {
@@ -51,7 +49,6 @@ void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AMainPlayerCharacter,ItemData);
 	DOREPLIFETIME(AMainPlayerCharacter,InteractObjectActor);
-	DOREPLIFETIME(AMainPlayerCharacter,bFireButtonPressed);
 }
 
 void AMainPlayerCharacter::BeginPlay()
@@ -80,7 +77,6 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 	if (PlayerController)
 	{
 		PlayerController->InteractButtonPressedSignature.BindUObject(this,&ThisClass::InteractItemButtonPress);
-		PlayerController->FireButtonPressedSignature.BindUObject(this,&ThisClass::FirePressed);
 		AMainPlayerHUD* MainHUD = Cast<AMainPlayerHUD>(PlayerController->GetHUD());
 		if (MainHUD)
 		{
@@ -92,7 +88,7 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 //Don't ForGet To Set ItemData ChangeHere
 void AMainPlayerCharacter::OnRep_ItemDataChange()
 {
-	
+	Weapon->SetSkeletalMesh(ItemData.ItemMesh);
 }
 
 //Interact Item Here
@@ -112,91 +108,6 @@ void AMainPlayerCharacter::InteractItemButtonPress()
 	}
 }
 
-void AMainPlayerCharacter::FirePressed(bool bPressed)
-{
-	if(!AbilitySystemComponent->HasMatchingGameplayTag
-	(FGameplayTag::RequestGameplayTag(FName("Item.Equip.Staff")))) return;
-	
-	bFireButtonPressed = bPressed;
-	if(bFireButtonPressed)
-	{
-		FHitResult HitResult;
-		TraceUnderCrossHairs(HitResult);
-		ServerFire(HitResult.ImpactPoint);
-	}
-}
-
-void AMainPlayerCharacter::TraceUnderCrossHairs(FHitResult& TraceHitResult)
-{
-	FVector2D ViewPortSize;
-	if(GEngine && GEngine->GameViewport)
-	{
-		GEngine->GameViewport->GetViewportSize(ViewPortSize);
-	}
-	//Center Of The Viewport Vector
-	const FVector2D CrossHairLocation(ViewPortSize.X/2,ViewPortSize.Y/2);
-	FVector CrossHairWorldPosition;
-	FVector CrossHairWorldDirection;
-	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
-	//Get PlayerController
-	UGameplayStatics::GetPlayerController(this,0),
-	CrossHairLocation,
-	CrossHairWorldPosition,
-	CrossHairWorldDirection
-	);
-
-	APawn* MyPawn = Cast<APawn>(GetOwner());
-	FCollisionQueryParams TraceParams(FName(TEXT("")), false, MyPawn);
-	if(bScreenToWorld)
-	{
-		//LineTrace
-		//Center Of The Screen
-		const FVector Start = CrossHairWorldPosition;
-		//Start + Direction + 80000
-		const FVector End = Start + CrossHairWorldDirection * 80000.f;
-
-		GetWorld()->LineTraceSingleByChannel(
-			TraceHitResult,
-			Start,
-			End,
-			ECC_Visibility,
-			TraceParams
-			);
-		
-		if(!TraceHitResult.bBlockingHit)
-		{
-			TraceHitResult.ImpactPoint = End;
-		}
-	}
-}
-
-void AMainPlayerCharacter::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
-{
-	MulticastFire(TraceHitTarget);
-}
-
-void AMainPlayerCharacter::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
-{
-	if(FireMontage)
-	{
-		PlayFireMontage();
-	}
-	FireSpell(TraceHitTarget);
-}
-
-void AMainPlayerCharacter::FireSpell(const FVector_NetQuantize& HitTarget)
-{
-
-}
-
-void AMainPlayerCharacter::PlayFireMontage()
-{
-	UPlayerAnimInstance* AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-	if(AnimInstance && FireMontage)
-	{
-		AnimInstance->Montage_Play(FireMontage);
-	}
-}
 
 void AMainPlayerCharacter::ServerEquipButtonPressed_Implementation()
 {
@@ -207,6 +118,7 @@ void AMainPlayerCharacter::ServerEquipButtonPressed_Implementation()
 	if(AbilitySystemComponent->HasMatchingGameplayTag(EquipedStaffTag)) return;
 			if(ItemData.ItemTag.MatchesTag(EquipedStaffTag))
 			{
+				Weapon->SetSkeletalMesh(ItemData.ItemMesh);
 				PickUpEffectActor->DestroyAfterPickUp(this);
 				OnRep_ItemDataChange();
 			}

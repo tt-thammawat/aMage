@@ -55,30 +55,11 @@ protected:
 	virtual void InteractItemButtonPress();
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
-	
-	//FireButtonPressed
-	UPROPERTY(Replicated)
-	bool bFireButtonPressed;
-	void FirePressed(bool bPressed);
-	void TraceUnderCrossHairs(FHitResult& TraceHitResult);
-	UFUNCTION(Server,Reliable)
-	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
-	UFUNCTION(NetMulticast,Reliable)
-	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
-	void FireSpell(const FVector_NetQuantize&  HitTarget);
-	UPROPERTY(EditAnywhere,Category = "FireSpell")
-	TSubclassOf<AProjectile> ProjectileClass;
-	
 
 public:
 	void SetInteractObjectActor(AActor* Actor) {InteractObjectActor = Actor;};
 
 
-//Montage For Animation
-public:
-	void PlayFireMontage();
-	UPROPERTY(EditAnywhere,Category = Montage)
-	TObjectPtr<UAnimMontage> FireMontage;
 
 	
 };

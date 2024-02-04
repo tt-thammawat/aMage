@@ -7,11 +7,11 @@
 const UInputAction* UMainInputConfig::FindAbilityInputActionForTag(const FGameplayTag& InputTag,
 	bool bLogNotFound) const
 {
-	for(const auto& AbilitiesInputs : AbilitiesInputActions)
+	for(const auto& [InputAction, ActionInputTag] : AbilitiesInputActions)
 	{
-		if(AbilitiesInputs.InputAction && AbilitiesInputs.ActionInputTag.MatchesTag(InputTag))
+		if(InputAction && ActionInputTag.MatchesTag(InputTag))
 		{
-			return AbilitiesInputs.InputAction;
+			return InputAction;
 		}
 	}
 	if(bLogNotFound)

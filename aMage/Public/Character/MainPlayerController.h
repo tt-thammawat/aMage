@@ -17,7 +17,6 @@ class UCombatActorComponent;
  * 
  */
 DECLARE_DELEGATE(FOnInteractButtonPressedSignature);
-DECLARE_DELEGATE_OneParam(FOnFireButtonPressedSignature,bool);
 class ITargetInterface;
 struct FInputActionValue;
 class UInputMappingContext;
@@ -29,7 +28,6 @@ class AMAGE_API AMainPlayerController : public APlayerController
 public:
 	AMainPlayerController();
 	FOnInteractButtonPressedSignature InteractButtonPressedSignature;
-	FOnFireButtonPressedSignature FireButtonPressedSignature;
 protected:
 	
 	virtual void BeginPlay() override;
@@ -47,7 +45,7 @@ protected:
 	void FireButtonPressed(const FInputActionValue& Value);
 
 	//TODO:: Change It For Widget
-	void CursorTrace();
+	//void CursorTrace();
 
 
 private:
@@ -73,13 +71,15 @@ private:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	UInputAction* CrouchAction;
 	
-	void AbilityInputTagPressed(FGameplayTag InputTag);
-	void AbilityInputTagReleased(FGameplayTag InputTag);
-	void AbilityInputTagHeld(FGameplayTag InputTag);
 
 	//Input With Abilities LMB RMB 1 2 TODO:Add More Button
 	UPROPERTY(EditDefaultsOnly,Category = "Input")
 	TObjectPtr<UMainInputConfig> InputConfig;
+
+	//Activate Abilities
+	void AbilityInputTagPressed(const FGameplayTag InputTag);
+	void AbilityInputTagReleased(const FGameplayTag InputTag);
+	void AbilityInputTagHeld(const FGameplayTag InputTag);
 
 	UPROPERTY()
 	TObjectPtr<UBaseAbilitySystemComponent> BaseAbilitySystemComponent;
@@ -87,7 +87,11 @@ private:
 
 	ITargetInterface* LastActor;
 	ITargetInterface* ThisActor;
+	
+	//LineTrace
+	void TraceUnderCrossHair(FHitResult& TraceHitResult);
 
+	
 	/*************************************************************************************************************/
 	//DRAW FUNCTION IS HERE!
 

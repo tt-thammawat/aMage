@@ -40,7 +40,8 @@ void UMainProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 				Cast<APawn>(GetOwningActorFromActorInfo()),
 				ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 				);
-		
+
+		Projectile->SetOwner(GetOwningActorFromActorInfo());
 		//Give The Projectile A Gameplay Effect Spec For Causing Damage
 		//Get AbilitySystemComponent
 		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());

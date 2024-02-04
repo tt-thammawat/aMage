@@ -12,7 +12,7 @@
 #include "Engine/UserInterfaceSettings.h"
 #include "GameFramework/Character.h"
 #include "Input/MainEnhancedInputComponent.h"
-#include "Interact/TargetInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 AMainPlayerController::AMainPlayerController() :
 bIsCastSpell(false),
@@ -93,45 +93,48 @@ void AMainPlayerController::SetupInputComponent()
 	MainEnhancedInputComponent->BindAction(CrouchAction,ETriggerEvent::Completed,this,&ThisClass::CrouchButtonPressed);
 	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
 
-	MainEnhancedInputComponent->BindAbilityAction(InputConfig,this,&ThisClass::AbilityInputTagPressed,&ThisClass::AbilityInputTagReleased,&ThisClass::AbilityInputTagHeld);
+	MainEnhancedInputComponent->BindAbilityActions(InputConfig,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
+	
 }
 
-// Check with the FMainGameplayTags Singleton if the InputTag = InputTag_LMB,RMB
-void AMainPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
+// Check with the FMainGameplayTags Singleton if the InputTag = InputTag.LMB,RMB
+void AMainPlayerController::AbilityInputTagPressed(const FGameplayTag InputTag)
 {
-	if(InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
+
+}
+
+void AMainPlayerController::AbilityInputTagHeld(const FGameplayTag InputTag)
+{
+	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
 	{
-		//TODO: May Add TagPressed In ASC
+		if(GetBaseAbilitySystemComponent())
+		{
+			GetBaseAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+		}
+		return;
+	}
+	
+	if(GetBaseAbilitySystemComponent())
+	{
+		GetBaseAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
 	}
 }
 
-void AMainPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
+void AMainPlayerController::AbilityInputTagReleased(const FGameplayTag InputTag)
 {
-	// Check and handle Right Mouse Button release.
-	if (InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_RMB))
+	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
 	{
-		BaseAbilitySystemComponent->AbilityInputTagReleased(InputTag);
-	}
-}
-
-void AMainPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
-{
-	// Check and handle Left Mouse Button release.
-	if (InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
-	{
-		BaseAbilitySystemComponent->AbilityInputTagReleased(InputTag);
-	}
-	// Check and handle "1" key release.
-	else if (InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_1))
-	{
-		BaseAbilitySystemComponent->AbilityInputTagReleased(InputTag);
-	}
-	// Check and handle "2" key release.
-	else if (InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_2))
-	{
-		BaseAbilitySystemComponent->AbilityInputTagReleased(InputTag);
+		if(GetBaseAbilitySystemComponent())
+		{
+			GetBaseAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
+		}
+		return;
 	}
 
+	if(GetBaseAbilitySystemComponent())
+	{
+		GetBaseAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
+	}
 }
 
 UBaseAbilitySystemComponent* AMainPlayerController::GetBaseAbilitySystemComponent()
@@ -294,69 +297,49 @@ void AMainPlayerController::FireButtonPressed(const FInputActionValue& Value)
 		}
 		
 	}
-	else
-	{
-		FireButtonPressedSignature.ExecuteIfBound(IsClick);
-	}
 }
 
-void AMainPlayerController::CursorTrace()
+void AMainPlayerController::TraceUnderCrossHair(FHitResult& TraceHitResult)
 {
+	FVector2D ViewPortSize;
+	if(GEngine && GEngine->GameViewport)
 	{
-		FHitResult CursorHit;
-		GetHitResultUnderCursor(ECC_Visibility,false,CursorHit);
-		if(!CursorHit.bBlockingHit) return;
-		LastActor = ThisActor;
-		// Cast will Succeed to the interface actor
-		ThisActor = Cast<ITargetInterface>(CursorHit.GetActor());
-	
-		/*
-		 * LineTrace From Cursor Serveral Scenatios
-		 * A. LastActor is null && This Actor is Null
-		 *	-Do Nothing
-		 *	B. LastActor is null && This Actor is Valid
-		 *	-Highlight This Actor
-		 *	C. LastActor is Valid && This Actor is Null
-		 *	- Unhighlight LastActor
-		 *	D. Both Valid but LastActor != This Actor
-		 *	- Unhighlight LastActor Highlight This Actor
-		 *	E. Both valid and Same Actor
-		 *	- Do Nothing
-		 */
+		GEngine->GameViewport->GetViewportSize(ViewPortSize);
+	}
+	//Center Of The Viewport Vector
+	const FVector2D CrossHairLocation(ViewPortSize.X/2,ViewPortSize.Y/2);
+	FVector CrossHairWorldPosition;
+	FVector CrossHairWorldDirection;
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+	//Get PlayerController
+	this,
+	CrossHairLocation,
+	CrossHairWorldPosition,
+	CrossHairWorldDirection
+	);
 
-		if(LastActor == nullptr)
+	APawn* MyPawn = Cast<APawn>(GetOwner());
+	FCollisionQueryParams TraceParams(FName(TEXT("")), false, MyPawn);
+	if(bScreenToWorld)
+	{
+		//LineTrace
+		//Center Of The Screen
+		const FVector Start = CrossHairWorldPosition;
+		//Start + Direction + 80000
+		const FVector End = Start + CrossHairWorldDirection * 80000.f;
+		GetWorld()->LineTraceSingleByChannel(
+			TraceHitResult,
+			Start,
+			End,
+			ECC_Visibility,
+			TraceParams
+			);
+
+		if(!TraceHitResult.bBlockingHit)
 		{
-			if(ThisActor != nullptr)
-			{
-				//Case B
-				ThisActor->HighlightActor();
-			}
-			else
-			{
-				//Both are null Case A
-			}
+			TraceHitResult.ImpactPoint = End;
 		}
-		else // LastActor is valid
-		{
-			if(ThisActor == nullptr)
-			{
-				//Case C
-				LastActor->UnHighlightActor();
-			}
-			else
-			{
-				if(LastActor != ThisActor)
-				{
-					//Case D
-					LastActor->UnHighlightActor();
-					ThisActor->HighlightActor();
-				}
-				else
-				{
-					//Case E
-				}
-			}
-		}
+		
 	}
 }
 
