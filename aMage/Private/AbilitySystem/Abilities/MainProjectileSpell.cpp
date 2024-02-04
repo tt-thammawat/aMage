@@ -25,8 +25,6 @@ void UMainProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 		// Get SocketLocation FVector via ICombatInterface
 		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
 		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
-		//Set Projectile Fly Parallel to the ground
-		Rotation.Pitch = 0.f;
 		
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);

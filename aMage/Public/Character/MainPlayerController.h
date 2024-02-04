@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerController.h"
 #include "MainPlayerController.generated.h"
 
+class UMainInputAction;
 class UBaseAbilitySystemComponent;
 struct FGameplayTag;
 class UMainInputConfig;
@@ -54,28 +55,25 @@ private:
 	TObjectPtr<UInputMappingContext> MainInputContext;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> MoveInput;
+	TObjectPtr<UMainInputAction> MoveInput;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* JumpAction;
+	TObjectPtr<UMainInputAction> JumpAction;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* LookXAction;
+	TObjectPtr<UMainInputAction> LookXAction;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* LookYAction;
+	TObjectPtr<UMainInputAction> LookYAction;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* InteractButton;
+	TObjectPtr<UMainInputAction> InteractButton;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* CrouchAction;
+	TObjectPtr<UMainInputAction> CrouchAction;
+
 	
-
-	//Input With Abilities LMB RMB 1 2 TODO:Add More Button
-	UPROPERTY(EditDefaultsOnly,Category = "Input")
-	TObjectPtr<UMainInputConfig> InputConfig;
-
+	
 	//Activate Abilities
 	void AbilityInputTagPressed(const FGameplayTag InputTag);
 	void AbilityInputTagReleased(const FGameplayTag InputTag);

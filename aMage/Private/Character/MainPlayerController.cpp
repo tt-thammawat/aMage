@@ -20,7 +20,6 @@ bIsDrawing(false)
 {
 	//when took place on the server it send data to client
 	bReplicates = true;
-
 	//May be Move This And Change this SomeWhere If Performance Fuck
 	//Construct Reconigzer Drawing System
 	Recognizer = MakeShareable(new FUnistrokeRecognizer());
@@ -93,7 +92,7 @@ void AMainPlayerController::SetupInputComponent()
 	MainEnhancedInputComponent->BindAction(CrouchAction,ETriggerEvent::Completed,this,&ThisClass::CrouchButtonPressed);
 	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
 
-	MainEnhancedInputComponent->BindAbilityActions(InputConfig,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
+	MainEnhancedInputComponent->BindAbilityActions(MainInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
 	
 }
 

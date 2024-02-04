@@ -22,15 +22,15 @@ public:
 	//Template class allow to set generic placeholder can pass any type,functions to this function
 	//Can work with inputs or types that are not yet defined or that can vary. 
 	template<class UserClass,typename PressedFunctionType, typename ReleasedFunction,typename HeldFunction>
-	void BindAbilityActions(const UInputMappingContext* InputConfig,UserClass* Object,PressedFunctionType PressedFunction,ReleasedFunction ReleasedFunc,HeldFunction HeldFunc);
+	void BindAbilityActions(const UInputMappingContext* MainInputContext,UserClass* Object,PressedFunctionType PressedFunction,ReleasedFunction ReleasedFunc,HeldFunction HeldFunc);
 };
 
 template <class UserClass, typename PressedFunctionType, typename ReleasedFunction, typename HeldFunction>
-void UMainEnhancedInputComponent::BindAbilityActions(const UInputMappingContext* InputConfig, UserClass* Object,
+void UMainEnhancedInputComponent::BindAbilityActions(const UInputMappingContext* MainInputContext, UserClass* Object,
 	PressedFunctionType PressedFunction, ReleasedFunction ReleasedFunc, HeldFunction HeldFunc)
 {
-	check(InputConfig);
-	for(const FEnhancedActionKeyMapping& Mapping : InputConfig->GetMappings())
+	check(MainInputContext);
+	for(const FEnhancedActionKeyMapping& Mapping : MainInputContext->GetMappings())
 	{
 		if(UMainInputAction* MainInputAction = Cast<UMainInputAction>(Mapping.Action))
 		{

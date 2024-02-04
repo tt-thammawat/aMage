@@ -21,6 +21,7 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		//if Ability is derived from MainGameplayAbility it will have InputTag Button 1 23 4 LMB RMB
 		if(const UMainGameplayAbility* MainGameplayAbility = Cast<UMainGameplayAbility>(AbilitySpec.Ability))
 		{
+			MainGameplayAbility->StartupInputTag;
 			//Add InputTag from StartupInputTag from MainGameplayAbility To DynamicAbilityTags ( FGameplayContainer )
 			AbilitySpec.DynamicAbilityTags.AddTag(MainGameplayAbility->StartupInputTag);
 			//Add StartUp Abilities if it derives from MainGameplayAbility
@@ -33,19 +34,21 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
 	if(!InputTag.IsValid()) return;
-
-	// Check If We Have Activatable Abilities
-	for(FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
-	{
-		//If a match is found, it first marks the ability as pressed [GAS]
-		AbilitySpecInputPressed(AbilitySpec);
-		if(!AbilitySpec.IsActive())
+		// Check If We Have Activatable Abilities
+		for(FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 		{
+			if(AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+			{
+				//If a match is found, it first marks the ability as pressed [GAS]
+				AbilitySpecInputPressed(AbilitySpec);
+				if(!AbilitySpec.IsActive())
+				{
 
-			//TryActivate Abilities may fail if logic failed
-			TryActivateAbility(AbilitySpec.Handle);
+					//TryActivate Abilities may fail if logic failed
+					TryActivateAbility(AbilitySpec.Handle);
+				}
+			}
 		}
-	}
 }
 
 void UBaseAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
