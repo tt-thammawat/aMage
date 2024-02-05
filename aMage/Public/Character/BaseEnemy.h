@@ -26,7 +26,7 @@ public:
 	virtual void UnHighlightActor() override;
 	// End Enemy Interface
 
-	virtual int32 GetPlayerLevel() override;
+	virtual int32 GetCharacterLevel() override;
 
 protected:
 	virtual void BeginPlay() override;

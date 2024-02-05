@@ -10,7 +10,7 @@ void UMainPlayerWidget::SetWidgetController(UObject* InWidgetController)
 	WidgetControllerSet();
 }
 
-float UMainPlayerWidget::InterpolateGlobe(float CurrentPercent, float TargetPercent, float DeltaTime, float InterpSpeed)
+float UMainPlayerWidget::InterpolateProgress(float CurrentPercent, float TargetPercent, float DeltaTime, float InterpSpeed)
 {
 	// Ensure InterpSpeed is not negative
 	InterpSpeed = FMath::Max(InterpSpeed, 0.0f);

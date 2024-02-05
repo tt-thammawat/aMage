@@ -18,7 +18,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetWidgetController(UObject* InWidgetController);
 	UFUNCTION(BlueprintCallable)
-	float InterpolateGlobe(float CurrentPercent, float TargetPercent, float DeltaTime, float InterpSpeed);
+	float InterpolateProgress(float CurrentPercent, float TargetPercent, float DeltaTime, float InterpSpeed);
 	
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UObject> WidgetController;

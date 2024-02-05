@@ -2,6 +2,7 @@
 
 
 #include "DrawMagic/Draw_PaintWidget.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
 int32 UDraw_PaintWidget::NativePaint(const FPaintArgs &Args, const FGeometry &AllottedGeometry, const FSlateRect &MyCullingRect, FSlateWindowElementList &OutDrawElements, int32 LayerId, const FWidgetStyle &InWidgetStyle, bool bParentEnabled) const
 {

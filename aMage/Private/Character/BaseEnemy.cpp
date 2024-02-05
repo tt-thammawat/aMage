@@ -40,7 +40,7 @@ void ABaseEnemy::UnHighlightActor()
 
 }
 
-int32 ABaseEnemy::GetPlayerLevel()
+int32 ABaseEnemy::GetCharacterLevel()
 {
 	return Level;
 }

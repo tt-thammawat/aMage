@@ -6,6 +6,7 @@
 #include "Engine/AssetManager.h"
 #include "MainAssetManager.generated.h"
 
+struct FUnistrokeRecognizer;
 /**
  * 
  */
@@ -17,5 +18,16 @@ public:
 	static UMainAssetManager& Get();
 protected:
 	virtual void StartInitialLoading() override;
+	virtual void PostInitialAssetScan() override;
+	// Initialize the recognizer system
+	void InitializeRecognizerSystem();
+	void OnStokeDataTableLoaded();
+
+private:
+	TSoftObjectPtr<UDataTable> UnistrokeTemplatesTable;
+	TSharedPtr<FUnistrokeRecognizer> Recognizer;
+
+public:
+	TSharedPtr<FUnistrokeRecognizer> GetRecognizer() const;
 	
 };

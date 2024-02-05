@@ -29,7 +29,7 @@ public:
 	virtual void OnRep_PlayerState() override;
 
 	//CombatInterface
-	FORCEINLINE virtual  int32 GetPlayerLevel() override;
+	FORCEINLINE virtual  int32 GetCharacterLevel() override;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:

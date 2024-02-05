@@ -4,6 +4,7 @@
 #include "UI/HUD/MainPlayerHUD.h"
 
 #include "Blueprint/UserWidget.h"
+#include "DrawMagic/Draw_PaintWidget.h"
 #include "UI/Widget/MainPlayerWidget.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 
@@ -23,6 +24,16 @@ void AMainPlayerHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbili
 	WidgetController->BroadcastInitialValue();
 	Widget->AddToViewport();
 
+}
+
+void AMainPlayerHUD::InitDrawingWidget()
+{
+	PaintWidget = CreateWidget<UDraw_PaintWidget>(GetWorld(), PaintWidgetClass);
+	if (PaintWidget != nullptr)
+	{
+		PaintWidget->AddToViewport();
+		PaintWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
 }
 
 UOverlayWidgetController* AMainPlayerHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)

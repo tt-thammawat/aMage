@@ -5,7 +5,7 @@
 
 
 // Add default functionality here for any IICombatInterface functions that are not pure virtual.
-int32 IICombatInterface::GetPlayerLevel()
+int32 IICombatInterface::GetCharacterLevel()
 {
 	return 0;
 }
@@ -14,3 +14,4 @@ FVector IICombatInterface::GetCombatSocketLocation()
 {
 	return FVector();
 }
+

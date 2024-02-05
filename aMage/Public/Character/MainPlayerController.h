@@ -3,10 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrawMagic/Draw_PaintWidget.h"
-#include "DrawMagic/UnistrokeRecognizer.h"
 #include "Interact/TargetInterface.h"
 #include "GameFramework/PlayerController.h"
+#include "Interact/CastingInterface.h"
 #include "MainPlayerController.generated.h"
 
 class UMainInputAction;
@@ -22,8 +21,9 @@ class ITargetInterface;
 struct FInputActionValue;
 class UInputMappingContext;
 class UInputAction;
+
 UCLASS()
-class AMAGE_API AMainPlayerController : public APlayerController
+class AMAGE_API AMainPlayerController : public APlayerController,public ICastingInterface
 {
 	GENERATED_BODY()
 public:
@@ -43,7 +43,6 @@ protected:
 	void CastButtonPressed(const FInputActionValue& Value);
 	void JumpButtonPressed();
 	void JumpingRelease();
-	void FireButtonPressed(const FInputActionValue& Value);
 
 	//TODO:: Change It For Widget
 	//void CursorTrace();
@@ -71,7 +70,6 @@ private:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> CrouchAction;
-
 	
 	
 	//Activate Abilities
@@ -86,27 +84,18 @@ private:
 	ITargetInterface* LastActor;
 	ITargetInterface* ThisActor;
 	
-	//LineTrace
-	void TraceUnderCrossHair(FHitResult& TraceHitResult);
-
-	
 	/*************************************************************************************************************/
 	//DRAW FUNCTION IS HERE!
 
 private:
-	void StartDrawing(float DeltaTime);
-	void LoadTemplates();
-	void Spell();
-private:
-	//RightCLick
-	bool bIsCastSpell;
-	//LeftCLick
-	bool bIsDrawing;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = Draw , meta=(AllowPrivateAccess=true))
-	TSoftObjectPtr<UDataTable> UnistrokeTable;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = Draw , meta=(AllowPrivateAccess=true))
-	TObjectPtr<UDraw_PaintWidget> PaintWidget;
-	TSharedPtr<FUnistrokeRecognizer> Recognizer;
+	bool bIsDrawingSpell;
+	
+	UFUNCTION()
+	void SetIsCastingDrawingWidget_Implementation(bool bIsDrawing) override;
+
+public:
+	FORCEINLINE bool GetIsDrawingSpell() const {return bIsDrawingSpell;};
+
 };
 
 

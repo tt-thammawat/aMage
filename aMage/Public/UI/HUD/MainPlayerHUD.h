@@ -23,10 +23,13 @@ public:
 	UFUNCTION()
 	UOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams); 
 	
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<UMainPlayerWidget> OverlayWidget;
-
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TObjectPtr<UUserWidget> PaintWidget;
+	
 	void InitOverlay(APlayerController* PC,APlayerState* PS,UAbilitySystemComponent* ASC,UAttributeSet* AS);
+	void InitDrawingWidget();
 protected:
 	
 private:
@@ -36,4 +39,11 @@ private:
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
 	UPROPERTY()
 	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
+
+	//DrawingWidget
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> PaintWidgetClass;
+
+
+
 };

@@ -14,7 +14,7 @@ class UICombatInterface : public UInterface
 };
 
 /**
- * 
+ *  
  */
 class AMAGE_API IICombatInterface
 {
@@ -22,10 +22,10 @@ class AMAGE_API IICombatInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual int32 GetPlayerLevel();
+	virtual int32 GetCharacterLevel();
 	virtual FVector GetCombatSocketLocation();
 	
-	// Declare the function as a BlueprintImplementableEvent //FAcing Enemy TODO:May REmove Or Add
+	// Declare the function as a BlueprintImplementableEvent //FAcing Enemy TODO:May Remove Or Add
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Targeting")
 	void UpdateFacingTarget(const FVector& TargetVector);
 };

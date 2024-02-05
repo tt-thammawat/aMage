@@ -38,5 +38,5 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetPlayerStateAttributeSet() const {return AttributeSet;};
 
-	int32 GetPlayerLevel() const{return Level;};
+	int32 GetCharacterLevel() const{return Level;};
 };

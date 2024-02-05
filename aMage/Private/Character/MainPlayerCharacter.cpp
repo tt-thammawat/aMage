@@ -37,11 +37,11 @@ void AMainPlayerCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
-int32 AMainPlayerCharacter::GetPlayerLevel()
+int32 AMainPlayerCharacter::GetCharacterLevel()
 {
 	const AMainPlayerState* MainPlayerState = GetPlayerState<AMainPlayerState>();
 	check(MainPlayerState);
-	return MainPlayerState->GetPlayerLevel();
+	return MainPlayerState->GetCharacterLevel();
 }
 
 void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -80,7 +80,8 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 		AMainPlayerHUD* MainHUD = Cast<AMainPlayerHUD>(PlayerController->GetHUD());
 		if (MainHUD)
 		{
-		 MainHUD->InitOverlay(PlayerController, MainPlayerState, AbilitySystemComponent, AttributeSet);
+			MainHUD->InitOverlay(PlayerController, MainPlayerState, AbilitySystemComponent, AttributeSet);
+			MainHUD->InitDrawingWidget();
 		}
 	}
 }
@@ -100,6 +101,7 @@ void AMainPlayerCharacter::InteractWithItem(AActor* InteractActor)
 	}
 }
 
+//TODO: Move This InteractShit to the GameplayAbilities Action 
 void AMainPlayerCharacter::InteractItemButtonPress()
 {
 	if(InteractObjectActor && InteractObjectActor->IsA<APickUpEffectActor>())
