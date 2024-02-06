@@ -81,7 +81,7 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 		if (MainHUD)
 		{
 			MainHUD->InitOverlay(PlayerController, MainPlayerState, AbilitySystemComponent, AttributeSet);
-			MainHUD->InitDrawingWidget();
+			MainHUD->InitDrawingWidget(PlayerController);
 		}
 	}
 }

@@ -4,7 +4,7 @@
 #include "UI/HUD/MainPlayerHUD.h"
 
 #include "Blueprint/UserWidget.h"
-#include "DrawMagic/Draw_PaintWidget.h"
+#include "UI/Widget/MainPaintWidget.h"
 #include "UI/Widget/MainPlayerWidget.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 
@@ -26,13 +26,14 @@ void AMainPlayerHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbili
 
 }
 
-void AMainPlayerHUD::InitDrawingWidget()
+void AMainPlayerHUD::InitDrawingWidget(APlayerController* PC)
 {
-	PaintWidget = CreateWidget<UDraw_PaintWidget>(GetWorld(), PaintWidgetClass);
+	PaintWidget = CreateWidget<UMainPaintWidget>(GetWorld(), PaintWidgetClass);
 	if (PaintWidget != nullptr)
 	{
+		PaintWidget->SetUpMainPlayerController(PC);
 		PaintWidget->AddToViewport();
-		PaintWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		PaintWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 

@@ -70,7 +70,9 @@ private:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> CrouchAction;
-	
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> ClickAction;
 	
 	//Activate Abilities
 	void AbilityInputTagPressed(const FGameplayTag InputTag);
@@ -89,7 +91,6 @@ private:
 
 private:
 	bool bIsDrawingSpell;
-	
 	UFUNCTION()
 	void SetIsCastingDrawingWidget_Implementation(bool bIsDrawing) override;
 

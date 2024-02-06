@@ -15,11 +15,18 @@ class AMAGE_API UMainPaintWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual void NativeConstruct() override;
+	void SetUpMainPlayerController(APlayerController* PlayerController);
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	UFUNCTION(BlueprintCallable)
+	void SetIsStartFocus(bool bStartFocus) { bIsStartFocus = bStartFocus;};
 private:
+	
 	void CheckDrawSpell();
-	void StartDrawing();
-	void SetUpMainPlayerController();
+	bool bIsStartFocus=false;
+	bool bIsDrawing=false;
 	UPROPERTY()
 	TObjectPtr<AMainPlayerController> MainPlayerController;
 
@@ -30,10 +37,11 @@ protected:
 	virtual int32 NativePaint(const FPaintArgs &Args, const FGeometry &AllottedGeometry, const FSlateRect &MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle &InWidgetStyle, bool bParentEnabled) const override;
 
 public:
-	TArray<FVector2D> GetPoints();
 	void AddPoint(const FVector2D &Point);
 	void RemoveAllPoints();
 
 private:
+	//Line Visual
+	TArray<TArray<FVector2D>> LineSegments;
 	TArray<FVector2D> Points;
 };
