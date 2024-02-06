@@ -43,7 +43,6 @@ void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputT
 				AbilitySpecInputPressed(AbilitySpec);
 				if(!AbilitySpec.IsActive())
 				{
-
 					//TryActivate Abilities may fail if logic failed
 					TryActivateAbility(AbilitySpec.Handle);
 				}
