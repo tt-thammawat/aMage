@@ -3,16 +3,12 @@
 
 #include "Character/MainPlayerCharacter.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
-#include "AbilitySystem/Spell/Projectile.h"
 #include "Actor/PickUpEffectActor.h"
-#include "Engine/SkeletalMeshSocket.h"
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
-#include "Character/PlayerAnimInstance.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
 
 AMainPlayerCharacter::AMainPlayerCharacter()
 {
@@ -24,17 +20,15 @@ AMainPlayerCharacter::AMainPlayerCharacter()
 	//Turn To That Movement
 	GetCharacterMovement()->bOrientRotationToMovement =true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f,400.f,0.f);
-
-	//Initialize Weapon
-	Weapon=CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
-	Weapon->SetupAttachment(GetMesh(),FName("WeaponHandSocket"));
-	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 }
 
 void AMainPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	InitAbilityActorInfo();
+	AddCharacterAbilities();
+
 }
 
 void AMainPlayerCharacter::OnRep_PlayerState()
@@ -43,12 +37,18 @@ void AMainPlayerCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
+int32 AMainPlayerCharacter::GetCharacterLevel()
+{
+	const AMainPlayerState* MainPlayerState = GetPlayerState<AMainPlayerState>();
+	check(MainPlayerState);
+	return MainPlayerState->GetCharacterLevel();
+}
+
 void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AMainPlayerCharacter,ItemData);
 	DOREPLIFETIME(AMainPlayerCharacter,InteractObjectActor);
-	DOREPLIFETIME(AMainPlayerCharacter,bFireButtonPressed);
 }
 
 void AMainPlayerCharacter::BeginPlay()
@@ -67,6 +67,8 @@ void AMainPlayerCharacter::InitAbilityActorInfo()
 	AttributeSet = MainPlayerState->GetPlayerStateAttributeSet();
 	
 	TrySetupHUD(MainPlayerState);
+	InitDefaultAttributes();
+
 }
 
 void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
@@ -75,11 +77,11 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 	if (PlayerController)
 	{
 		PlayerController->InteractButtonPressedSignature.BindUObject(this,&ThisClass::InteractItemButtonPress);
-		PlayerController->FireButtonPressedSignature.BindUObject(this,&ThisClass::FirePressed);
 		AMainPlayerHUD* MainHUD = Cast<AMainPlayerHUD>(PlayerController->GetHUD());
 		if (MainHUD)
 		{
-		 MainHUD->InitOverlay(PlayerController, MainPlayerState, AbilitySystemComponent, AttributeSet);
+			MainHUD->InitOverlay(PlayerController, MainPlayerState, AbilitySystemComponent, AttributeSet);
+			MainHUD->InitDrawingWidget(PlayerController);
 		}
 	}
 }
@@ -99,6 +101,7 @@ void AMainPlayerCharacter::InteractWithItem(AActor* InteractActor)
 	}
 }
 
+//TODO: Move This InteractShit to the GameplayAbilities Action 
 void AMainPlayerCharacter::InteractItemButtonPress()
 {
 	if(InteractObjectActor && InteractObjectActor->IsA<APickUpEffectActor>())
@@ -107,104 +110,6 @@ void AMainPlayerCharacter::InteractItemButtonPress()
 	}
 }
 
-void AMainPlayerCharacter::FirePressed(bool bPressed)
-{
-	if(!AbilitySystemComponent->HasMatchingGameplayTag
-	(FGameplayTag::RequestGameplayTag(FName("Item.Equip.Staff")))) return;
-	
-	bFireButtonPressed = bPressed;
-	if(bFireButtonPressed)
-	{
-		FHitResult HitResult;
-		TraceUnderCrossHairs(HitResult);
-		ServerFire(HitResult.ImpactPoint);
-	}
-}
-
-void AMainPlayerCharacter::TraceUnderCrossHairs(FHitResult& TraceHitResult)
-{
-	FVector2D ViewPortSize;
-	if(GEngine && GEngine->GameViewport)
-	{
-		GEngine->GameViewport->GetViewportSize(ViewPortSize);
-	}
-	//Center Of The Viewport Vector
-	const FVector2D CrossHairLocation(ViewPortSize.X/2,ViewPortSize.Y/2);
-	FVector CrossHairWorldPosition;
-	FVector CrossHairWorldDirection;
-	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
-	//Get PlayerController
-	UGameplayStatics::GetPlayerController(this,0),
-	CrossHairLocation,
-	CrossHairWorldPosition,
-	CrossHairWorldDirection
-	);
-
-	APawn* MyPawn = Cast<APawn>(GetOwner());
-	FCollisionQueryParams TraceParams(FName(TEXT("")), false, MyPawn);
-	if(bScreenToWorld)
-	{
-		//LineTrace
-		//Center Of The Screen
-		const FVector Start = CrossHairWorldPosition;
-		//Start + Direction + 80000
-		const FVector End = Start + CrossHairWorldDirection * 80000.f;
-
-		GetWorld()->LineTraceSingleByChannel(
-			TraceHitResult,
-			Start,
-			End,
-			ECC_Visibility,
-			TraceParams
-			);
-		
-		if(!TraceHitResult.bBlockingHit)
-		{
-			TraceHitResult.ImpactPoint = End;
-		}
-	}
-}
-
-void AMainPlayerCharacter::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
-{
-	MulticastFire(TraceHitTarget);
-}
-
-void AMainPlayerCharacter::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
-{
-	if(FireMontage)
-	{
-		PlayFireMontage();
-	}
-	FireSpell(TraceHitTarget);
-}
-
-void AMainPlayerCharacter::FireSpell(const FVector_NetQuantize& HitTarget)
-{
-	const USkeletalMeshSocket* StaffMeshSocket=  Weapon->GetSocketByName(FName("FireSocket"));
-	if(StaffMeshSocket)
-	{
-		FTransform SocketTransform = StaffMeshSocket->GetSocketTransform(GetWeaponMesh());
-		UWorld* World = GetWorld();
-		if(World)
-		{
-			World->SpawnActor<AProjectile>(
-				ProjectileClass,
-				SocketTransform.GetLocation(),
-				SocketTransform.GetRotation().Rotator()			
-			);
-		}
-	}
-}
-
-void AMainPlayerCharacter::PlayFireMontage()
-{
-	UPlayerAnimInstance* AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-	if(AnimInstance && FireMontage)
-	{
-		AnimInstance->Montage_Play(FireMontage);
-	}
-}
 
 void AMainPlayerCharacter::ServerEquipButtonPressed_Implementation()
 {
@@ -215,6 +120,7 @@ void AMainPlayerCharacter::ServerEquipButtonPressed_Implementation()
 	if(AbilitySystemComponent->HasMatchingGameplayTag(EquipedStaffTag)) return;
 			if(ItemData.ItemTag.MatchesTag(EquipedStaffTag))
 			{
+				Weapon->SetSkeletalMesh(ItemData.ItemMesh);
 				PickUpEffectActor->DestroyAfterPickUp(this);
 				OnRep_ItemDataChange();
 			}

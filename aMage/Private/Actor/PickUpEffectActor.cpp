@@ -35,7 +35,10 @@ void APickUpEffectActor::OnInteractWithActor(AActor* TargetActor)
 	if(TargetActor->HasAuthority())
 	{
 		IInteractInterface* InteractCharacter = Cast<IInteractInterface>(TargetActor);
-		InteractCharacter->InteractWithItem(this);
+		if(InteractCharacter)
+		{
+			InteractCharacter->InteractWithItem(this);
+		}
 	}
 }
 
@@ -44,7 +47,10 @@ void APickUpEffectActor::OnEndInteractWithActor(AActor* TargetActor)
 	if(TargetActor->HasAuthority())
 	{
 		IInteractInterface* InteractCharacter = Cast<IInteractInterface>(TargetActor);
-		InteractCharacter->InteractWithItem(nullptr);
+		if(InteractCharacter)
+		{
+			InteractCharacter->InteractWithItem(nullptr);
+		}
 	}
 }
 

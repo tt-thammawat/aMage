@@ -20,6 +20,12 @@ public:
 
 	//Set Effect Tag
 	FEffectAssetTags EffectAssetTags;
+
+	//Add Ability From Character
+	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartUpAbilities);
+	//Input Tags For Abilities
+	void AbilityInputTagHeld(const FGameplayTag& InputTag);
+	void AbilityInputTagReleased(const FGameplayTag& InputTag);
 	
 protected:
 	//Apply Effect For Delegate Function

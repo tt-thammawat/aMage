@@ -13,6 +13,7 @@ void UBaseWidgetController::SetWidgetControllerParam(const FWidgetControllerPara
 
 void UBaseWidgetController::BroadcastInitialValue()
 {
+	
 }
 
 void UBaseWidgetController::BindCallbacksToDependencies()

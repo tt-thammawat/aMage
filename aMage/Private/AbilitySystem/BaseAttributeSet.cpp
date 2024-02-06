@@ -5,14 +5,29 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameFramework/Character.h"
 #include "GameplayEffectExtension.h"
+#include "GameplayTagsSingleton.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 UBaseAttributeSet::UBaseAttributeSet()
 {
-	InitHealth(100.f);
-	InitMaxHealth(200.f);
-	InitMana(100.f);
-	InitMaxMana(200.f);
+	//Get Tag Singleton
+	const FMainGameplayTags& MainGameplayTags = FMainGameplayTags::Get();
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Primary_Strength, GetStrengthAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Primary_Intelligence, GetIntelligenceAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Primary_Resilience, GetResilienceAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Primary_Vigor, GetVigorAttribute);
+
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_FireRes, GetFireResAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_IceRes, GetIceResAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_ElectricRes, GetElectricResAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_MaxMana, GetMaxManaAttribute);
+
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Vital_Health, GetHealthAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Vital_Mana, GetManaAttribute);
+
+
 }
 
 void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -25,13 +40,17 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Intelligence,COND_None,REPNOTIFY_Always);
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Resilience,COND_None,REPNOTIFY_Always);
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Vigor,COND_None,REPNOTIFY_Always);
+		//Secondary Attribures
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,FireRes,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,IceRes,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,ElectricRes,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxHealth,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxMana,COND_None,REPNOTIFY_Always);
 
 		// Replicate Health Without Condition Update with REPNOTIFY Always
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Health,COND_None,REPNOTIFY_Always);
-		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxHealth,COND_None,REPNOTIFY_Always);
 		//MANA
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Mana,COND_None,REPNOTIFY_Always);
-		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxMana,COND_None,REPNOTIFY_Always);
 		
 
 	}
@@ -97,6 +116,8 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if(Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(),0.f,GetMaxHealth()));
+		FString Message = FString::Printf(TEXT("Changed Health On %s, Health %f"), *Props.TargetAvatarActor->GetName(), GetHealth());
+		UKismetSystemLibrary::PrintString(GetWorld(), Message, true, false, FLinearColor::Red, 3.0f);
 	}
 	if(Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
@@ -143,6 +164,22 @@ void UBaseAttributeSet::OnRep_Resilience(const FGameplayAttributeData& OldResili
 void UBaseAttributeSet::OnRep_Vigor(const FGameplayAttributeData& OldVigor) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,Vigor,OldVigor);
+}
+
+void UBaseAttributeSet::OnRep_FireRes(const FGameplayAttributeData& OldFireRes) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,FireRes,OldFireRes);
+}
+
+void UBaseAttributeSet::OnRep_IceRes(const FGameplayAttributeData& OldIceRes) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,IceRes,OldIceRes);
+}
+
+void UBaseAttributeSet::OnRep_ElectricRes(const FGameplayAttributeData& OldElectricRes) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,ElectricRes,OldElectricRes);
+
 }
 
 

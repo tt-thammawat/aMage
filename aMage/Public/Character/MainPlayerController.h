@@ -3,30 +3,32 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrawMagic/Draw_PaintWidget.h"
-#include "DrawMagic/UnistrokeRecognizer.h"
 #include "Interact/TargetInterface.h"
 #include "GameFramework/PlayerController.h"
+#include "Interact/CastingInterface.h"
 #include "MainPlayerController.generated.h"
 
+class UMainInputAction;
+class UBaseAbilitySystemComponent;
+struct FGameplayTag;
+class UMainInputConfig;
 class UCombatActorComponent;
 /**
  * 
  */
 DECLARE_DELEGATE(FOnInteractButtonPressedSignature);
-DECLARE_DELEGATE_OneParam(FOnFireButtonPressedSignature,bool);
 class ITargetInterface;
 struct FInputActionValue;
 class UInputMappingContext;
 class UInputAction;
+
 UCLASS()
-class AMAGE_API AMainPlayerController : public APlayerController
+class AMAGE_API AMainPlayerController : public APlayerController,public ICastingInterface
 {
 	GENERATED_BODY()
 public:
 	AMainPlayerController();
 	FOnInteractButtonPressedSignature InteractButtonPressedSignature;
-	FOnFireButtonPressedSignature FireButtonPressedSignature;
 protected:
 	
 	virtual void BeginPlay() override;
@@ -41,10 +43,9 @@ protected:
 	void CastButtonPressed(const FInputActionValue& Value);
 	void JumpButtonPressed();
 	void JumpingRelease();
-	void FireButtonPressed(const FInputActionValue& Value);
 
 	//TODO:: Change It For Widget
-	void CursorTrace();
+	//void CursorTrace();
 
 
 private:
@@ -53,50 +54,49 @@ private:
 	TObjectPtr<UInputMappingContext> MainInputContext;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> MoveInput;
+	TObjectPtr<UMainInputAction> MoveInput;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* JumpAction;
+	TObjectPtr<UMainInputAction> JumpAction;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* LookXAction;
+	TObjectPtr<UMainInputAction> LookXAction;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* LookYAction;
+	TObjectPtr<UMainInputAction> LookYAction;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* InteractButton;
+	TObjectPtr<UMainInputAction> InteractButton;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* CrouchAction;
+	TObjectPtr<UMainInputAction> CrouchAction;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* CastAction;
-
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	UInputAction* FireAction;
-
+	TObjectPtr<UMainInputAction> ClickAction;
 	
+	//Activate Abilities
+	void AbilityInputTagPressed(const FGameplayTag InputTag);
+	void AbilityInputTagReleased(const FGameplayTag InputTag);
+	void AbilityInputTagHeld(const FGameplayTag InputTag);
+
+	UPROPERTY()
+	TObjectPtr<UBaseAbilitySystemComponent> BaseAbilitySystemComponent;
+	UBaseAbilitySystemComponent* GetBaseAbilitySystemComponent();
+
 	ITargetInterface* LastActor;
 	ITargetInterface* ThisActor;
-
+	
 	/*************************************************************************************************************/
 	//DRAW FUNCTION IS HERE!
 
 private:
-	void StartDrawing(float DeltaTime);
-	void LoadTemplates();
-	void Spell();
-private:
-	//RightCLick
-	bool bIsCastSpell;
-	//LeftCLick
-	bool bIsDrawing;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = Draw , meta=(AllowPrivateAccess=true))
-	TSoftObjectPtr<UDataTable> UnistrokeTable;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = Draw , meta=(AllowPrivateAccess=true))
-	TObjectPtr<UDraw_PaintWidget> PaintWidget;
-	TSharedPtr<FUnistrokeRecognizer> Recognizer;
+	bool bIsDrawingSpell;
+	UFUNCTION()
+	void SetIsCastingDrawingWidget_Implementation(bool bIsDrawing) override;
+
+public:
+	FORCEINLINE bool GetIsDrawingSpell() const {return bIsDrawingSpell;};
+
 };
 
 

@@ -18,6 +18,7 @@ class AMAGE_API AMainPlayerState : public APlayerState,public IAbilitySystemInte
 	GENERATED_BODY()
 public:
 	AMainPlayerState();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
 	virtual void BeginPlay() override;
 	
@@ -26,9 +27,16 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
 	
+private:
+	UPROPERTY(ReplicatedUsing = OnRep_Level,VisibleAnywhere)
+	int32 Level = 1;
+	
+	UFUNCTION()
+	void OnRep_Level(int32 OldLevel);
+	
 public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetPlayerStateAttributeSet() const {return AttributeSet;};
 
-	
+	int32 GetCharacterLevel() const{return Level;};
 };

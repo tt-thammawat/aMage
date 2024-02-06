@@ -4,6 +4,7 @@
 #include "UI/HUD/MainPlayerHUD.h"
 
 #include "Blueprint/UserWidget.h"
+#include "UI/Widget/MainPaintWidget.h"
 #include "UI/Widget/MainPlayerWidget.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 
@@ -23,6 +24,17 @@ void AMainPlayerHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbili
 	WidgetController->BroadcastInitialValue();
 	Widget->AddToViewport();
 
+}
+
+void AMainPlayerHUD::InitDrawingWidget(APlayerController* PC)
+{
+	PaintWidget = CreateWidget<UMainPaintWidget>(GetWorld(), PaintWidgetClass);
+	if (PaintWidget != nullptr)
+	{
+		PaintWidget->SetUpMainPlayerController(PC);
+		PaintWidget->AddToViewport();
+		PaintWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 UOverlayWidgetController* AMainPlayerHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)

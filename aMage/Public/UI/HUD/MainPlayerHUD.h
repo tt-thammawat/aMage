@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "MainPlayerHUD.generated.h"
 
+class UMainPaintWidget;
 /**
  * 
  */
@@ -23,10 +24,13 @@ public:
 	UFUNCTION()
 	UOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams); 
 	
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<UMainPlayerWidget> OverlayWidget;
-
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TObjectPtr<UMainPaintWidget> PaintWidget;
+	
 	void InitOverlay(APlayerController* PC,APlayerState* PS,UAbilitySystemComponent* ASC,UAttributeSet* AS);
+	void InitDrawingWidget(APlayerController* PC);
 protected:
 	
 private:
@@ -36,4 +40,11 @@ private:
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
 	UPROPERTY()
 	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
+
+	//DrawingWidget
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UMainPaintWidget> PaintWidgetClass;
+
+
+
 };

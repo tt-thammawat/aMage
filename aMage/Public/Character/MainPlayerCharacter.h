@@ -27,6 +27,10 @@ public:
 	AMainPlayerCharacter();
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
+
+	//CombatInterface
+	FORCEINLINE virtual  int32 GetCharacterLevel() override;
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
 	virtual void BeginPlay() override;
@@ -35,10 +39,7 @@ protected:
 	virtual void InitAbilityActorInfo() override;
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
 
-	//Weapon
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Combat")
-	TObjectPtr<USkeletalMeshComponent> Weapon;
-	
+	//TODO : MAy Remove Below
 	//Replicated ItemData
 	UPROPERTY(ReplicatedUsing=OnRep_ItemDataChange,BlueprintReadOnly)
 	FItemData ItemData;
@@ -54,31 +55,11 @@ protected:
 	virtual void InteractItemButtonPress();
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
-	
-	//FireButtonPressed
-	UPROPERTY(Replicated)
-	bool bFireButtonPressed;
-	void FirePressed(bool bPressed);
-	void TraceUnderCrossHairs(FHitResult& TraceHitResult);
-	UFUNCTION(Server,Reliable)
-	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
-	UFUNCTION(NetMulticast,Reliable)
-	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
-	void FireSpell(const FVector_NetQuantize&  HitTarget);
-	UPROPERTY(EditAnywhere,Category = "FireSpell")
-	TSubclassOf<AProjectile> ProjectileClass;
-	
 
 public:
 	void SetInteractObjectActor(AActor* Actor) {InteractObjectActor = Actor;};
-	USkeletalMeshComponent* GetWeaponMesh() const {return Weapon;};
 
 
-//Montage For Animation
-public:
-	void PlayFireMontage();
-	UPROPERTY(EditAnywhere,Category = Montage)
-	TObjectPtr<UAnimMontage> FireMontage;
 
 	
 };
