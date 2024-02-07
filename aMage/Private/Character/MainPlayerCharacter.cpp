@@ -7,6 +7,8 @@
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
+#include "Components/AGR_InventoryManager.h"
+#include "Components/AGR_ItemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -20,6 +22,9 @@ AMainPlayerCharacter::AMainPlayerCharacter()
 	//Turn To That Movement
 	GetCharacterMovement()->bOrientRotationToMovement =true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f,400.f,0.f);
+
+	InventoryManager = CreateDefaultSubobject<UAGR_InventoryManager>("ItemManager");
+	EquipmentManager = CreateDefaultSubobject<UAGR_EquipmentManager>("EquipmentManager");
 	
 }
 
@@ -73,12 +78,10 @@ void AMainPlayerCharacter::InitAbilityActorInfo()
 
 void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 {
-	AMainPlayerController* PlayerController = Cast<AMainPlayerController>(GetController());
-	if (PlayerController)
+	if (AMainPlayerController* PlayerController = Cast<AMainPlayerController>(GetController()))
 	{
 		PlayerController->InteractButtonPressedSignature.BindUObject(this,&ThisClass::InteractItemButtonPress);
-		AMainPlayerHUD* MainHUD = Cast<AMainPlayerHUD>(PlayerController->GetHUD());
-		if (MainHUD)
+		if (AMainPlayerHUD* MainHUD = Cast<AMainPlayerHUD>(PlayerController->GetHUD()))
 		{
 			MainHUD->InitOverlay(PlayerController, MainPlayerState, AbilitySystemComponent, AttributeSet);
 			MainHUD->InitDrawingWidget(PlayerController);
@@ -86,10 +89,29 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 	}
 }
 
-//Don't ForGet To Set ItemData ChangeHere
-void AMainPlayerCharacter::OnRep_ItemDataChange()
+void AMainPlayerCharacter::AddItemAbilities() const
 {
-	Weapon->SetSkeletalMesh(ItemData.ItemMesh);
+	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
+
+	if(!HasAuthority()) return;
+//TODO : Change This To Equip Item Abilities
+//	BaseAbilitySystemComponent->AddCharacterAbilities(StartUpAbilities);
+}
+
+void AMainPlayerCharacter::RemoveItemAbilities() const
+{
+	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
+
+	if(!HasAuthority()) return;
+	//TODO : Change This To Equip Item Abilities
+	BaseAbilitySystemComponent->RemoveCharacterAbilities(StartUpAbilities);
+}
+
+
+//Don't ForGet To Set ItemData ChangeHere
+void AMainPlayerCharacter::OnRep_ItemDataChange() const
+{
+//	Weapon->SetSkeletalMesh(ItemData.ItemMesh);
 }
 
 //Interact Item Here
@@ -101,27 +123,35 @@ void AMainPlayerCharacter::InteractWithItem(AActor* InteractActor)
 	}
 }
 
-//TODO: Move This InteractShit to the GameplayAbilities Action 
 void AMainPlayerCharacter::InteractItemButtonPress()
 {
-	if(InteractObjectActor && InteractObjectActor->IsA<APickUpEffectActor>())
+	if(InteractObjectActor)
 	{
 		ServerEquipButtonPressed();
 	}
 }
 
-
+//TODO: Fix Item Data
 void AMainPlayerCharacter::ServerEquipButtonPressed_Implementation()
 {
-	APickUpEffectActor* PickUpEffectActor = Cast<APickUpEffectActor>(InteractObjectActor);
+	//Equip This in case of The Item have gameplay abilities , rune stone , potion
+	if(UAGR_ItemComponent* ItemComponent = InteractObjectActor->FindComponentByClass<UAGR_ItemComponent>())
+	{
+		ItemComponent->PickUpItem(InventoryManager);
+	}
+	// Cast some kind of buff when pick up it attach to ASC
+	else if(APickUpEffectActor* PickUpEffectActor = Cast<APickUpEffectActor>(InteractObjectActor))
+	{
 	//Check GamePlayTag
 	ItemData = PickUpEffectActor->GetItemData();
-	const FGameplayTag EquipedStaffTag = FGameplayTag::RequestGameplayTag(FName("Item.Equip.Staff"));
-	if(AbilitySystemComponent->HasMatchingGameplayTag(EquipedStaffTag)) return;
-			if(ItemData.ItemTag.MatchesTag(EquipedStaffTag))
+	const FGameplayTag EquippedStaffTag = FGameplayTag::RequestGameplayTag(FName("Item.Equip.Staff"));
+	if(AbilitySystemComponent->HasMatchingGameplayTag(EquippedStaffTag)) return;
+			if(ItemData.ItemTag.MatchesTag(EquippedStaffTag))
 			{
-				Weapon->SetSkeletalMesh(ItemData.ItemMesh);
+			//	Weapon->SetSkeletalMesh(ItemData.ItemMesh);
 				PickUpEffectActor->DestroyAfterPickUp(this);
 				OnRep_ItemDataChange();
 			}
+		
+	}
 }

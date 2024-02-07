@@ -21,14 +21,14 @@ void UMainPaintWidget::CheckDrawSpell()
 	const FUnistrokeResult Result = UMainAssetManager::Get().GetRecognizer()->Recognize(CurrentPoints, false);
 	
 	if (Result.Score < 0.8f)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "No Magic", true, FVector2D(2, 2));
-	else {
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Result.Name, true, FVector2D(2, 2));
-		RemoveAllPoints();
-		//TODO::Add Success Casting Condition Here  Here
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "No Magic", true, FVector2D(2, 2));
 		}
-	
-	
+	else
+		{
+			OnDrawingSpellSuccess.Broadcast(Result.Name);
+			RemoveAllPoints();
+		}
 }
 
 void UMainPaintWidget::SetUpMainPlayerController(APlayerController* PlayerController)
@@ -52,7 +52,7 @@ FReply UMainPaintWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FP
 {
 	if (bIsDrawing && MainPlayerController->GetIsDrawingSpell() && bIsStartFocus)
 	{
-		FVector2D LocalMousePosition = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+		const FVector2D LocalMousePosition = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
 		AddPoint(LocalMousePosition);
 		return FReply::Handled();
 

@@ -9,7 +9,8 @@
 #include "MainPlayerCharacter.generated.h"
 
 
-
+class UAGR_EquipmentManager;
+class UAGR_InventoryManager;
 class AProjectile;
 class AMainPlayerController;
 enum class ETurningInPlace : uint8;
@@ -39,18 +40,29 @@ protected:
 	virtual void InitAbilityActorInfo() override;
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
 
+	//Item Inventory+Equipping
+	void AddItemAbilities() const;
+	void RemoveItemAbilities() const;
 	//TODO : MAy Remove Below
 	//Replicated ItemData
 	UPROPERTY(ReplicatedUsing=OnRep_ItemDataChange,BlueprintReadOnly)
 	FItemData ItemData;
 	UFUNCTION()
-	void OnRep_ItemDataChange();
+	void OnRep_ItemDataChange() const;
+	//End ToDo
+
 	//Interact Interface
 	virtual void InteractWithItem(AActor* InteractActor) override;
 	//Object Reference
 	UPROPERTY(Replicated,BlueprintReadOnly)
 	TObjectPtr<AActor> InteractObjectActor;
-	//InteractButtonPress
+	//Inventory
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
+	TObjectPtr<UAGR_InventoryManager> InventoryManager;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
+	TObjectPtr<UAGR_EquipmentManager> EquipmentManager;
+	
+	//InteractButtonPress Delegate From PlayerController
 	UFUNCTION()
 	virtual void InteractItemButtonPress();
 	UFUNCTION(Server, Reliable)

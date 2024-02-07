@@ -12,10 +12,11 @@ void UBaseAbilitySystemComponent::AbilityActorInfoSet()
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this,&UBaseAbilitySystemComponent::ClientEffectApplied);
 }
 
-void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartUpAbilities)
+void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddAbilities)
 {
-	for (const TSubclassOf<UGameplayAbility> AbilityClass : StartUpAbilities)
+	for (const TSubclassOf<UGameplayAbility> AbilityClass : AddAbilities)
 	{
+		
 		// init FGameplayAbilitySpec Struct
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass,1);
 		//if Ability is derived from MainGameplayAbility it will have InputTag Button 1 23 4 LMB RMB
@@ -30,6 +31,21 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		}
 	}
 }
+
+void UBaseAbilitySystemComponent::RemoveCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities)
+{
+	for (const TSubclassOf<UGameplayAbility> AbilityClass : RemoveAbilities)
+	{
+        FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromClass(AbilityClass);
+		if(AbilitySpec)
+		{
+			// ItemAbility->StartupInputTag;
+			// AbilitySpec.DynamicAbilityTags.RemoveTag(ItemAbility->StartupInputTag);
+			ClearAbility(AbilitySpec->Handle);
+		}
+	}
+}
+
 
 void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
