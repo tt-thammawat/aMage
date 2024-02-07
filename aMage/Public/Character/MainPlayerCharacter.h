@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Character/BaseCharacter.h"
-#include "Interact/InteractInterface.h"
 #include "Inventory/ItemStruct.h"
 #include "MainPlayerCharacter.generated.h"
 
@@ -21,7 +20,7 @@ class AMainPlayerState;
  * 
  */
 UCLASS()
-class AMAGE_API AMainPlayerCharacter : public ABaseCharacter , public IInteractInterface
+class AMAGE_API AMainPlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 public:
@@ -39,7 +38,8 @@ protected:
 	//Init GAS
 	virtual void InitAbilityActorInfo() override;
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
-
+	
+	
 	//Item Inventory+Equipping
 	void AddItemAbilities() const;
 	void RemoveItemAbilities() const;
@@ -50,11 +50,9 @@ protected:
 	UFUNCTION()
 	void OnRep_ItemDataChange() const;
 	//End ToDo
-
-	//Interact Interface
-	virtual void InteractWithItem(AActor* InteractActor) override;
+	
 	//Object Reference
-	UPROPERTY(Replicated,BlueprintReadOnly)
+	UPROPERTY(Replicated,BlueprintReadOnly,Category=Interact)
 	TObjectPtr<AActor> InteractObjectActor;
 	//Inventory
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
@@ -66,11 +64,13 @@ protected:
 	UFUNCTION()
 	virtual void InteractItemButtonPress();
 	UFUNCTION(Server, Reliable)
-	void ServerEquipButtonPressed();
+	void ServerInteractButtonPressed();
 
 public:
-	void SetInteractObjectActor(AActor* Actor) {InteractObjectActor = Actor;};
-
+	UFUNCTION(BlueprintCallable,Category=Interact)
+	void SetInteractObjectActor(AActor* Actor);
+	UFUNCTION(BlueprintCallable,Category=Interact)
+	void ClearInteractObjectActor(AActor* Actor);
 
 
 	

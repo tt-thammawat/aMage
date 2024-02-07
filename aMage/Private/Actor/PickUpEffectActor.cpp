@@ -3,8 +3,8 @@
 
 #include "Actor/PickUpEffectActor.h"
 
-#include "Character/MainPlayerCharacter.h"
 #include "Components/WidgetComponent.h"
+#include "Interact/InteractInterface.h"
 
 
 APickUpEffectActor::APickUpEffectActor()
@@ -37,7 +37,7 @@ void APickUpEffectActor::OnInteractWithActor(AActor* TargetActor)
 		IInteractInterface* InteractCharacter = Cast<IInteractInterface>(TargetActor);
 		if(InteractCharacter)
 		{
-			InteractCharacter->InteractWithItem(this);
+			//InteractCharacter->InteractWithItem(this);
 		}
 	}
 }
@@ -49,7 +49,7 @@ void APickUpEffectActor::OnEndInteractWithActor(AActor* TargetActor)
 		IInteractInterface* InteractCharacter = Cast<IInteractInterface>(TargetActor);
 		if(InteractCharacter)
 		{
-			InteractCharacter->InteractWithItem(nullptr);
+		//	InteractCharacter->InteractWithItem(nullptr);
 		}
 	}
 }

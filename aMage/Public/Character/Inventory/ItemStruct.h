@@ -2,6 +2,7 @@
 #include "GameplayTagContainer.h"
 #include "ItemStruct.generated.h"
 
+class UGameplayAbility;
 //Will Fetch Texture2d And Detail From Singleton
 USTRUCT(BlueprintType)
 struct FItemIconDescription

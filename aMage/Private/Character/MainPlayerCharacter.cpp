@@ -11,6 +11,7 @@
 #include "Components/AGR_ItemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Interact/InteractInterface.h"
 
 AMainPlayerCharacter::AMainPlayerCharacter()
 {
@@ -114,12 +115,32 @@ void AMainPlayerCharacter::OnRep_ItemDataChange() const
 //	Weapon->SetSkeletalMesh(ItemData.ItemMesh);
 }
 
-//Interact Item Here
-void AMainPlayerCharacter::InteractWithItem(AActor* InteractActor)
+
+void AMainPlayerCharacter::SetInteractObjectActor(AActor* Actor)
 {
-	if(HasAuthority())
+	// Only set if there's no current interact object
+	if (!InteractObjectActor)
 	{
-		InteractObjectActor= InteractActor;
+		InteractObjectActor = Actor;
+		IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
+		if (InteractActor)
+		{
+			InteractActor->ShowInteractDetail();
+		}
+	}
+}
+
+void AMainPlayerCharacter::ClearInteractObjectActor(AActor* Actor)
+{
+	// Only clear if the leaving actor is the current interact object
+	if (InteractObjectActor == Actor)
+	{
+		IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
+		if (InteractActor)
+		{
+			InteractActor->HideInteractDetail();
+		}
+		InteractObjectActor = nullptr;
 	}
 }
 
@@ -127,12 +148,12 @@ void AMainPlayerCharacter::InteractItemButtonPress()
 {
 	if(InteractObjectActor)
 	{
-		ServerEquipButtonPressed();
+		ServerInteractButtonPressed();
 	}
 }
 
 //TODO: Fix Item Data
-void AMainPlayerCharacter::ServerEquipButtonPressed_Implementation()
+void AMainPlayerCharacter::ServerInteractButtonPressed_Implementation()
 {
 	//Equip This in case of The Item have gameplay abilities , rune stone , potion
 	if(UAGR_ItemComponent* ItemComponent = InteractObjectActor->FindComponentByClass<UAGR_ItemComponent>())

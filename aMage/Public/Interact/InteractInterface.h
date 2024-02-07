@@ -24,5 +24,8 @@ class AMAGE_API IInteractInterface
 public:
 	// Pure Virtual Function Need Other class Need To override
 	
-	virtual void InteractWithItem(AActor* InteractItem) = 0;
+	virtual void InteractWithItem() = 0;
+	virtual void ShowInteractDetail() = 0;
+	virtual void HideInteractDetail() = 0;
+
 };

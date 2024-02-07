@@ -43,10 +43,9 @@ protected:
 	void CastButtonPressed(const FInputActionValue& Value);
 	void JumpButtonPressed();
 	void JumpingRelease();
-
+	
 	//TODO:: Change It For Widget
 	//void CursorTrace();
-
 
 private:
 	
