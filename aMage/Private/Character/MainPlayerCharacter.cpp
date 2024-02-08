@@ -3,6 +3,7 @@
 
 #include "Character/MainPlayerCharacter.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
+#include "Actor/InteractActor/MainEquipmentInteractActor.h"
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
@@ -23,8 +24,9 @@ AMainPlayerCharacter::AMainPlayerCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement =true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f,400.f,0.f);
 
-	InventoryManager = CreateDefaultSubobject<UAGR_InventoryManager>("ItemManager");
 	EquipmentManager = CreateDefaultSubobject<UAGR_EquipmentManager>("EquipmentManager");
+	InventoryManager = CreateDefaultSubobject<UAGR_InventoryManager>("InventoryManager");
+
 	
 }
 
@@ -86,6 +88,15 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 			MainHUD->InitDrawingWidget(PlayerController);
 		}
 	}
+}
+
+FVector AMainPlayerCharacter::GetCombatSocketLocation()
+{
+	AActor* OutActor;
+	EquipmentManager->GetItemInSlot(FName("WeaponHandSocket"),OutActor);
+	AMainEquipmentInteractActor* EquipmentInteractActor = Cast<AMainEquipmentInteractActor>(OutActor);
+	FVector WeaponSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
+	return WeaponSocketLocation;
 }
 
 void AMainPlayerCharacter::AddItemAbilities() const

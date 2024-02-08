@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+#include "GameplayTagContainer.h"
 #include "BaseItemInfo.generated.h"
 
 
@@ -29,7 +29,7 @@ struct FBaseItemTypeInfo
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
 	FText ItemDescription;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	TObjectPtr<UStaticMesh> ItemMeshComponent;
+	TObjectPtr<UStaticMeshComponent> ItemMeshComponent;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
 	TSubclassOf<UGameplayAbility> ItemBaseAbilities;
 };

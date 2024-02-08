@@ -37,7 +37,10 @@ protected:
 	//Init GAS
 	virtual void InitAbilityActorInfo() override;
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
-	
+
+	UFUNCTION(BlueprintCallable,Category = Weapon)
+	virtual FVector GetCombatSocketLocation() override;
+
 	
 	//Item Inventory+Equipping
 	void AddItemAbilities() const;
