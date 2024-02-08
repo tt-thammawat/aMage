@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Character/BaseCharacter.h"
-#include "Inventory/ItemStruct.h"
 #include "MainPlayerCharacter.generated.h"
 
 
@@ -43,17 +42,12 @@ protected:
 	//Item Inventory+Equipping
 	void AddItemAbilities() const;
 	void RemoveItemAbilities() const;
-	//TODO : MAy Remove Below
-	//Replicated ItemData
-	UPROPERTY(ReplicatedUsing=OnRep_ItemDataChange,BlueprintReadOnly)
-	FItemData ItemData;
-	UFUNCTION()
-	void OnRep_ItemDataChange() const;
-	//End ToDo
 	
 	//Object Reference
-	UPROPERTY(Replicated,BlueprintReadOnly,Category=Interact)
+	UPROPERTY(ReplicatedUsing=OnRep_InteractObjectActor,BlueprintReadOnly,Category=Interact)
 	TObjectPtr<AActor> InteractObjectActor;
+	UFUNCTION()
+	void OnRep_InteractObjectActor(AActor* OldInteractObject);
 	//Inventory
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
 	TObjectPtr<UAGR_InventoryManager> InventoryManager;

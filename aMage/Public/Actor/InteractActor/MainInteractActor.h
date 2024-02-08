@@ -9,7 +9,6 @@
 
 class UWidgetComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActorOverlapSignature,AActor*,Actor);
 
 
 UCLASS()
@@ -23,18 +22,19 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	
+	
 	//InteractInterface
-	virtual void InteractWithItem() override;
+	virtual void InteractWithItem(AActor* Actor) override;
 	virtual void ShowInteractDetail() override;
 	virtual void HideInteractDetail() override;
-	
-	UPROPERTY(BlueprintAssignable,Category=Overlap)
-	FOnActorOverlapSignature OnActorOverlap;
+
 
 protected:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Item Widget")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Default")
 	TObjectPtr<UWidgetComponent> InteractWidget;
-
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Default")
+	TObjectPtr<USceneComponent> CustomRootComponent;
 public:	
 
 };

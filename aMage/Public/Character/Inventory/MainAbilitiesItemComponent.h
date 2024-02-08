@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ItemStruct.h"
 #include "Components/AGR_ItemComponent.h"
 #include "MainAbilitiesItemComponent.generated.h"
 
@@ -16,10 +15,10 @@ class AMAGE_API UMainAbilitiesItemComponent : public UAGR_ItemComponent
 {
 	GENERATED_BODY()
 protected:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated, Category="AGR|Base Info")
-	FItemData ItemData;
+//	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated, Category="AGR|Base Info")
+//	FItemData ItemData;
 
 	//TODO:Place Holder for Item Detail May Use Item Struct To Form The Item Rarities
 	// - Rarity 1-3 = RuneDrawing Icon , Descriptioption , 

@@ -8,9 +8,14 @@
 AMainInteractActor::AMainInteractActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	
+	CustomRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("CustomRootComponent"));
+	CustomRootComponent->SetupAttachment(RootComponent);
+	
 	InteractWidget = CreateDefaultSubobject<UWidgetComponent>("InteractWidget");
-	InteractWidget->SetupAttachment(RootComponent);
+	InteractWidget->SetupAttachment(CustomRootComponent);
 	InteractWidget->SetVisibility(false);
+	SetReplicates(true);
 }
 
 void AMainInteractActor::BeginPlay()
@@ -19,10 +24,11 @@ void AMainInteractActor::BeginPlay()
 	
 }
 
-void AMainInteractActor::InteractWithItem()
+void AMainInteractActor::InteractWithItem(AActor* Actor)
 {
 	
 }
+
 
 void AMainInteractActor::ShowInteractDetail()
 {
@@ -33,5 +39,3 @@ void AMainInteractActor::HideInteractDetail()
 {
 	InteractWidget->SetVisibility(false);
 }
-
-

@@ -70,3 +70,4 @@ const	FCharacterClassDefaultInfo ClassDefaultInfo = MainGameMode->CharacterClass
 	//---------------------------------------------------------------------------------------------------------------------------------//
 
 }
+

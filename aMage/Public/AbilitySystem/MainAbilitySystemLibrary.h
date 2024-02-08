@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MainAbilitySystemLibrary.generated.h"
 
+enum class ECharacterClass : uint8;
 class UAbilitySystemComponent;
 class UOverlayWidgetController;
 /**
@@ -25,4 +26,8 @@ public:
 	
 	//Get CharacterInfoData From GameMode
 	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|CharacterClassDefaults")
-	static void InitializeDefaultAttributes(const UObject* WorldContextObject,ECharacterClass CharacterClass,float Level,UAbilitySystemComponent* TargetASC);};
+	static void InitializeDefaultAttributes(const UObject* WorldContextObject,ECharacterClass CharacterClass,float Level,UAbilitySystemComponent* TargetASC);
+	
+
+};
+

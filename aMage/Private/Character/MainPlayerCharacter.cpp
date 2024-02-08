@@ -3,7 +3,6 @@
 
 #include "Character/MainPlayerCharacter.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
-#include "Actor/PickUpEffectActor.h"
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
@@ -53,8 +52,7 @@ int32 AMainPlayerCharacter::GetCharacterLevel()
 void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AMainPlayerCharacter,ItemData);
-	DOREPLIFETIME(AMainPlayerCharacter,InteractObjectActor);
+	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,InteractObjectActor,COND_OwnerOnly);
 }
 
 void AMainPlayerCharacter::BeginPlay()
@@ -109,23 +107,46 @@ void AMainPlayerCharacter::RemoveItemAbilities() const
 }
 
 
-//Don't ForGet To Set ItemData ChangeHere
-void AMainPlayerCharacter::OnRep_ItemDataChange() const
-{
-//	Weapon->SetSkeletalMesh(ItemData.ItemMesh);
-}
-
-
 void AMainPlayerCharacter::SetInteractObjectActor(AActor* Actor)
 {
+
 	// Only set if there's no current interact object
 	if (!InteractObjectActor)
 	{
 		InteractObjectActor = Actor;
+		if(HasAuthority() && IsLocallyControlled())
+		{
+			IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
+			if (InteractActor)
+			{
+				InteractActor->ShowInteractDetail();
+			}
+		}
+	}
+}
+
+void AMainPlayerCharacter::OnRep_InteractObjectActor(AActor* OldInteractObject)
+{
+	if(InteractObjectActor != OldInteractObject)
+	{
 		IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
 		if (InteractActor)
 		{
 			InteractActor->ShowInteractDetail();
+		}
+		
+		IInteractInterface* OldInteractActor = Cast<IInteractInterface>(OldInteractObject);
+		if (OldInteractActor)
+		{
+			OldInteractActor->HideInteractDetail();
+		}
+	}
+	else if (InteractObjectActor == nullptr)
+	{
+		IInteractInterface* OldInteractActor = Cast<IInteractInterface>(OldInteractObject);
+		if (OldInteractActor)
+		{
+			OldInteractActor->HideInteractDetail();
 		}
 	}
 }
@@ -135,10 +156,13 @@ void AMainPlayerCharacter::ClearInteractObjectActor(AActor* Actor)
 	// Only clear if the leaving actor is the current interact object
 	if (InteractObjectActor == Actor)
 	{
-		IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
-		if (InteractActor)
+		if(HasAuthority() && IsLocallyControlled())
 		{
-			InteractActor->HideInteractDetail();
+			IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
+			if (InteractActor)
+			{
+				InteractActor->HideInteractDetail();
+			}
 		}
 		InteractObjectActor = nullptr;
 	}
@@ -152,27 +176,37 @@ void AMainPlayerCharacter::InteractItemButtonPress()
 	}
 }
 
+
+
 //TODO: Fix Item Data
 void AMainPlayerCharacter::ServerInteractButtonPressed_Implementation()
 {
-	//Equip This in case of The Item have gameplay abilities , rune stone , potion
-	if(UAGR_ItemComponent* ItemComponent = InteractObjectActor->FindComponentByClass<UAGR_ItemComponent>())
+	IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
+	if (InteractActor)
 	{
-		ItemComponent->PickUpItem(InventoryManager);
+		InteractActor->InteractWithItem(this);
 	}
-	// Cast some kind of buff when pick up it attach to ASC
-	else if(APickUpEffectActor* PickUpEffectActor = Cast<APickUpEffectActor>(InteractObjectActor))
-	{
-	//Check GamePlayTag
-	ItemData = PickUpEffectActor->GetItemData();
-	const FGameplayTag EquippedStaffTag = FGameplayTag::RequestGameplayTag(FName("Item.Equip.Staff"));
-	if(AbilitySystemComponent->HasMatchingGameplayTag(EquippedStaffTag)) return;
-			if(ItemData.ItemTag.MatchesTag(EquippedStaffTag))
-			{
-			//	Weapon->SetSkeletalMesh(ItemData.ItemMesh);
-				PickUpEffectActor->DestroyAfterPickUp(this);
-				OnRep_ItemDataChange();
-			}
-		
-	}
+
 }
+
+// //Equip This if That Item have AGR_ItemComponent
+// if(UAGR_ItemComponent* ItemComponent = InteractObjectActor->FindComponentByClass<UAGR_ItemComponent>())
+// {
+// 	ItemComponent->PickUpItem(InventoryManager);
+// }
+//
+// // Cast some kind of buff when pick up it attach to ASC
+// else if(APickUpEffectActor* PickUpEffectActor = Cast<APickUpEffectActor>(InteractObjectActor))
+// {
+// //Check GamePlayTag
+// ItemData = PickUpEffectActor->GetItemData();
+// const FGameplayTag EquippedStaffTag = FGameplayTag::RequestGameplayTag(FName("Item.Equip.Staff"));
+// if(AbilitySystemComponent->HasMatchingGameplayTag(EquippedStaffTag)) return;
+// 		if(ItemData.ItemTag.MatchesTag(EquippedStaffTag))
+// 		{
+// 		//	Weapon->SetSkeletalMesh(ItemData.ItemMesh);
+// 			PickUpEffectActor->DestroyAfterPickUp(this);
+// 			OnRep_ItemDataChange();
+// 		}
+// 	
+// }
