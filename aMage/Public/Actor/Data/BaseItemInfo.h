@@ -3,6 +3,8 @@
 #include "BaseItemInfo.generated.h"
 
 
+class UGameplayAbility;
+
 UENUM(BlueprintType)
 enum class EItemRarity : uint8
 {
@@ -13,7 +15,6 @@ enum class EItemRarity : uint8
 	Legendary UMETA(DisplayName = "Legendary"),
 	Max UMETA(Hidden)
 };
-
 
 USTRUCT(BlueprintType)
 struct FBaseItemTypeInfo
@@ -29,8 +30,15 @@ struct FBaseItemTypeInfo
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
 	FText ItemDescription;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	TObjectPtr<UStaticMeshComponent> ItemMeshComponent;
+	TObjectPtr<UStaticMesh> ItemMeshComponent;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
 	TSubclassOf<UGameplayAbility> ItemBaseAbilities;
 };
 
+USTRUCT(BlueprintType)
+struct FBaseItemTypeInfoList
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	TArray<FBaseItemTypeInfo> ItemInfo;
+};

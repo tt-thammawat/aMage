@@ -94,8 +94,8 @@ FVector AMainPlayerCharacter::GetCombatSocketLocation()
 {
 	AActor* OutActor;
 	EquipmentManager->GetItemInSlot(FName("WeaponHandSocket"),OutActor);
-	AMainEquipmentInteractActor* EquipmentInteractActor = Cast<AMainEquipmentInteractActor>(OutActor);
-	FVector WeaponSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
+	const AMainEquipmentInteractActor* EquipmentInteractActor = Cast<AMainEquipmentInteractActor>(OutActor);
+	const FVector WeaponSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
 	return WeaponSocketLocation;
 }
 
@@ -127,8 +127,7 @@ void AMainPlayerCharacter::SetInteractObjectActor(AActor* Actor)
 		InteractObjectActor = Actor;
 		if(HasAuthority() && IsLocallyControlled())
 		{
-			IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
-			if (InteractActor)
+			if (IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor))
 			{
 				InteractActor->ShowInteractDetail();
 			}
@@ -140,22 +139,20 @@ void AMainPlayerCharacter::OnRep_InteractObjectActor(AActor* OldInteractObject)
 {
 	if(InteractObjectActor != OldInteractObject)
 	{
-		IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
-		if (InteractActor)
+		
+		if (IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor))
 		{
 			InteractActor->ShowInteractDetail();
 		}
 		
-		IInteractInterface* OldInteractActor = Cast<IInteractInterface>(OldInteractObject);
-		if (OldInteractActor)
+		if (IInteractInterface* OldInteractActor = Cast<IInteractInterface>(OldInteractObject))
 		{
 			OldInteractActor->HideInteractDetail();
 		}
 	}
 	else if (InteractObjectActor == nullptr)
 	{
-		IInteractInterface* OldInteractActor = Cast<IInteractInterface>(OldInteractObject);
-		if (OldInteractActor)
+		if (IInteractInterface* OldInteractActor = Cast<IInteractInterface>(OldInteractObject))
 		{
 			OldInteractActor->HideInteractDetail();
 		}
@@ -169,8 +166,7 @@ void AMainPlayerCharacter::ClearInteractObjectActor(AActor* Actor)
 	{
 		if(HasAuthority() && IsLocallyControlled())
 		{
-			IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
-			if (InteractActor)
+			if (IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor))
 			{
 				InteractActor->HideInteractDetail();
 			}
@@ -187,17 +183,13 @@ void AMainPlayerCharacter::InteractItemButtonPress()
 	}
 }
 
-
-
 //TODO: Fix Item Data
 void AMainPlayerCharacter::ServerInteractButtonPressed_Implementation()
 {
-	IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor);
-	if (InteractActor)
+	if (IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor))
 	{
 		InteractActor->InteractWithItem(this);
 	}
-
 }
 
 // //Equip This if That Item have AGR_ItemComponent

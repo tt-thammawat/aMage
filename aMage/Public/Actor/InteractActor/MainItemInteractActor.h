@@ -16,11 +16,6 @@ class AMAGE_API AMainItemInteractActor : public AMainInteractActor
 	GENERATED_BODY()
 public:
 	AMainItemInteractActor();
-protected:
-	virtual void InteractWithItem(AActor* Actor) override;
-
-	UFUNCTION(BlueprintImplementableEvent,Category=Interact)
-	void GetInteractActor(AActor* Actor);
 
 private:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Item,meta=(AllowPrivateAccess=true))

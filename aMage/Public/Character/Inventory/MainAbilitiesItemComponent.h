@@ -15,14 +15,15 @@ class AMAGE_API UMainAbilitiesItemComponent : public UAGR_ItemComponent
 {
 	GENERATED_BODY()
 protected:
-	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 public:
-//	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated, Category="AGR|Base Info")
-//	FItemData ItemData;
-
-	//TODO:Place Holder for Item Detail May Use Item Struct To Form The Item Rarities
-	// - Rarity 1-3 = RuneDrawing Icon , Descriptioption , 
-	//UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Item Details")
+	//Initial Item Base
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated, SaveGame, Category="AGR|Base Info")
+	TObjectPtr<UTexture2D> ItemIcon;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated, SaveGame, Category="AGR|Base Info")
+	FText ItemDescription;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated, SaveGame, Category="AGR|Base Info")
+	TSubclassOf<UGameplayAbility> ItemBaseAbility;
 	
 	
 };

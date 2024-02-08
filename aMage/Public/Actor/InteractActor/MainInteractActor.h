@@ -28,9 +28,12 @@ protected:
 	virtual void InteractWithItem(AActor* Actor) override;
 	virtual void ShowInteractDetail() override;
 	virtual void HideInteractDetail() override;
-
+	
 
 protected:
+	UFUNCTION(BlueprintImplementableEvent,Category=Interact)
+	void GetInteractActor(AActor* Actor);
+	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Default")
 	TObjectPtr<UWidgetComponent> InteractWidget;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Default")

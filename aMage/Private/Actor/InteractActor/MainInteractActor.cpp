@@ -26,7 +26,7 @@ void AMainInteractActor::BeginPlay()
 
 void AMainInteractActor::InteractWithItem(AActor* Actor)
 {
-	
+	GetInteractActor(Actor);
 }
 
 

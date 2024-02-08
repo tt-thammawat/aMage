@@ -9,8 +9,3 @@ AMainItemInteractActor::AMainItemInteractActor()
 	AbilitiesItemComponent = CreateDefaultSubobject<UMainAbilitiesItemComponent>("AbilitiesItemComponent");
 	
 }
-
-void AMainItemInteractActor::InteractWithItem(AActor* Actor)
-{
-	GetInteractActor(Actor);
-}

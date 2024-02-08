@@ -11,6 +11,7 @@ class UGameplayAbility;
 /**
  * 
  */
+
 UENUM(BlueprintType)
 enum class ERuneType : uint8
 {
@@ -21,6 +22,40 @@ enum class ERuneType : uint8
 
 };
 
+USTRUCT(BlueprintType)
+struct FCastingMatchingInfo
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	FName CastingMatchingName;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	bool bIsUnlockCastingAbility=false;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	TObjectPtr<UTexture2D> CastingAbilityIcon;
+};
+
+USTRUCT(BlueprintType)
+struct FRuneCastingAbilities
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	TArray<FCastingMatchingInfo> MatchingInfos;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	FText CastingAbilitiesDescription;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	TSubclassOf<UGameplayAbility> CastingSpecialBaseAbilities;
+};
+
+USTRUCT(BlueprintType)
+struct FRuneCastingAbilitiesList
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	TArray<FRuneCastingAbilities> RuneCastingAbilitiesInfo;
+};
+
 UCLASS()
 class AMAGE_API UBaseRuneDataAsset : public UDataAsset
 {
@@ -28,10 +63,22 @@ class AMAGE_API UBaseRuneDataAsset : public UDataAsset
 	
 public:
 
-	//TMap To Match Class And Attributes Struct
+	//Item Rarity
+	UFUNCTION(BlueprintCallable,Category ="Generate Rune")
+	EItemRarity GenerateItemRarity();
+	//Random Generate Base Rune Type
+	UFUNCTION(BlueprintCallable,Category ="Generate Rune")
+	ERuneType RandomBaseRuneType();
+	
+	//Base Left Click Ability
 	UPROPERTY(EditDefaultsOnly,Category = "Base Rune")
-	TMap<ERuneType,FBaseItemTypeInfo> BaseRuneTypeInformation;
+	TMap<ERuneType, FBaseItemTypeInfoList> BaseRuneTypeInformation;
 	UFUNCTION(BlueprintCallable,Category = "Base Rune")
 	FBaseItemTypeInfo GetClassDefaultInfo(ERuneType RuneType);
+	//Special Right Click Ability
+	UPROPERTY(EditDefaultsOnly,Category="Rune SpecialAbilities")
+	TMap<ERuneType,FRuneCastingAbilitiesList> BaseRuneAbilitiesInformation;
+	UFUNCTION(BlueprintCallable,Category="Rune SpecialAbilities")
+	FRuneCastingAbilities GetBaseRuneAbilitiesInfo(ERuneType RuneType);
 
 };
