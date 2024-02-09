@@ -15,4 +15,6 @@ class AMAGE_API UMainCastingGameplayAbility : public UMainGameplayAbility,public
 {
 	GENERATED_BODY()
 public:
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	FName MatchText;
 };

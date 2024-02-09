@@ -10,6 +10,7 @@ class AMainPlayerController;
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDrawingSpellSuccessSignature,FString,DrawingName);
 UCLASS()
 class AMAGE_API UMainPaintWidget : public UUserWidget
 {
@@ -20,6 +21,9 @@ public:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnDrawingSpellSuccessSignature OnDrawingSpellSuccess;
 	UFUNCTION(BlueprintCallable)
 	void SetIsStartFocus(bool bStartFocus) { bIsStartFocus = bStartFocus;};
 private:
@@ -38,6 +42,7 @@ protected:
 
 public:
 	void AddPoint(const FVector2D &Point);
+	UFUNCTION(BlueprintCallable,Category=Default)	
 	void RemoveAllPoints();
 
 private:

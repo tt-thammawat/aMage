@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Character/BaseCharacter.h"
-#include "Interact/InteractInterface.h"
-#include "Inventory/ItemStruct.h"
 #include "MainPlayerCharacter.generated.h"
 
 
-
+class UAGR_EquipmentManager;
+class UAGR_InventoryManager;
 class AProjectile;
 class AMainPlayerController;
 enum class ETurningInPlace : uint8;
@@ -20,7 +19,7 @@ class AMainPlayerState;
  * 
  */
 UCLASS()
-class AMAGE_API AMainPlayerCharacter : public ABaseCharacter , public IInteractInterface
+class AMAGE_API AMainPlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 public:
@@ -39,26 +38,36 @@ protected:
 	virtual void InitAbilityActorInfo() override;
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
 
-	//TODO : MAy Remove Below
-	//Replicated ItemData
-	UPROPERTY(ReplicatedUsing=OnRep_ItemDataChange,BlueprintReadOnly)
-	FItemData ItemData;
-	UFUNCTION()
-	void OnRep_ItemDataChange();
-	//Interact Interface
-	virtual void InteractWithItem(AActor* InteractActor) override;
+	UFUNCTION(BlueprintCallable,Category = Weapon)
+	virtual FVector GetCombatSocketLocation() override;
+
+	
+	//Item Inventory+Equipping
+	void AddItemAbilities() const;
+	void RemoveItemAbilities() const;
+	
 	//Object Reference
-	UPROPERTY(Replicated,BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing=OnRep_InteractObjectActor,BlueprintReadOnly,Category=Interact)
 	TObjectPtr<AActor> InteractObjectActor;
-	//InteractButtonPress
+	UFUNCTION()
+	void OnRep_InteractObjectActor(AActor* OldInteractObject);
+	//Inventory
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
+	TObjectPtr<UAGR_InventoryManager> InventoryManager;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
+	TObjectPtr<UAGR_EquipmentManager> EquipmentManager;
+	
+	//InteractButtonPress Delegate From PlayerController
 	UFUNCTION()
 	virtual void InteractItemButtonPress();
 	UFUNCTION(Server, Reliable)
-	void ServerEquipButtonPressed();
+	void ServerInteractButtonPressed();
 
 public:
-	void SetInteractObjectActor(AActor* Actor) {InteractObjectActor = Actor;};
-
+	UFUNCTION(BlueprintCallable,Category=Interact)
+	void SetInteractObjectActor(AActor* Actor);
+	UFUNCTION(BlueprintCallable,Category=Interact)
+	void ClearInteractObjectActor(AActor* Actor);
 
 
 	

@@ -24,7 +24,8 @@ class AMAGE_API IICombatInterface
 public:
 	virtual int32 GetCharacterLevel();
 	virtual FVector GetCombatSocketLocation();
-	
+
+	//TODO:Make These AutoLock
 	// Declare the function as a BlueprintImplementableEvent //FAcing Enemy TODO:May Remove Or Add
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Targeting")
 	void UpdateFacingTarget(const FVector& TargetVector);

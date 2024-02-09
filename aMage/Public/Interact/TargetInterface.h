@@ -21,6 +21,7 @@ class AMAGE_API ITargetInterface
 	GENERATED_BODY()
 
 public:
+	//TODO: MoveThese To InteractInterface
 	// Pure Virtual Function Need Other class Need To override
 	virtual void HighlightActor() = 0;
 	virtual void UnHighlightActor() = 0;
