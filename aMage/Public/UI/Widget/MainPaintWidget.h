@@ -42,6 +42,7 @@ protected:
 
 public:
 	void AddPoint(const FVector2D &Point);
+	UFUNCTION(BlueprintCallable,Category=Default)	
 	void RemoveAllPoints();
 
 private:
