@@ -71,3 +71,20 @@ const	FCharacterClassDefaultInfo ClassDefaultInfo = MainGameMode->CharacterClass
 
 }
 
+FString UMainAbilitySystemLibrary::GenerateUniqueKeyFromFName(FName Name)
+{
+	FString NameStr = Name.ToString();
+
+	FDateTime Now = FDateTime::UtcNow();
+
+	FGuid Guid = FGuid::NewGuid();
+	FString GuidStr = Guid.ToString();
+
+	// Combine the FName string, timestamp, and GUID to form a unique key
+	FString UniqueKey = FString::Printf(TEXT("%s_%s_%s"), *NameStr, *Now.ToString(), *GuidStr);
+	
+	return UniqueKey;
+
+
+}
+

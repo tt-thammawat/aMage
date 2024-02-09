@@ -7,7 +7,6 @@
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
-#include "Components/AGR_InventoryManager.h"
 #include "Components/AGR_ItemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -24,9 +23,7 @@ AMainPlayerCharacter::AMainPlayerCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement =true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f,400.f,0.f);
 
-	EquipmentManager = CreateDefaultSubobject<UAGR_EquipmentManager>("EquipmentManager");
-	InventoryManager = CreateDefaultSubobject<UAGR_InventoryManager>("InventoryManager");
-
+	PlayerEquipmentManager = CreateDefaultSubobject<UAGR_EquipmentManager>("PlayerEquipmentManager");
 	
 }
 
@@ -85,7 +82,6 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 		if (AMainPlayerHUD* MainHUD = Cast<AMainPlayerHUD>(PlayerController->GetHUD()))
 		{
 			MainHUD->InitOverlay(PlayerController, MainPlayerState, AbilitySystemComponent, AttributeSet);
-			MainHUD->InitDrawingWidget(PlayerController);
 		}
 	}
 }
@@ -93,28 +89,30 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 FVector AMainPlayerCharacter::GetCombatSocketLocation()
 {
 	AActor* OutActor;
-	EquipmentManager->GetItemInSlot(FName("WeaponHandSocket"),OutActor);
+	PlayerEquipmentManager->GetItemInSlot(FName("WeaponHandSocket"),OutActor);
 	const AMainEquipmentInteractActor* EquipmentInteractActor = Cast<AMainEquipmentInteractActor>(OutActor);
 	const FVector WeaponSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
 	return WeaponSocketLocation;
 }
 
-void AMainPlayerCharacter::AddItemAbilities() const
+void AMainPlayerCharacter::AddItemAbilities(TSubclassOf<UGameplayAbility>& AddItemAbility)
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
-
+	TArray<TSubclassOf<UGameplayAbility>> AddItemAbilities;
+	AddItemAbilities.Add(AddItemAbility);
+	
 	if(!HasAuthority()) return;
-//TODO : Change This To Equip Item Abilities
-//	BaseAbilitySystemComponent->AddCharacterAbilities(StartUpAbilities);
+	BaseAbilitySystemComponent->AddCharacterAbilities(AddItemAbilities);
 }
 
-void AMainPlayerCharacter::RemoveItemAbilities() const
+void AMainPlayerCharacter::RemoveItemAbilities(TSubclassOf<UGameplayAbility>& RemoveItemAbility)
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
-
+	TArray<TSubclassOf<UGameplayAbility>> RemoveItemAbilities;
+	RemoveItemAbilities.Add(RemoveItemAbility);
+	
 	if(!HasAuthority()) return;
-	//TODO : Change This To Equip Item Abilities
-	BaseAbilitySystemComponent->RemoveCharacterAbilities(StartUpAbilities);
+	BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveItemAbilities);
 }
 
 

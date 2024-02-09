@@ -43,19 +43,18 @@ protected:
 
 	
 	//Item Inventory+Equipping
-	void AddItemAbilities() const;
-	void RemoveItemAbilities() const;
+	UFUNCTION(BlueprintCallable,Category = Weapon)
+	void AddItemAbilities(TSubclassOf<UGameplayAbility>& AddItemAbility);
+	UFUNCTION(BlueprintCallable,Category = Weapon)
+	void RemoveItemAbilities(TSubclassOf<UGameplayAbility>& RemoveItemAbility);
 	
 	//Object Reference
 	UPROPERTY(ReplicatedUsing=OnRep_InteractObjectActor,BlueprintReadOnly,Category=Interact)
 	TObjectPtr<AActor> InteractObjectActor;
 	UFUNCTION()
 	void OnRep_InteractObjectActor(AActor* OldInteractObject);
-	//Inventory
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
-	TObjectPtr<UAGR_InventoryManager> InventoryManager;
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
-	TObjectPtr<UAGR_EquipmentManager> EquipmentManager;
+	TObjectPtr<UAGR_EquipmentManager> PlayerEquipmentManager;
 	
 	//InteractButtonPress Delegate From PlayerController
 	UFUNCTION()

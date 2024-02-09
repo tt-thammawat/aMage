@@ -26,17 +26,6 @@ void AMainPlayerHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbili
 
 }
 
-void AMainPlayerHUD::InitDrawingWidget(APlayerController* PC)
-{
-	PaintWidget = CreateWidget<UMainPaintWidget>(GetWorld(), PaintWidgetClass);
-	if (PaintWidget != nullptr)
-	{
-		PaintWidget->SetUpMainPlayerController(PC);
-		PaintWidget->AddToViewport();
-		PaintWidget->SetVisibility(ESlateVisibility::Hidden);
-	}
-}
-
 UOverlayWidgetController* AMainPlayerHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
 {
 	if(OverlayWidgetController == nullptr)

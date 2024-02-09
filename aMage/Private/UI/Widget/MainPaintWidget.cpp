@@ -52,7 +52,7 @@ FReply UMainPaintWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FP
 {
 	if (bIsDrawing && MainPlayerController->GetIsDrawingSpell() && bIsStartFocus)
 	{
-		const FVector2D LocalMousePosition = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+		FVector2D LocalMousePosition = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
 		AddPoint(LocalMousePosition);
 		return FReply::Handled();
 

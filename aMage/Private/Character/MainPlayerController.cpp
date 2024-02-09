@@ -158,7 +158,7 @@ void AMainPlayerController::LookUp(const FInputActionValue& Value)
 	}
 }
 
-//TODO:InteractButton
+
 void AMainPlayerController::InteractButtonPressed()
 {
 	if(ACharacter* PlayerCharacter = this->GetCharacter())
@@ -186,41 +186,6 @@ void AMainPlayerController::CrouchButtonPressed()
 	}
 }
 
-void AMainPlayerController::CastButtonPressed(const FInputActionValue& Value)
-{
-	//TODO: CastButtonPressed
-		// const bool IsAiming = Value.Get<bool>();
-		// if(IsAiming)
-		// {
-		// 	bIsCastSpell = true;
-		// 	if(IsLocalController())
-		// 	{
-		// 		FInputModeGameAndUI InputMode;
-		// 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		// 		InputMode.SetHideCursorDuringCapture(false);
-		// 		PaintWidget->SetVisibility(ESlateVisibility::Visible);
-		// 		bShowMouseCursor = true;
-		// 	}
-		// }
-		// else
-		// {
-		// 	bIsCastSpell = false;
-		// 	if(IsLocalController())
-		// 	{
-		// 		FInputModeGameOnly InputModeGame;
-		// 		SetInputMode(InputModeGame);
-		// 	
-		// 		bShowMouseCursor = false;
-		// 		DefaultMouseCursor = EMouseCursor::Crosshairs;
-		// 		PaintWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
-		// 		PaintWidget->RemoveAllPoints();
-		// 	}
-		// 	bIsDrawing = false;
-		//
-		// }
-}
-
-
 void AMainPlayerController::JumpButtonPressed()
 {
 	if(ACharacter* PlayerCharacter = this->GetCharacter())
@@ -244,6 +209,25 @@ void AMainPlayerController::JumpingRelease()
 	}
 }
 
+void AMainPlayerController::Button01Pressed()
+{
+}
+
+void AMainPlayerController::Button02Pressed()
+{
+}
+
+void AMainPlayerController::Button03Pressed()
+{
+}
+
+void AMainPlayerController::Button04Pressed()
+{
+}
+
+void AMainPlayerController::Button05Pressed()
+{
+}
 
 void AMainPlayerController::SetIsCastingDrawingWidget_Implementation(bool bIsDrawing)
 {

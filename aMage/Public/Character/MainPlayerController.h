@@ -40,12 +40,14 @@ protected:
 	void LookUp(const FInputActionValue& Value);
 	void InteractButtonPressed();
 	void CrouchButtonPressed();
-	void CastButtonPressed(const FInputActionValue& Value);
 	void JumpButtonPressed();
 	void JumpingRelease();
-	
-	//TODO:: Change It For Widget
-	//void CursorTrace();
+	void Button01Pressed();
+	void Button02Pressed();
+	void Button03Pressed();
+	void Button04Pressed();
+	void Button05Pressed();
+
 
 private:
 	
@@ -71,7 +73,19 @@ private:
 	TObjectPtr<UMainInputAction> CrouchAction;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> ClickAction;
+	TObjectPtr<UMainInputAction> Button01Action;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> Button02Action;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> Button03Action;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> Button04Action;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> Button05Action;
 	
 	//Activate Abilities
 	void AbilityInputTagPressed(const FGameplayTag InputTag);

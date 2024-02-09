@@ -17,6 +17,7 @@ class AMAGE_API UMainPaintWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
+	UFUNCTION(BlueprintCallable,Category="PlayerController")
 	void SetUpMainPlayerController(APlayerController* PlayerController);
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
