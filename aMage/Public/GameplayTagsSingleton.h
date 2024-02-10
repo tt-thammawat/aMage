@@ -31,12 +31,16 @@ public:
  FGameplayTag Attributes_Vital_Health;
  FGameplayTag Attributes_Vital_Mana;
 
- //Input Tag For Abilities
+ //Input Tag For Abilities Base Abilities And Casting
  FGameplayTag InputTag_LMB; 
  FGameplayTag InputTag_RMB;
- FGameplayTag InputTag_1;
- FGameplayTag InputTag_2;
  
+ //Input Tag For Special Abilities
+ FGameplayTag Event_Input_LMB;
+ FGameplayTag Event_Input_RMB;
+ //When Currently Using Special Abilities
+ FGameplayTag Event_Actions_SpecialAbility;
+
 private:
  static FMainGameplayTags MainGameplayTags;
 };

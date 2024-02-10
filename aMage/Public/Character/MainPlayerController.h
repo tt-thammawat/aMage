@@ -17,6 +17,7 @@ class UCombatActorComponent;
  * 
  */
 DECLARE_DELEGATE(FOnInteractButtonPressedSignature);
+DECLARE_DELEGATE_OneParam(FOnButtonPressedSignature,int);
 class ITargetInterface;
 struct FInputActionValue;
 class UInputMappingContext;
@@ -29,6 +30,8 @@ class AMAGE_API AMainPlayerController : public APlayerController,public ICasting
 public:
 	AMainPlayerController();
 	FOnInteractButtonPressedSignature InteractButtonPressedSignature;
+	FOnButtonPressedSignature OnButtonPressed;
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -42,12 +45,22 @@ protected:
 	void CrouchButtonPressed();
 	void JumpButtonPressed();
 	void JumpingRelease();
+	//For Equipping
 	void Button01Pressed();
 	void Button02Pressed();
 	void Button03Pressed();
 	void Button04Pressed();
 	void Button05Pressed();
+	//End For Equipping
+	UFUNCTION(Category=Abilities)
+	void LeftMouseButtonPressed();
+	UFUNCTION(Category=Abilities)
+	void RightMouseButtonPressed();
 
+	//Activate Abilities By Compare Tag
+	void AbilityInputTagPressed(const FGameplayTag InputTag);
+	void AbilityInputTagReleased(const FGameplayTag InputTag);
+	void AbilityInputTagHeld(const FGameplayTag InputTag);
 
 private:
 	
@@ -71,7 +84,8 @@ private:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> CrouchAction;
-
+	
+	//For Equipping
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> Button01Action;
 	
@@ -86,11 +100,19 @@ private:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> Button05Action;
+	//End For Equipping
 	
-	//Activate Abilities
-	void AbilityInputTagPressed(const FGameplayTag InputTag);
-	void AbilityInputTagReleased(const FGameplayTag InputTag);
-	void AbilityInputTagHeld(const FGameplayTag InputTag);
+	//For Abilities
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputMappingContext> AbilitiesInputContext;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> StarterLMBAction;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> StarterRMBAction;
+	//End Abilities
+	
 
 	UPROPERTY()
 	TObjectPtr<UBaseAbilitySystemComponent> BaseAbilitySystemComponent;
@@ -105,7 +127,7 @@ private:
 private:
 	bool bIsDrawingSpell;
 	UFUNCTION()
-	void SetIsCastingDrawingWidget_Implementation(bool bIsDrawing) override;
+	virtual void SetIsCastingDrawingWidget_Implementation(bool bIsDrawing) override;
 
 public:
 	FORCEINLINE bool GetIsDrawingSpell() const {return bIsDrawingSpell;};

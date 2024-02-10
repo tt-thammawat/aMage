@@ -22,7 +22,7 @@ EItemRarity UBaseRuneDataAsset::GenerateItemRarity()
 	
 }
 
-ERuneType UBaseRuneDataAsset::RandomBaseRuneType()
+ERuneType UBaseRuneDataAsset::RandomRuneType()
 {
 	// Subtract 1 because we're using 'Max' as a non-selectable value
 	int32 MaxEnumValue = static_cast<int32>(ERuneType::Max) - 1;
@@ -38,7 +38,7 @@ ERuneType UBaseRuneDataAsset::RandomBaseRuneType()
 
 FBaseItemTypeInfo UBaseRuneDataAsset::GetClassDefaultInfo(ERuneType RuneType)
 {
-	const FBaseItemTypeInfoList BaseRuneTypeInfoList = BaseRuneTypeInformation.FindChecked(RuneType);
+	const FBaseItemTypeInfoList BaseRuneTypeInfoList = RuneTypeInformation.FindChecked(RuneType);
 	if(BaseRuneTypeInfoList.ItemInfo.Num())
 	{
 		int32 RandomIndex = FMath::RandRange(0, BaseRuneTypeInfoList.ItemInfo.Num() - 1);
@@ -50,16 +50,16 @@ FBaseItemTypeInfo UBaseRuneDataAsset::GetClassDefaultInfo(ERuneType RuneType)
 	}
 }
 
-FRuneCastingAbilities UBaseRuneDataAsset::GetBaseRuneAbilitiesInfo(ERuneType RuneType)
+FRuneSpecialAbility UBaseRuneDataAsset::GetRuneAbilitiesInfo(ERuneType RuneType)
 {
-	const FRuneCastingAbilitiesList RuneCastingAbilitiesList = BaseRuneAbilitiesInformation.FindChecked(RuneType);
-	if(RuneCastingAbilitiesList.RuneCastingAbilitiesInfo.Num())
+	const FRuneSpecialAbilitiesList RuneSpecialAbilitiesList = RuneSpecialAbilitiesInformation.FindChecked(RuneType);
+	if(RuneSpecialAbilitiesList.RuneCastingAbilitiesInfo.Num())
 	{
-		int32 RandomIndex = FMath::RandRange(0, RuneCastingAbilitiesList.RuneCastingAbilitiesInfo.Num() - 1);
-		return RuneCastingAbilitiesList.RuneCastingAbilitiesInfo[RandomIndex];
+		int32 RandomIndex = FMath::RandRange(0, RuneSpecialAbilitiesList.RuneCastingAbilitiesInfo.Num() - 1);
+		return RuneSpecialAbilitiesList.RuneCastingAbilitiesInfo[RandomIndex];
 	}
 	else
 	{
-		return FRuneCastingAbilities();
+		return FRuneSpecialAbility();
 	}
 }

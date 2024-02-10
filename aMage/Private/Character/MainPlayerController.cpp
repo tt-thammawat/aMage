@@ -31,22 +31,21 @@ void AMainPlayerController::BeginPlay()
 	
 	
 	check(MainInputContext);
-	
+	check(AbilitiesInputContext);
 	//Set New Enhanced Input For Local Player
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()); 
 
 	if(Subsystem)
 	{
 		Subsystem->AddMappingContext(MainInputContext,0);
+		Subsystem->AddMappingContext(AbilitiesInputContext,0);
 	}
 
-	
 }
 
 void AMainPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
-	
 }
 
 void AMainPlayerController::SetupInputComponent()
@@ -62,15 +61,38 @@ void AMainPlayerController::SetupInputComponent()
 	MainEnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Canceled,this,&ThisClass::JumpingRelease);
 	MainEnhancedInputComponent->BindAction(CrouchAction,ETriggerEvent::Completed,this,&ThisClass::CrouchButtonPressed);
 	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
-
-	MainEnhancedInputComponent->BindAbilityActions(MainInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
+	MainEnhancedInputComponent->BindAction(Button01Action,ETriggerEvent::Completed,this,&ThisClass::Button01Pressed);
+	MainEnhancedInputComponent->BindAction(Button02Action,ETriggerEvent::Completed,this,&ThisClass::Button02Pressed);
+	MainEnhancedInputComponent->BindAction(Button03Action,ETriggerEvent::Completed,this,&ThisClass::Button03Pressed);
+	MainEnhancedInputComponent->BindAction(Button04Action,ETriggerEvent::Completed,this,&ThisClass::Button04Pressed);
+	MainEnhancedInputComponent->BindAction(Button05Action,ETriggerEvent::Completed,this,&ThisClass::Button05Pressed);
 	
+	MainEnhancedInputComponent->BindAbilityActions(AbilitiesInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
+	
+}
+
+void AMainPlayerController::LeftMouseButtonPressed()
+{
+	//The Tag Will be Remove When the Abilities is ending/interrupt
+	if(GetBaseAbilitySystemComponent()->HasMatchingGameplayTag(FMainGameplayTags::Get().Event_Actions_SpecialAbility))
+	{
+		GetBaseAbilitySystemComponent()->AddReplicatedLooseGameplayTag(FMainGameplayTags::Get().Event_Input_LMB);
+	}
+}
+
+void AMainPlayerController::RightMouseButtonPressed()
+{
+	if(GetBaseAbilitySystemComponent()->HasMatchingGameplayTag(FMainGameplayTags::Get().Event_Actions_SpecialAbility))
+	{
+		//This Tag Use To Exit The Special Abilities Mode
+		GetBaseAbilitySystemComponent()->AddReplicatedLooseGameplayTag(FMainGameplayTags::Get().Event_Input_RMB);
+	}
 }
 
 // Check with the FMainGameplayTags Singleton if the InputTag = InputTag.LMB,RMB
 void AMainPlayerController::AbilityInputTagPressed(const FGameplayTag InputTag)
 {
-
+	
 }
 
 void AMainPlayerController::AbilityInputTagHeld(const FGameplayTag InputTag)
@@ -170,6 +192,32 @@ void AMainPlayerController::InteractButtonPressed()
 	}
 }
 
+void AMainPlayerController::Button01Pressed()
+{
+	OnButtonPressed.ExecuteIfBound(1);
+}
+
+void AMainPlayerController::Button02Pressed()
+{
+	OnButtonPressed.ExecuteIfBound(2);
+}
+
+void AMainPlayerController::Button03Pressed()
+{
+	OnButtonPressed.ExecuteIfBound(3);
+}
+
+void AMainPlayerController::Button04Pressed()
+{
+	OnButtonPressed.ExecuteIfBound(4);
+
+}
+
+void AMainPlayerController::Button05Pressed()
+{
+	OnButtonPressed.ExecuteIfBound(5);
+}
+
 void AMainPlayerController::CrouchButtonPressed()
 {
 
@@ -207,26 +255,6 @@ void AMainPlayerController::JumpingRelease()
 	{
 		PlayerCharacter->StopJumping();
 	}
-}
-
-void AMainPlayerController::Button01Pressed()
-{
-}
-
-void AMainPlayerController::Button02Pressed()
-{
-}
-
-void AMainPlayerController::Button03Pressed()
-{
-}
-
-void AMainPlayerController::Button04Pressed()
-{
-}
-
-void AMainPlayerController::Button05Pressed()
-{
 }
 
 void AMainPlayerController::SetIsCastingDrawingWidget_Implementation(bool bIsDrawing)

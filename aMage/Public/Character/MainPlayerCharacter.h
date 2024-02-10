@@ -7,8 +7,7 @@
 #include "MainPlayerCharacter.generated.h"
 
 
-class UAGR_EquipmentManager;
-class UAGR_InventoryManager;
+class UAmage_EquipmentManager;
 class AProjectile;
 class AMainPlayerController;
 enum class ETurningInPlace : uint8;
@@ -37,16 +36,18 @@ protected:
 	//Init GAS
 	virtual void InitAbilityActorInfo() override;
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
-
+	void BindButtonToCharacter(AMainPlayerController* PlayerController);
 	UFUNCTION(BlueprintCallable,Category = Weapon)
 	virtual FVector GetCombatSocketLocation() override;
 
 	
 	//Item Inventory+Equipping
 	UFUNCTION(BlueprintCallable,Category = Weapon)
-	void AddItemAbilities(TSubclassOf<UGameplayAbility>& AddItemAbility);
+	void AddItemAbilities(TSubclassOf<UGameplayAbility> AddItemAbility);
 	UFUNCTION(BlueprintCallable,Category = Weapon)
-	void RemoveItemAbilities(TSubclassOf<UGameplayAbility>& RemoveItemAbility);
+	void RemoveItemAbilities(TSubclassOf<UGameplayAbility> RemoveItemAbility);
+	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)
+	void OnChangingButtonPressed(int ButtonNumber);
 	
 	//Object Reference
 	UPROPERTY(ReplicatedUsing=OnRep_InteractObjectActor,BlueprintReadOnly,Category=Interact)
@@ -54,7 +55,7 @@ protected:
 	UFUNCTION()
 	void OnRep_InteractObjectActor(AActor* OldInteractObject);
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
-	TObjectPtr<UAGR_EquipmentManager> PlayerEquipmentManager;
+	TObjectPtr<UAmage_EquipmentManager> PlayerEquipmentManager;
 	
 	//InteractButtonPress Delegate From PlayerController
 	UFUNCTION()
