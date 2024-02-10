@@ -80,13 +80,6 @@ class AMAGE_API UBaseRuneDataAsset : public UDataAsset
 	GENERATED_BODY()
 	
 public:
-
-	//Item Rarity
-	UFUNCTION(BlueprintCallable,Category ="Generate Rune")
-	EItemRarity GenerateItemRarity();
-	//Random Generate Base Rune Type
-	UFUNCTION(BlueprintCallable,Category ="Generate Rune")
-	ERuneType RandomRuneType();
 	
 	//Base Left Click Ability
 	UPROPERTY(EditDefaultsOnly,Category = "Base Rune")

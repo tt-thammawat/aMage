@@ -26,6 +26,13 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category = "Rune")
 	TObjectPtr<UBaseRuneDataAsset> BaseRuneTypeInfo;
 
+	//Item Rarity
+	UFUNCTION(BlueprintCallable,Category ="Generate Rune")
+	EItemRarity GenerateItemRarity();
+
+	//Random Generate Base Rune Type
+	UFUNCTION(BlueprintCallable,Category ="Generate Rune")
+	ERuneType RandomRuneType();
 	
 	
 

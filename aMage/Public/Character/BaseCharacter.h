@@ -62,6 +62,6 @@ protected:
 	void AddCharacterAbilities();
 public:	
 	
-	UPROPERTY(EditAnywhere,Category="Abilities")
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartUpAbilities;
 };

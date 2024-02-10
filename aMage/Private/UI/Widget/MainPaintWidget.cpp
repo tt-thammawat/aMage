@@ -27,7 +27,6 @@ void UMainPaintWidget::CheckDrawSpell()
 	else
 		{
 			OnDrawingSpellSuccess.Broadcast(Result.Name);
-			RemoveAllPoints();
 		}
 }
 
