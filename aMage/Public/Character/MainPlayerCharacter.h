@@ -6,7 +6,6 @@
 #include "Character/BaseCharacter.h"
 #include "MainPlayerCharacter.generated.h"
 
-
 class UAmage_EquipmentManager;
 class AProjectile;
 class AMainPlayerController;
@@ -27,7 +26,7 @@ public:
 	virtual void OnRep_PlayerState() override;
 
 	//CombatInterface
-	FORCEINLINE virtual  int32 GetCharacterLevel() override;
+	FORCEINLINE virtual int32 GetCharacterLevel() override;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
@@ -39,7 +38,6 @@ protected:
 	void BindButtonToCharacter(AMainPlayerController* PlayerController);
 	UFUNCTION(BlueprintCallable,Category = Weapon)
 	virtual FVector GetCombatSocketLocation() override;
-
 	
 	//Item Inventory+Equipping
 	UFUNCTION(BlueprintCallable,Category = Weapon)

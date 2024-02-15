@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UI/Widget/MainPlayerWidget.h"
 #include "MainPaintWidget.generated.h"
 
@@ -10,9 +11,9 @@ class AMainPlayerController;
 /**
  * 
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDrawingSpellSuccessSignature,FString,DrawingName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDrawingSpellSuccessSignature,FGameplayTag,RuneNameTag);
 UCLASS()
-class AMAGE_API UMainPaintWidget : public UUserWidget
+class AMAGE_API UMainPaintWidget : public UMainPlayerWidget
 {
 	GENERATED_BODY()
 public:

@@ -22,11 +22,14 @@ void UMainPaintWidget::CheckDrawSpell()
 	
 	if (Result.Score < 0.8f)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "No Magic", true, FVector2D(2, 2));
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "No Magic", true, FVector2D(1, 1));
+			RemoveAllPoints();
 		}
 	else
 		{
-			OnDrawingSpellSuccess.Broadcast(Result.Name);
+			OnDrawingSpellSuccess.Broadcast(Result.NameTag);
+GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("MaGic %s"), *Result.NameTag.GetTagName().ToString()));
+			RemoveAllPoints();
 		}
 }
 
@@ -41,7 +44,7 @@ FReply UMainPaintWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, co
 	{
 		bIsDrawing = true;
 		//start a new line segment
-		LineSegments.Add(TArray<FVector2D>());
+		//LineSegments.Add(TArray<FVector2D>());
 		return FReply::Handled();
 	}
 	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
@@ -76,27 +79,29 @@ int32 UMainPaintWidget::NativePaint(const FPaintArgs& Args, const FGeometry& All
                                     const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
 	Super::NativePaint(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+	FPaintContext Context(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+	UWidgetBlueprintLibrary::DrawLines(Context, Points, FLinearColor::White, true, 10.0f);
 
-	for (const TArray<FVector2D>& Segment : LineSegments)
-	{
-		if (Segment.Num() > 1) // Ensure we have at least two points to draw a line
-		{
-			FPaintContext Context(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
-			UWidgetBlueprintLibrary::DrawLines(Context, Segment, FLinearColor::Blue, true, 10.0f);
-		}
-	}
+	// for (const TArray<FVector2D>& Segment : LineSegments)
+	// {
+	// 	if (Segment.Num() > 1) // Ensure we have at least two points to draw a line
+	// 	{
+	// 		FPaintContext Context(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+	// 		UWidgetBlueprintLibrary::DrawLines(Context, Segment, FLinearColor::Blue, true, 10.0f);
+	// 	}
+	// }
 
 	return LayerId + 1;
 }
 
 void UMainPaintWidget::AddPoint(const FVector2D& Point)
 {
-	// Add the point to the current drawing session for visual line drawing
-	if (LineSegments.Num() == 0 || !bIsDrawing)
-	{
-		LineSegments.Add(TArray<FVector2D>()); // Start a new line segment if necessary
-	}
-	LineSegments.Last().Add(Point);
+	// // Add the point to the current drawing session for visual line drawing
+	// if (LineSegments.Num() == 0 || !bIsDrawing)
+	// {
+	// 	LineSegments.Add(TArray<FVector2D>()); // Start a new line segment if necessary
+	// }
+	// LineSegments.Last().Add(Point);
 
 	// Also add the point to Points for spell recognition
 	Points.Add(Point);
@@ -105,5 +110,5 @@ void UMainPaintWidget::AddPoint(const FVector2D& Point)
 void UMainPaintWidget::RemoveAllPoints()
 {
 	Points.Empty();
-	LineSegments.Empty();
+//	LineSegments.Empty();
 }

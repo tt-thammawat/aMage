@@ -15,9 +15,9 @@ FUnistrokeResult FUnistrokeRecognizer::Recognize(const TArray<FVector2D> &Vector
 {
 	TArray<FUnistrokePoint> Points = FUnistrokePoint::Convert(VectorPoints);
 
-	if (Points.Num() < 2 || FUnistrokePoint::PathLength(Points) < 100.0f) return FUnistrokeResult("Too few points made", 0.0, 0.0);
+	if (Points.Num() < 2 || FUnistrokePoint::PathLength(Points) < 100.0f) return FUnistrokeResult("Too few points made",FGameplayTag(), 0.0, 0.0);
 
-	const FUnistrokeTemplate Candidate = FUnistrokeTemplate("", Points);
+	const FUnistrokeTemplate Candidate = FUnistrokeTemplate("",FGameplayTag(), Points);
 
 	int TemplateIndex = -1;
 	float BestDistance = TNumericLimits<float>::Max();
@@ -41,14 +41,14 @@ FUnistrokeResult FUnistrokeRecognizer::Recognize(const TArray<FVector2D> &Vector
 	const float ElapsedTime = (EndTime.GetMillisecond() - StartTime.GetMillisecond()) / 1000;
 	const float Score = UseProtractor ? (1.0 - BestDistance) : (1.0 - BestDistance / HalfDiagonal);
 
-	return (TemplateIndex == -1) ? FUnistrokeResult("No match", 0.0, ElapsedTime) : FUnistrokeResult(Templates[TemplateIndex].Name, Score, ElapsedTime);
+	return (TemplateIndex == -1) ? FUnistrokeResult("No match",FGameplayTag(), 0.0, ElapsedTime) : FUnistrokeResult(Templates[TemplateIndex].Name,Templates[TemplateIndex].NameTag, Score, ElapsedTime);
 }
 
-void FUnistrokeRecognizer::AddTemplate(const FString &Name, const TArray<FVector2D> &VectorPoints)
+void FUnistrokeRecognizer::AddTemplate(const FString &Name,const FGameplayTag& NameTag, const TArray<FVector2D> &VectorPoints)
 {
 	TArray<FUnistrokePoint> Points = FUnistrokePoint::Convert(VectorPoints);
 
-	Templates.Add(FUnistrokeTemplate(Name, Points));
+	Templates.Add(FUnistrokeTemplate(Name,NameTag, Points));
 }
 
 void FUnistrokeRecognizer::Reset()

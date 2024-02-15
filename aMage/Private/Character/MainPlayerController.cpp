@@ -257,7 +257,7 @@ void AMainPlayerController::JumpingRelease()
 	}
 }
 
-void AMainPlayerController::SetIsCastingDrawingWidget_Implementation(bool bIsDrawing)
+void AMainPlayerController::SetIsCastingDrawingWidget(bool bIsDrawing)
 {
 	bIsDrawingSpell = bIsDrawing;
 }

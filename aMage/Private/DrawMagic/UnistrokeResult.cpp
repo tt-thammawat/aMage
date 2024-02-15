@@ -6,13 +6,15 @@
 FUnistrokeResult::FUnistrokeResult()
 {
 	this->Name = "No match";
+	this->NameTag = FGameplayTag();
 	this->Score = 0.0f;
 	this->Time = 0.0f;
 }
 
-FUnistrokeResult::FUnistrokeResult(const FString& Name, const float& Score, const float& Time)
+FUnistrokeResult::FUnistrokeResult(const FString& Name,const FGameplayTag& NameTag, const float& Score, const float& Time)
 {
 	this->Name = Name;
+	this->NameTag = NameTag;
 	this->Score = Score;
 	this->Time = Time;
 }

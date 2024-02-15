@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UnistrokeResult.generated.h"
 
 /**
@@ -15,11 +16,12 @@ struct AMAGE_API FUnistrokeResult
 
 public:
 	FUnistrokeResult();
-	FUnistrokeResult(const FString &Name, const float &Score, const float &Time);
+	FUnistrokeResult(const FString &Name,const FGameplayTag& NameTag, const float &Score, const float &Time);
 	~FUnistrokeResult();
 
 public:
 	FString Name;
+	FGameplayTag NameTag;
 	float Score;
 	float Time;
 };

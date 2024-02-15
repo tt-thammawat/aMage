@@ -25,7 +25,6 @@ AMainPlayerCharacter::AMainPlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f,400.f,0.f);
 
 	PlayerEquipmentManager = CreateDefaultSubobject<UAmage_EquipmentManager>("PlayerEquipmentManager");
-	
 }
 
 void AMainPlayerCharacter::PossessedBy(AController* NewController)
@@ -33,7 +32,6 @@ void AMainPlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	InitAbilityActorInfo();
 	AddCharacterAbilities();
-
 }
 
 void AMainPlayerCharacter::OnRep_PlayerState()
@@ -72,7 +70,6 @@ void AMainPlayerCharacter::InitAbilityActorInfo()
 	
 	TrySetupHUD(MainPlayerState);
 	InitDefaultAttributes();
-
 }
 
 void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
@@ -121,7 +118,6 @@ void AMainPlayerCharacter::RemoveItemAbilities(TSubclassOf<UGameplayAbility> Rem
 	if(!HasAuthority()) return;
 	BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveItemAbilities);
 }
-
 
 void AMainPlayerCharacter::SetInteractObjectActor(AActor* Actor)
 {

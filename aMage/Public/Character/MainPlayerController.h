@@ -127,7 +127,7 @@ private:
 private:
 	bool bIsDrawingSpell;
 	UFUNCTION()
-	virtual void SetIsCastingDrawingWidget_Implementation(bool bIsDrawing) override;
+	virtual void SetIsCastingDrawingWidget(bool bIsDrawing) override;
 
 public:
 	FORCEINLINE bool GetIsDrawingSpell() const {return bIsDrawingSpell;};

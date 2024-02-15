@@ -16,13 +16,17 @@ void AMainPlayerHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbili
 	
 	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(),OverlayWidgetClass);
 	OverlayWidget = Cast<UMainPlayerWidget>(Widget);
+	UUserWidget* DrawWidget = CreateWidget<UUserWidget>(GetWorld(),DrawingWidgetClass);
+	DrawingWidget = Cast<UMainPaintWidget>(DrawWidget);
 	
 	const FWidgetControllerParams WidgetControllerParams(PC,PS,ASC,AS);
 	UOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams);
 	
 	OverlayWidget->SetWidgetController(WidgetController);
+	DrawingWidget->SetWidgetController(WidgetController);
 	WidgetController->BroadcastInitialValue();
-	Widget->AddToViewport();
+	DrawingWidget->AddToViewport(1);
+	Widget->AddToViewport(0);
 
 }
 
