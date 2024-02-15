@@ -9,6 +9,8 @@
 void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
+
 	if(PaintWidget == nullptr)
 	{
 		AMainPlayerHUD* MainPlayerHUD=  Cast<AMainPlayerHUD>(GetActorInfo().PlayerController->GetHUD());
@@ -32,7 +34,6 @@ void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 		}
 	}
 	
-	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 
 }
 
@@ -58,7 +59,8 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	
+	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+
 	if (APlayerController* PlayerController = GetActorInfo().PlayerController.Get())
 	{
 		if (ICastingInterface* CastingInterface = Cast<ICastingInterface>(PlayerController))
@@ -73,10 +75,11 @@ void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle
 	
 		if (PaintWidget)
 		{
-			PaintWidget->SetVisibility(ESlateVisibility::Collapsed);
+			PaintWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
-	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+
 
 }
 
@@ -84,7 +87,22 @@ void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	// Iterate over RuneTags and print each one
+	for (const FGameplayTag& Tag : RuneTags)
+	{
+		FString TagString = Tag.ToString();
+		UE_LOG(LogTemp, Warning, TEXT("Rune Tag: %s"), *TagString);
+	}
+	//TODO: Use CastingInterface To Send Those Tag To PlayerCharacter
+	RuneTags.Empty();
+	
+	if(PaintWidget)
+	{
+		PaintWidget->OnDrawingSpellSuccess.RemoveDynamic(this, &ThisClass::AddRuneTags);
+	}
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	
 }
 
 void UMainCastingGameplayAbility::AddRuneTags(FGameplayTag RuneTag)

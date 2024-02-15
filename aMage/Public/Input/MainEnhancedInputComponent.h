@@ -35,7 +35,6 @@ void UMainEnhancedInputComponent::BindAbilityActions(const UInputMappingContext*
 		if(UMainInputAction* MainInputAction = Cast<UMainInputAction>(Mapping.Action))
 		{
 		if(	MainInputAction->InputTag.IsValid())
-		
 			{
 					// BindAction this Function already Inside UEnhancedInputComponent
 					BindAction(MainInputAction,ETriggerEvent::Started,Object,PressedFunction,MainInputAction->InputTag);
