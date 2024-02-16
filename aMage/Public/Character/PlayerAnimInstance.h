@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Animation/AnimInstance.h"
 #include "Character/TurnInPlace.h"
 #include "PlayerAnimInstance.generated.h"
@@ -33,9 +34,15 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool bAiming;
 
-	//ISStaffEquipped
-	UPROPERTY(BlueprintReadWrite)
-	bool IsEquippedStaff;
+	//For Check Tag
+	FGameplayTagContainer GameplayTagContainer;
+
+	//StaffEquipped?
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsEquippedStaff;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsCasting;
 	
 	
 	

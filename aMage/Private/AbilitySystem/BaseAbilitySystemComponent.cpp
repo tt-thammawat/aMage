@@ -59,7 +59,7 @@ void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputT
 				AbilitySpecInputPressed(AbilitySpec);
 				if(!AbilitySpec.IsActive())
 				{
-					//TryActivate Abilities may fail if logic failed
+					//TryActivateAbility serves as an initializer rather than an immediate activator for an ability
 					TryActivateAbility(AbilitySpec.Handle);
 				}
 			}
@@ -88,6 +88,5 @@ void UBaseAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySys
 		EffectSpec.GetAllAssetTags(TagContainer);
 
 		EffectAssetTags.Broadcast(TagContainer);
-	
 	}
 }

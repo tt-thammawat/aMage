@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "CastingInterface.generated.h"
 
+struct FGameplayTag;
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI,Blueprintable)
 class UCastingInterface : public UInterface
@@ -22,5 +23,5 @@ class AMAGE_API ICastingInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void SetIsCastingDrawingWidget(bool bIsCasting)=0;
+	virtual void MatchRuneSpellTags(TArray<FGameplayTag> RuneTags)=0;
 };

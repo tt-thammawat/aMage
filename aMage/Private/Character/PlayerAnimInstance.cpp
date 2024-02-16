@@ -2,6 +2,9 @@
 
 
 #include "Character/PlayerAnimInstance.h"
+
+#include "AbilitySystemComponent.h"
+#include "GameplayTagsSingleton.h"
 #include "Character/MainPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -30,7 +33,12 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsInAir = MainPlayerCharacter->GetCharacterMovement()->IsFalling();
 	bIsAccelerating = MainPlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
 	bIsCrouch = MainPlayerCharacter->bIsCrouched;
-	
+	if(MainPlayerCharacter && MainPlayerCharacter->GetAbilitySystemComponent())
+	{
+		MainPlayerCharacter->GetAbilitySystemComponent()->GetOwnedGameplayTags(GameplayTagContainer);
+		bIsEquippedStaff = GameplayTagContainer.HasTag(FMainGameplayTags::Get().Item_Equip_Staff);
+		bIsCasting = GameplayTagContainer.HasTag(FMainGameplayTags::Get().State_Action_Casting);
+	}
 	
 	//TODO: Implement AIming
 	

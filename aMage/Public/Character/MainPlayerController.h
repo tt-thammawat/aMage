@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Interact/TargetInterface.h"
 #include "GameFramework/PlayerController.h"
-#include "Interact/CastingInterface.h"
 #include "MainPlayerController.generated.h"
 
 class UMainInputAction;
@@ -22,7 +21,7 @@ class UInputMappingContext;
 class UInputAction;
 
 UCLASS()
-class AMAGE_API AMainPlayerController : public APlayerController,public ICastingInterface
+class AMAGE_API AMainPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 public:
@@ -40,9 +39,6 @@ protected:
 	void Turn(const FInputActionValue& Value);
 	void LookUp(const FInputActionValue& Value);
 	void InteractButtonPressed();
-	void CrouchButtonPressed();
-	void JumpButtonPressed();
-	void JumpingRelease();
 	//For Equipping
 	void Button01Pressed();
 	void Button02Pressed();
@@ -74,10 +70,11 @@ private:
 	TObjectPtr<UMainInputAction> JumpAction;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> CrouchAction;
+	//End Generic Abilities
+	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> InteractButton;
-	//End Generic Abilities
-
+	
 	//For Equipping
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> Button01Action;
@@ -119,10 +116,9 @@ private:
 
 private:
 	bool bIsDrawingSpell;
-	UFUNCTION()
-	virtual void SetIsCastingDrawingWidget(bool bIsDrawing) override;
 
 public:
+	void SetbIsDrawingSpell(bool bIsDrawing) {bIsDrawingSpell = bIsDrawing;};
 	FORCEINLINE bool GetIsDrawingSpell() const {return bIsDrawingSpell;};
 
 };

@@ -66,10 +66,6 @@ void AMainPlayerController::SetupInputComponent()
 	
 	//Abilities
 	MainEnhancedInputComponent->BindAbilityActions(GenericInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
-	//TODO: RemoveThis Later
-	MainEnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Started,this,&ThisClass::JumpButtonPressed);
-	MainEnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Canceled,this,&ThisClass::JumpingRelease);
-	MainEnhancedInputComponent->BindAction(CrouchAction,ETriggerEvent::Completed,this,&ThisClass::CrouchButtonPressed);
 	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
 	
 	MainEnhancedInputComponent->BindAbilityActions(AbilitiesInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
@@ -179,7 +175,6 @@ void AMainPlayerController::LookUp(const FInputActionValue& Value)
 	}
 }
 
-
 void AMainPlayerController::InteractButtonPressed()
 {
 	if(ACharacter* PlayerCharacter = this->GetCharacter())
@@ -217,48 +212,5 @@ void AMainPlayerController::Button05Pressed()
 	OnButtonPressed.ExecuteIfBound(5);
 }
 
-void AMainPlayerController::CrouchButtonPressed()
-{
-
-	if(ACharacter* PlayerCharacter = this->GetCharacter())
-	{
-		if(PlayerCharacter->bIsCrouched)
-		{
-			PlayerCharacter->UnCrouch();
-		}
-		else
-		{
-			PlayerCharacter->Crouch();
-		}
-	}
-}
-
-void AMainPlayerController::JumpButtonPressed()
-{
-	if(ACharacter* PlayerCharacter = this->GetCharacter())
-	{
-		if(PlayerCharacter->bIsCrouched)
-		{
-			PlayerCharacter->UnCrouch();
-		}
-		else
-		{
-			PlayerCharacter->Jump();
-		}
-	}
-}
-
-void AMainPlayerController::JumpingRelease()
-{
-	if(ACharacter* PlayerCharacter = this->GetCharacter())
-	{
-		PlayerCharacter->StopJumping();
-	}
-}
-
-void AMainPlayerController::SetIsCastingDrawingWidget(bool bIsDrawing)
-{
-	bIsDrawingSpell = bIsDrawing;
-}
 
 

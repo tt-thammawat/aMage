@@ -9,12 +9,7 @@ void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
-
-	// Activate the ability
-	if (CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		ActivateAbility(Handle, ActorInfo, ActivationInfo, nullptr);
-	}
+	
 }
 
 void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -99,6 +94,5 @@ void UMainGenericGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
-	// End the ability
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+
 }

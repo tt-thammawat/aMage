@@ -35,12 +35,14 @@ public:
  FGameplayTag InputTag_LMB; 
  FGameplayTag InputTag_RMB;
  
- //Input Tag For Special Abilities
- FGameplayTag Event_Input_LMB;
- FGameplayTag Event_Input_RMB;
- //When Currently Using Special Abilities
- FGameplayTag Event_Actions_SpecialAbility;
+ //Equipping Tag
+ FGameplayTag Item_Equip_Staff;
 
+ //State Tag
+ FGameplayTag State_Action_Casting;
+ FGameplayTag State_Action_Aiming;
+ FGameplayTag State_InAir_Jumping;
+ 
 private:
  static FMainGameplayTags MainGameplayTags;
 };
