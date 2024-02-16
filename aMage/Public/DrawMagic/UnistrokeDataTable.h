@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Engine/DataTable.h"
 #include "UnistrokeDataTable.generated.h"
 
@@ -21,7 +22,8 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString Name;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag NameTag;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FVector2D> Points;
 

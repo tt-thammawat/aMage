@@ -28,6 +28,7 @@ public:
 	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|CharacterClassDefaults")
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject,ECharacterClass CharacterClass,float Level,UAbilitySystemComponent* TargetASC);
 	
-
+	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|CharacterClassDefaults")
+	static FString GenerateUniqueKeyFromFName(FName Name);
 };
 

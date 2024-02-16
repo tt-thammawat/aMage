@@ -7,6 +7,7 @@
 #include "Actor/Data/BaseItemInfo.h"
 #include "BaseRuneDataAsset.generated.h"
 
+class UMainInputAction;
 class UGameplayAbility;
 /**
  * 
@@ -23,37 +24,54 @@ enum class ERuneType : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FCastingMatchingInfo
+struct FRuneMatchingInfo
+{
+	GENERATED_BODY()
+
+	//TODO : Will Change This in to Point Struct From Data Table Later
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	FName MatchingName;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	bool bIsUnlockSpecialAbility=false;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	TObjectPtr<UTexture2D> SpecialAbilityIcon;
+};
+
+USTRUCT(BlueprintType)
+struct FRuneSpecialInput
 {
 	GENERATED_BODY()
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	FName CastingMatchingName;
+	TObjectPtr<UMainInputAction> SpecialAbilityLMBAction;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	bool bIsUnlockCastingAbility=false;
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	TObjectPtr<UTexture2D> CastingAbilityIcon;
+	TObjectPtr<UMainInputAction> SpecialAbilityRMBAction;
 };
 
 USTRUCT(BlueprintType)
-struct FRuneCastingAbilities
+struct FRuneSpecialAbility
 {
 	GENERATED_BODY()
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	TArray<FCastingMatchingInfo> MatchingInfos;
+	TArray<FRuneMatchingInfo> MatchingInfos;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	FText CastingAbilitiesDescription;
+	FText SpecialAbilitiesDescription;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	TSubclassOf<UGameplayAbility> CastingSpecialBaseAbilities;
+	float UsageTime;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	TSubclassOf<UGameplayAbility> SpecialAbilities;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
+	FRuneSpecialInput SpecialAbilitiesInput;
 };
 
+
 USTRUCT(BlueprintType)
-struct FRuneCastingAbilitiesList
+struct FRuneSpecialAbilitiesList
 {
 	GENERATED_BODY()
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	TArray<FRuneCastingAbilities> RuneCastingAbilitiesInfo;
+	TArray<FRuneSpecialAbility> RuneCastingAbilitiesInfo;
 };
 
 UCLASS()
@@ -62,23 +80,16 @@ class AMAGE_API UBaseRuneDataAsset : public UDataAsset
 	GENERATED_BODY()
 	
 public:
-
-	//Item Rarity
-	UFUNCTION(BlueprintCallable,Category ="Generate Rune")
-	EItemRarity GenerateItemRarity();
-	//Random Generate Base Rune Type
-	UFUNCTION(BlueprintCallable,Category ="Generate Rune")
-	ERuneType RandomBaseRuneType();
 	
 	//Base Left Click Ability
 	UPROPERTY(EditDefaultsOnly,Category = "Base Rune")
-	TMap<ERuneType, FBaseItemTypeInfoList> BaseRuneTypeInformation;
+	TMap<ERuneType, FBaseItemTypeInfoList> RuneTypeInformation;
 	UFUNCTION(BlueprintCallable,Category = "Base Rune")
 	FBaseItemTypeInfo GetClassDefaultInfo(ERuneType RuneType);
 	//Special Right Click Ability
 	UPROPERTY(EditDefaultsOnly,Category="Rune SpecialAbilities")
-	TMap<ERuneType,FRuneCastingAbilitiesList> BaseRuneAbilitiesInformation;
+	TMap<ERuneType,FRuneSpecialAbilitiesList> RuneSpecialAbilitiesInformation;
 	UFUNCTION(BlueprintCallable,Category="Rune SpecialAbilities")
-	FRuneCastingAbilities GetBaseRuneAbilitiesInfo(ERuneType RuneType);
+	FRuneSpecialAbility GetRuneAbilitiesInfo(ERuneType RuneType);
 
 };

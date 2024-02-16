@@ -27,7 +27,7 @@ public:
 	FUnistrokeRecognizer();
 	~FUnistrokeRecognizer();
 	FUnistrokeResult Recognize(const TArray<FVector2D> &VectorPoints, const bool &UseProtractor);
-	void AddTemplate(const FString &Name, const TArray<FVector2D> &VectorPoints);
+	void AddTemplate(const FString &Name,const FGameplayTag& NameTag, const TArray<FVector2D> &VectorPoints);
 	void Reset();
 
 public:

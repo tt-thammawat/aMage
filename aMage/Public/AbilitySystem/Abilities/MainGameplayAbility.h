@@ -13,9 +13,10 @@ UCLASS()
 class AMAGE_API UMainGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
+
+protected:
 	
 public:
-
 	// Input Button Tag
 	UPROPERTY(EditDefaultsOnly,Category = "Input")
 	FGameplayTag StartupInputTag;

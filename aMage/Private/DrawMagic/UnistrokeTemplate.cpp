@@ -3,16 +3,20 @@
 
 #include "DrawMagic/UnistrokeTemplate.h"
 
+#include "GameplayTagContainer.h"
+
 FUnistrokeTemplate::FUnistrokeTemplate()
 {
 	Name = "";
+	NameTag = FGameplayTag();
 	Vector = TArray<float>();
 	Points = TArray<FUnistrokePoint>();
 }
 
-FUnistrokeTemplate::FUnistrokeTemplate(const FString &Name, const TArray<FUnistrokePoint> &Points)
+FUnistrokeTemplate::FUnistrokeTemplate(const FString &Name,const FGameplayTag& NameTag, const TArray<FUnistrokePoint> &Points)
 {
 	this->Name = Name;
+	this->NameTag = NameTag;
 	this->Points = Points;
 
 	FUnistrokePoint::Resample(this->Points, NumPoints);

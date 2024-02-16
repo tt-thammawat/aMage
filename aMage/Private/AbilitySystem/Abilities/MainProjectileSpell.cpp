@@ -49,5 +49,4 @@ void UMainProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 		Projectile->DamageEffectSpecHandle=SpecHandle;
 		Projectile->FinishSpawning(SpawnTransform);
 	}
-
 }

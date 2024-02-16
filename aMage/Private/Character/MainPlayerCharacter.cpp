@@ -7,7 +7,7 @@
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
-#include "Components/AGR_InventoryManager.h"
+#include "Character/Inventory/Amage_EquipmentManager.h"
 #include "Components/AGR_ItemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -24,10 +24,7 @@ AMainPlayerCharacter::AMainPlayerCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement =true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f,400.f,0.f);
 
-	EquipmentManager = CreateDefaultSubobject<UAGR_EquipmentManager>("EquipmentManager");
-	InventoryManager = CreateDefaultSubobject<UAGR_InventoryManager>("InventoryManager");
-
-	
+	PlayerEquipmentManager = CreateDefaultSubobject<UAmage_EquipmentManager>("PlayerEquipmentManager");
 }
 
 void AMainPlayerCharacter::PossessedBy(AController* NewController)
@@ -35,7 +32,6 @@ void AMainPlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	InitAbilityActorInfo();
 	AddCharacterAbilities();
-
 }
 
 void AMainPlayerCharacter::OnRep_PlayerState()
@@ -74,49 +70,54 @@ void AMainPlayerCharacter::InitAbilityActorInfo()
 	
 	TrySetupHUD(MainPlayerState);
 	InitDefaultAttributes();
-
 }
 
 void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 {
 	if (AMainPlayerController* PlayerController = Cast<AMainPlayerController>(GetController()))
 	{
-		PlayerController->InteractButtonPressedSignature.BindUObject(this,&ThisClass::InteractItemButtonPress);
+		BindButtonToCharacter(PlayerController);
 		if (AMainPlayerHUD* MainHUD = Cast<AMainPlayerHUD>(PlayerController->GetHUD()))
 		{
 			MainHUD->InitOverlay(PlayerController, MainPlayerState, AbilitySystemComponent, AttributeSet);
-			MainHUD->InitDrawingWidget(PlayerController);
 		}
 	}
+}
+
+void AMainPlayerCharacter::BindButtonToCharacter(AMainPlayerController* PlayerController)
+{
+	PlayerController->InteractButtonPressedSignature.BindUObject(this,&ThisClass::InteractItemButtonPress);
+	PlayerController->OnButtonPressed.BindUObject(this,&ThisClass::OnChangingButtonPressed);
 }
 
 FVector AMainPlayerCharacter::GetCombatSocketLocation()
 {
 	AActor* OutActor;
-	EquipmentManager->GetItemInSlot(FName("WeaponHandSocket"),OutActor);
+	PlayerEquipmentManager->GetItemInSlot(FName("WeaponHandSocket"),OutActor);
 	const AMainEquipmentInteractActor* EquipmentInteractActor = Cast<AMainEquipmentInteractActor>(OutActor);
 	const FVector WeaponSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
 	return WeaponSocketLocation;
 }
 
-void AMainPlayerCharacter::AddItemAbilities() const
+void AMainPlayerCharacter::AddItemAbilities(TSubclassOf<UGameplayAbility> AddItemAbility)
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
-
+	TArray<TSubclassOf<UGameplayAbility>> AddItemAbilities;
+	AddItemAbilities.Add(AddItemAbility);
+	
 	if(!HasAuthority()) return;
-//TODO : Change This To Equip Item Abilities
-//	BaseAbilitySystemComponent->AddCharacterAbilities(StartUpAbilities);
+	BaseAbilitySystemComponent->AddCharacterAbilities(AddItemAbilities);
 }
 
-void AMainPlayerCharacter::RemoveItemAbilities() const
+void AMainPlayerCharacter::RemoveItemAbilities(TSubclassOf<UGameplayAbility> RemoveItemAbility)
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
-
+	TArray<TSubclassOf<UGameplayAbility>> RemoveItemAbilities;
+	RemoveItemAbilities.Add(RemoveItemAbility);
+	
 	if(!HasAuthority()) return;
-	//TODO : Change This To Equip Item Abilities
-	BaseAbilitySystemComponent->RemoveCharacterAbilities(StartUpAbilities);
+	BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveItemAbilities);
 }
-
 
 void AMainPlayerCharacter::SetInteractObjectActor(AActor* Actor)
 {
@@ -183,7 +184,6 @@ void AMainPlayerCharacter::InteractItemButtonPress()
 	}
 }
 
-//TODO: Fix Item Data
 void AMainPlayerCharacter::ServerInteractButtonPressed_Implementation()
 {
 	if (IInteractInterface* InteractActor = Cast<IInteractInterface>(InteractObjectActor))
@@ -191,25 +191,3 @@ void AMainPlayerCharacter::ServerInteractButtonPressed_Implementation()
 		InteractActor->InteractWithItem(this);
 	}
 }
-
-// //Equip This if That Item have AGR_ItemComponent
-// if(UAGR_ItemComponent* ItemComponent = InteractObjectActor->FindComponentByClass<UAGR_ItemComponent>())
-// {
-// 	ItemComponent->PickUpItem(InventoryManager);
-// }
-//
-// // Cast some kind of buff when pick up it attach to ASC
-// else if(APickUpEffectActor* PickUpEffectActor = Cast<APickUpEffectActor>(InteractObjectActor))
-// {
-// //Check GamePlayTag
-// ItemData = PickUpEffectActor->GetItemData();
-// const FGameplayTag EquippedStaffTag = FGameplayTag::RequestGameplayTag(FName("Item.Equip.Staff"));
-// if(AbilitySystemComponent->HasMatchingGameplayTag(EquippedStaffTag)) return;
-// 		if(ItemData.ItemTag.MatchesTag(EquippedStaffTag))
-// 		{
-// 		//	Weapon->SetSkeletalMesh(ItemData.ItemMesh);
-// 			PickUpEffectActor->DestroyAfterPickUp(this);
-// 			OnRep_ItemDataChange();
-// 		}
-// 	
-// }

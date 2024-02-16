@@ -6,9 +6,7 @@
 #include "Character/BaseCharacter.h"
 #include "MainPlayerCharacter.generated.h"
 
-
-class UAGR_EquipmentManager;
-class UAGR_InventoryManager;
+class UAmage_EquipmentManager;
 class AProjectile;
 class AMainPlayerController;
 enum class ETurningInPlace : uint8;
@@ -28,7 +26,7 @@ public:
 	virtual void OnRep_PlayerState() override;
 
 	//CombatInterface
-	FORCEINLINE virtual  int32 GetCharacterLevel() override;
+	FORCEINLINE virtual int32 GetCharacterLevel() override;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
@@ -37,25 +35,25 @@ protected:
 	//Init GAS
 	virtual void InitAbilityActorInfo() override;
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
-
+	void BindButtonToCharacter(AMainPlayerController* PlayerController);
 	UFUNCTION(BlueprintCallable,Category = Weapon)
 	virtual FVector GetCombatSocketLocation() override;
-
 	
 	//Item Inventory+Equipping
-	void AddItemAbilities() const;
-	void RemoveItemAbilities() const;
+	UFUNCTION(BlueprintCallable,Category = Weapon)
+	void AddItemAbilities(TSubclassOf<UGameplayAbility> AddItemAbility);
+	UFUNCTION(BlueprintCallable,Category = Weapon)
+	void RemoveItemAbilities(TSubclassOf<UGameplayAbility> RemoveItemAbility);
+	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)
+	void OnChangingButtonPressed(int ButtonNumber);
 	
 	//Object Reference
 	UPROPERTY(ReplicatedUsing=OnRep_InteractObjectActor,BlueprintReadOnly,Category=Interact)
 	TObjectPtr<AActor> InteractObjectActor;
 	UFUNCTION()
 	void OnRep_InteractObjectActor(AActor* OldInteractObject);
-	//Inventory
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
-	TObjectPtr<UAGR_InventoryManager> InventoryManager;
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=AGR)
-	TObjectPtr<UAGR_EquipmentManager> EquipmentManager;
+	TObjectPtr<UAmage_EquipmentManager> PlayerEquipmentManager;
 	
 	//InteractButtonPress Delegate From PlayerController
 	UFUNCTION()

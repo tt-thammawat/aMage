@@ -4,17 +4,35 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/MainGameplayAbility.h"
-#include "Interact/CastingInterface.h"
 #include "MainCastingGameplayAbility.generated.h"
 
+class UAbilityTask_PlayMontageAndWait;
+class UMainPaintWidget;
 /**
  * 
  */
 UCLASS()
-class AMAGE_API UMainCastingGameplayAbility : public UMainGameplayAbility,public ICastingInterface
+class AMAGE_API UMainCastingGameplayAbility : public UMainGameplayAbility
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	FName MatchText;
+	UMainCastingGameplayAbility();
+protected:
+	
+	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
+	
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+
+	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
+
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+
+	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
+
+private:
+
+	UFUNCTION()
+	void AddRuneTags(FGameplayTag RuneTag);
+	TArray<FGameplayTag> RuneTags;
+	TObjectPtr<UMainPaintWidget> PaintWidget;
 };

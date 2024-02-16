@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "DrawMagic/UnistrokePoint.h"
 #include "UnistrokeTemplate.generated.h"
 
@@ -19,11 +20,12 @@ struct AMAGE_API FUnistrokeTemplate
 
 public:
 	FUnistrokeTemplate();
-	FUnistrokeTemplate(const FString &Name, const TArray<FUnistrokePoint> &Points);
+	FUnistrokeTemplate(const FString &Name,const FGameplayTag& NameTag,  const TArray<FUnistrokePoint> &Points);
 	~FUnistrokeTemplate();
 
 public:
 	FString Name;
+	FGameplayTag NameTag;
 	TArray<float> Vector;
 	TArray<FUnistrokePoint> Points;
 };

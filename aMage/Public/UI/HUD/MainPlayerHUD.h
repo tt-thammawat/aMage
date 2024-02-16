@@ -27,23 +27,20 @@ public:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<UMainPlayerWidget> OverlayWidget;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	TObjectPtr<UMainPaintWidget> PaintWidget;
+	TObjectPtr<UMainPaintWidget> DrawingWidget;
 	
 	void InitOverlay(APlayerController* PC,APlayerState* PS,UAbilitySystemComponent* ASC,UAttributeSet* AS);
-	void InitDrawingWidget(APlayerController* PC);
 protected:
 	
 private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> OverlayWidgetClass;
 	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> DrawingWidgetClass;
+	UPROPERTY(EditAnywhere)
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
 	UPROPERTY()
 	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
-
-	//DrawingWidget
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UMainPaintWidget> PaintWidgetClass;
 
 
 

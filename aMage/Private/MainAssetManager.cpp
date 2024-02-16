@@ -57,7 +57,7 @@ void UMainAssetManager::OnStokeDataTableLoaded()
 			{
 				if (Row)
 				{
-					Recognizer->AddTemplate(Row->Name, Row->Points);
+					Recognizer->AddTemplate(Row->Name,Row->NameTag, Row->Points);
 				}
 			}
 		}

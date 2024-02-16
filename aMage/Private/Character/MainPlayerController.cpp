@@ -31,22 +31,23 @@ void AMainPlayerController::BeginPlay()
 	
 	
 	check(MainInputContext);
-	
+	check(AbilitiesInputContext);
 	//Set New Enhanced Input For Local Player
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()); 
 
 	if(Subsystem)
 	{
 		Subsystem->AddMappingContext(MainInputContext,0);
+		Subsystem->AddMappingContext(GenericInputContext,0);
+		Subsystem->AddMappingContext(AbilitiesInputContext,0);
+
 	}
 
-	
 }
 
 void AMainPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
-	
 }
 
 void AMainPlayerController::SetupInputComponent()
@@ -54,23 +55,39 @@ void AMainPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	UMainEnhancedInputComponent* MainEnhancedInputComponent = CastChecked<UMainEnhancedInputComponent>(InputComponent);
-	
 	MainEnhancedInputComponent->BindAction(MoveInput,ETriggerEvent::Triggered,this,&ThisClass::MoveAction);
 	MainEnhancedInputComponent->BindAction(LookXAction,ETriggerEvent::Triggered,this,&ThisClass::Turn);
 	MainEnhancedInputComponent->BindAction(LookYAction,ETriggerEvent::Triggered,this,&ThisClass::LookUp);
-	MainEnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Started,this,&ThisClass::JumpButtonPressed);
-	MainEnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Canceled,this,&ThisClass::JumpingRelease);
-	MainEnhancedInputComponent->BindAction(CrouchAction,ETriggerEvent::Completed,this,&ThisClass::CrouchButtonPressed);
+	MainEnhancedInputComponent->BindAction(Button01Action,ETriggerEvent::Completed,this,&ThisClass::Button01Pressed);
+	MainEnhancedInputComponent->BindAction(Button02Action,ETriggerEvent::Completed,this,&ThisClass::Button02Pressed);
+	MainEnhancedInputComponent->BindAction(Button03Action,ETriggerEvent::Completed,this,&ThisClass::Button03Pressed);
+	MainEnhancedInputComponent->BindAction(Button04Action,ETriggerEvent::Completed,this,&ThisClass::Button04Pressed);
+	MainEnhancedInputComponent->BindAction(Button05Action,ETriggerEvent::Completed,this,&ThisClass::Button05Pressed);
+	
+	//Abilities
+	MainEnhancedInputComponent->BindAbilityActions(GenericInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
 	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
-
-	MainEnhancedInputComponent->BindAbilityActions(MainInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
+	
+	MainEnhancedInputComponent->BindAbilityActions(AbilitiesInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
 	
 }
 
 // Check with the FMainGameplayTags Singleton if the InputTag = InputTag.LMB,RMB
 void AMainPlayerController::AbilityInputTagPressed(const FGameplayTag InputTag)
 {
-
+	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
+	{
+		if(GetBaseAbilitySystemComponent())
+		{
+			GetBaseAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+		}
+		return;
+	}
+	
+	if(GetBaseAbilitySystemComponent())
+	{
+		GetBaseAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+	}
 }
 
 void AMainPlayerController::AbilityInputTagHeld(const FGameplayTag InputTag)
@@ -158,7 +175,6 @@ void AMainPlayerController::LookUp(const FInputActionValue& Value)
 	}
 }
 
-//TODO:InteractButton
 void AMainPlayerController::InteractButtonPressed()
 {
 	if(ACharacter* PlayerCharacter = this->GetCharacter())
@@ -170,84 +186,31 @@ void AMainPlayerController::InteractButtonPressed()
 	}
 }
 
-void AMainPlayerController::CrouchButtonPressed()
+void AMainPlayerController::Button01Pressed()
 {
-
-	if(ACharacter* PlayerCharacter = this->GetCharacter())
-	{
-		if(PlayerCharacter->bIsCrouched)
-		{
-			PlayerCharacter->UnCrouch();
-		}
-		else
-		{
-			PlayerCharacter->Crouch();
-		}
-	}
+	OnButtonPressed.ExecuteIfBound(1);
 }
 
-void AMainPlayerController::CastButtonPressed(const FInputActionValue& Value)
+void AMainPlayerController::Button02Pressed()
 {
-	//TODO: CastButtonPressed
-		// const bool IsAiming = Value.Get<bool>();
-		// if(IsAiming)
-		// {
-		// 	bIsCastSpell = true;
-		// 	if(IsLocalController())
-		// 	{
-		// 		FInputModeGameAndUI InputMode;
-		// 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		// 		InputMode.SetHideCursorDuringCapture(false);
-		// 		PaintWidget->SetVisibility(ESlateVisibility::Visible);
-		// 		bShowMouseCursor = true;
-		// 	}
-		// }
-		// else
-		// {
-		// 	bIsCastSpell = false;
-		// 	if(IsLocalController())
-		// 	{
-		// 		FInputModeGameOnly InputModeGame;
-		// 		SetInputMode(InputModeGame);
-		// 	
-		// 		bShowMouseCursor = false;
-		// 		DefaultMouseCursor = EMouseCursor::Crosshairs;
-		// 		PaintWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
-		// 		PaintWidget->RemoveAllPoints();
-		// 	}
-		// 	bIsDrawing = false;
-		//
-		// }
+	OnButtonPressed.ExecuteIfBound(2);
 }
 
-
-void AMainPlayerController::JumpButtonPressed()
+void AMainPlayerController::Button03Pressed()
 {
-	if(ACharacter* PlayerCharacter = this->GetCharacter())
-	{
-		if(PlayerCharacter->bIsCrouched)
-		{
-			PlayerCharacter->UnCrouch();
-		}
-		else
-		{
-			PlayerCharacter->Jump();
-		}
-	}
+	OnButtonPressed.ExecuteIfBound(3);
 }
 
-void AMainPlayerController::JumpingRelease()
+void AMainPlayerController::Button04Pressed()
 {
-	if(ACharacter* PlayerCharacter = this->GetCharacter())
-	{
-		PlayerCharacter->StopJumping();
-	}
+	OnButtonPressed.ExecuteIfBound(4);
+
 }
 
-
-void AMainPlayerController::SetIsCastingDrawingWidget_Implementation(bool bIsDrawing)
+void AMainPlayerController::Button05Pressed()
 {
-	bIsDrawingSpell = bIsDrawing;
+	OnButtonPressed.ExecuteIfBound(5);
 }
+
 
 

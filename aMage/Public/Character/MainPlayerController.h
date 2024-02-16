@@ -5,30 +5,30 @@
 #include "CoreMinimal.h"
 #include "Interact/TargetInterface.h"
 #include "GameFramework/PlayerController.h"
-#include "Interact/CastingInterface.h"
 #include "MainPlayerController.generated.h"
 
 class UMainInputAction;
 class UBaseAbilitySystemComponent;
 struct FGameplayTag;
-class UMainInputConfig;
-class UCombatActorComponent;
 /**
  * 
  */
 DECLARE_DELEGATE(FOnInteractButtonPressedSignature);
+DECLARE_DELEGATE_OneParam(FOnButtonPressedSignature,int);
 class ITargetInterface;
 struct FInputActionValue;
 class UInputMappingContext;
 class UInputAction;
 
 UCLASS()
-class AMAGE_API AMainPlayerController : public APlayerController,public ICastingInterface
+class AMAGE_API AMainPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 public:
 	AMainPlayerController();
 	FOnInteractButtonPressedSignature InteractButtonPressedSignature;
+	FOnButtonPressedSignature OnButtonPressed;
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -39,44 +39,70 @@ protected:
 	void Turn(const FInputActionValue& Value);
 	void LookUp(const FInputActionValue& Value);
 	void InteractButtonPressed();
-	void CrouchButtonPressed();
-	void CastButtonPressed(const FInputActionValue& Value);
-	void JumpButtonPressed();
-	void JumpingRelease();
-	
-	//TODO:: Change It For Widget
-	//void CursorTrace();
+	//For Equipping
+	void Button01Pressed();
+	void Button02Pressed();
+	void Button03Pressed();
+	void Button04Pressed();
+	void Button05Pressed();
+	//End For Equipping
+
+	//Activate Abilities By Compare Tag
+	void AbilityInputTagPressed(const FGameplayTag InputTag);
+	void AbilityInputTagReleased(const FGameplayTag InputTag);
+	void AbilityInputTagHeld(const FGameplayTag InputTag);
 
 private:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> MainInputContext;
-
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> MoveInput;
-
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> JumpAction;
-
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> LookXAction;
-
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> LookYAction;
-
+	
+	//For Generic Abilities
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> InteractButton;
-
+	TObjectPtr<UInputMappingContext> GenericInputContext;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> JumpAction;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> CrouchAction;
+	//End Generic Abilities
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> InteractButton;
+	
+	//For Equipping
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> Button01Action;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> Button02Action;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> ClickAction;
+	TObjectPtr<UMainInputAction> Button03Action;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> Button04Action;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> Button05Action;
+	//End For Equipping
 	
-	//Activate Abilities
-	void AbilityInputTagPressed(const FGameplayTag InputTag);
-	void AbilityInputTagReleased(const FGameplayTag InputTag);
-	void AbilityInputTagHeld(const FGameplayTag InputTag);
+	//For RuneAbilities
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputMappingContext> AbilitiesInputContext;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> StarterLMBAction;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> StarterRMBAction;
+	//End RuneAbilities
+	
 
 	UPROPERTY()
 	TObjectPtr<UBaseAbilitySystemComponent> BaseAbilitySystemComponent;
@@ -90,10 +116,9 @@ private:
 
 private:
 	bool bIsDrawingSpell;
-	UFUNCTION()
-	void SetIsCastingDrawingWidget_Implementation(bool bIsDrawing) override;
 
 public:
+	void SetbIsDrawingSpell(bool bIsDrawing) {bIsDrawingSpell = bIsDrawing;};
 	FORCEINLINE bool GetIsDrawingSpell() const {return bIsDrawingSpell;};
 
 };

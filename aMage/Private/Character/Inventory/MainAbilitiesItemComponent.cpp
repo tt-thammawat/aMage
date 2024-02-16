@@ -10,5 +10,14 @@ void UMainAbilitiesItemComponent::GetLifetimeReplicatedProps(TArray<FLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ThisClass, ItemIcon);
 	DOREPLIFETIME(ThisClass, ItemDescription);
-	DOREPLIFETIME(ThisClass, ItemBaseAbility);
+	DOREPLIFETIME(ThisClass, BaseAbilityLMBAction);
+	
+	DOREPLIFETIME(ThisClass, MatchingInfo);
+	DOREPLIFETIME(ThisClass, AbilitiesDescriptions);
+	DOREPLIFETIME(ThisClass, UsageTimes);
+	DOREPLIFETIME(ThisClass, SpecialAbilityLMBAction);
+	DOREPLIFETIME(ThisClass, SpecialAbilityRMBAction);
+	
+	DOREPLIFETIME(ThisClass, ItemAbilities);
+
 }
