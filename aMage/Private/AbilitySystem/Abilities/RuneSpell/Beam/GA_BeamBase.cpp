@@ -18,7 +18,7 @@ UGA_BeamBase::UGA_BeamBase()
 void UGA_BeamBase::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
+	//Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 
 	bIsInputHeld = true;
 	
@@ -47,7 +47,7 @@ void UGA_BeamBase::RepeatedlyActivateAbility()
 void UGA_BeamBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                    const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	//Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
 	

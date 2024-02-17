@@ -13,6 +13,8 @@ AMainBeam::AMainBeam()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	bReplicates = true;
+	
 	CustomRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("CustomRootComponent"));
 	CustomRootComponent->SetupAttachment(RootComponent);
 	

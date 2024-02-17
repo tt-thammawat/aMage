@@ -1,23 +1,24 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/Projectile/MainProjectile.h"
-#include "AbilitySystemComponent.h"
+#include "Actor/Projectile/ChargeProjectile.h"
+
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "aMage/aMage.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
-AMainProjectile::AMainProjectile()
+AChargeProjectile::AChargeProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates=true;
 
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComponent");
 	CapsuleComponent->SetCollisionObjectType(ECC_PROJECTILE);
+	CapsuleComponent->SetupAttachment(RootComponent);
 	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Overlap);
@@ -30,7 +31,7 @@ AMainProjectile::AMainProjectile()
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 }
 
-void AMainProjectile::Destroyed()
+void AChargeProjectile::Destroyed()
 {
 	//Client Run This Function // Will Get Effect Regardless
 	if(!bHit && !HasAuthority())
@@ -41,31 +42,7 @@ void AMainProjectile::Destroyed()
 	Super::Destroyed();
 }
 
-void AMainProjectile::OnSphereOverlap(UPrimitiveComponent* OverlapComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	UGameplayStatics::PlaySoundAtLocation(this,ImpactSound,GetActorLocation(),FRotator::ZeroRotator);
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,ImpactEffect,GetActorLocation());
-	
-	//Destroy On The Server Side
-	if(HasAuthority())
-	{
-		//Get ASC By Using UAbilitySystemBlueprintLibrary Pass On Actor That We Want TO Do The Damage
-		if(UAbilitySystemComponent* TargetAsc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
-		{
-			//ApplyGameplayEffectSpecToThe OtherActor
-			TargetAsc->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
-		}
-		Destroy();
-	}
-	else // Set This For Client
-	{
-		bHit = true;
-	}
-}
-
-
-void AMainProjectile::BeginPlay()
+void AChargeProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	//Set Life For This Actor
@@ -77,6 +54,26 @@ void AMainProjectile::BeginPlay()
 	UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent(),NAME_None,FVector(ForceInit),FRotator::ZeroRotator,EAttachLocation::KeepRelativeOffset,true);
 }
 
-
+void AChargeProjectile::OnSphereOverlap(UPrimitiveComponent* OverlapComponent, AActor* OtherActor,
+                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UGameplayStatics::PlaySoundAtLocation(this,ImpactSound,GetActorLocation(),FRotator::ZeroRotator);
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,ImpactEffect,GetActorLocation());
+	
+	//Server Side
+	if(HasAuthority())
+	{
+		//Get ASC By Using UAbilitySystemBlueprintLibrary Pass On Actor That We Want TO Do The Damage
+		if(UAbilitySystemComponent* TargetAsc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
+		{
+			//ApplyGameplayEffectSpecToThe OtherActor
+			TargetAsc->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
+		}
+	}
+	else // Set This For Client
+	{
+		bHit = true;
+	}
+}
 
 

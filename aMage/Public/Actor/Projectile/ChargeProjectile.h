@@ -5,42 +5,50 @@
 #include "CoreMinimal.h"
 #include "GameplayEffectTypes.h"
 #include "GameFramework/Actor.h"
-#include "MainBeam.generated.h"
+#include "ChargeProjectile.generated.h"
 
-class UNiagaraComponent;
-class USphereComponent;
+class UCapsuleComponent;
+class UNiagaraSystem;
+class UProjectileMovementComponent;
 
 UCLASS()
-class AMAGE_API AMainBeam : public AActor
+class AMAGE_API AChargeProjectile : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	AMainBeam();
-	
-	UFUNCTION(BlueprintCallable,Category=Beam)
-	void ActivateBeamAndSetBeam(FVector BeamEndLocation,FVector BeamStartLocation);
+	AChargeProjectile();
+	virtual void Destroyed() override;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
-	UFUNCTION(BlueprintCallable,Category=Beam)
-	void DeactivateBeam();
-
-	//HandleThisDamageEffect
+	//Handle UGameplayEffect
 	UPROPERTY(BlueprintReadWrite,meta = (ExposeOnSpawn = true))
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;
+	
 protected:
+
 	virtual void BeginPlay() override;
 	
 	UFUNCTION()
 	void OnSphereOverlap(UPrimitiveComponent* OverlapComponent,AActor* OtherActor , UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult);
 
 private:
-	UPROPERTY(VisibleAnywhere,Category="Default")
-	TObjectPtr<USceneComponent> CustomRootComponent;
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USphereComponent> SphereComponent;
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UNiagaraComponent> BeamNiagara;
+	TObjectPtr<UCapsuleComponent> CapsuleComponent;
+
+	UPROPERTY(EditAnyWhere)
+	TObjectPtr<UNiagaraSystem> ImpactEffect;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ImpactSound;
+
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> LoopingSound;
+
+	UPROPERTY(EditDefaultsOnly)
+	float LifeSpan;
 	
+	bool bHit=false;
+
 };
