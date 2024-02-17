@@ -4,12 +4,19 @@
 #include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
 
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
+#include "Net/UnrealNetwork.h"
+
+void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(UMainGenericGameplayAbility,UsageTimes,COND_OwnerOnly);
+}
 
 void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
-	
 }
 
 void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

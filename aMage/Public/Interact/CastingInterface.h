@@ -23,5 +23,5 @@ class AMAGE_API ICastingInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void MatchRuneSpellTags(TArray<FGameplayTag>& RuneTags)=0;
+	virtual void MatchRuneSpellTags(TArray<FGameplayTag> RuneTags)=0;
 };

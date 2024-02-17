@@ -40,6 +40,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsCasting = GameplayTagContainer.HasTag(FMainGameplayTags::Get().State_Action_Casting);
 		AO_Yaw = MainPlayerCharacter->GetAOYaw();
 		AO_Pitch = MainPlayerCharacter->GetAOPitch();
+		bAiming = MainPlayerCharacter->GetIsAiming();
 	}
 	
 	//TODO: Implement AIming

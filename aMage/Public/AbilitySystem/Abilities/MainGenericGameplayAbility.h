@@ -6,6 +6,7 @@
 #include "AbilitySystem/Abilities/MainGameplayAbility.h"
 #include "MainGenericGameplayAbility.generated.h"
 
+class UMainInputAction;
 /**
  * 
  */
@@ -15,6 +16,8 @@ class AMAGE_API UMainGenericGameplayAbility : public UMainGameplayAbility
 	GENERATED_BODY()
 
 public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
@@ -24,6 +27,14 @@ public:
 	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	
 protected:
+	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)
+	float UsageTimes;
+	
+	UPROPERTY(EditAnywhere,Category=MatchRuneTag)
+	TObjectPtr<UMainInputAction> LMBInputAction;
+	UPROPERTY(EditAnywhere,Category=MatchRuneTag)
+	TObjectPtr<UMainInputAction> RMBInputAction;
+	
 	UPROPERTY(EditDefaultsOnly,Category="Effects")
 	TArray<TSubclassOf<UGameplayEffect>> OngoingEffectsToRemoveOnEnd;
 	

@@ -4,14 +4,13 @@
 #include "Character/MainPlayerCharacter.h"
 #include "GameplayTagsSingleton.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
-#include "AbilitySystem/Abilities/MainRuneSpellGameplayAbility.h"
+#include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
 #include "AbilitySystem/Data/RuneSpellClassInfo.h"
 #include "Actor/InteractActor/MainEquipmentInteractActor.h"
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
 #include "Character/Inventory/Amage_EquipmentManager.h"
-#include "Components/AGR_ItemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Gamemode/MainGameMode.h"
@@ -57,6 +56,8 @@ void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,InteractObjectActor,COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,RefRuneTags,COND_OwnerOnly);
+	DOREPLIFETIME(AMainPlayerCharacter,bIsAiming);
 }
 
 void AMainPlayerCharacter::Tick(float DeltaSeconds)
@@ -145,10 +146,10 @@ void AMainPlayerCharacter::BindButtonToCharacter(AMainPlayerController* PlayerCo
 FVector AMainPlayerCharacter::GetCombatSocketLocation()
 {
 	AActor* OutActor;
-	PlayerEquipmentManager->GetItemInSlot(FName("WeaponHandSocket"),OutActor);
+	PlayerEquipmentManager->GetItemInSlot("WeaponHandSocket",OutActor);
 	const AMainEquipmentInteractActor* EquipmentInteractActor = Cast<AMainEquipmentInteractActor>(OutActor);
-	const FVector WeaponSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
-	return WeaponSocketLocation;
+	FVector CombatSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
+	return  CombatSocketLocation;
 }
 
 void AMainPlayerCharacter::AddItemAbilities(TSubclassOf<UGameplayAbility> AddItemAbility)
@@ -171,17 +172,17 @@ void AMainPlayerCharacter::RemoveItemAbilities(TSubclassOf<UGameplayAbility> Rem
 	BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveItemAbilities);
 }
 
-void AMainPlayerCharacter::MatchRuneSpellTags(TArray<FGameplayTag>& RuneTags)
+void AMainPlayerCharacter::MatchRuneSpellTags(TArray<FGameplayTag> RuneTags)
 {
+	RefRuneTags = RuneTags;
+	
 	if (HasAuthority())
 	{
-		// Directly process on server
-		ProcessAbilityRequest(RuneTags);
+		ProcessAbilityRequest(RefRuneTags);
 	}
 	else
 	{
-		// Send request to server
-		ServerRequestAbilityActivation(RuneTags);
+		ServerRequestAbilityActivation(RefRuneTags);
 	}
 }
 
@@ -192,33 +193,22 @@ void AMainPlayerCharacter::ServerRequestAbilityActivation_Implementation(const T
 
 void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& RuneTags)
 {
-	FGameplayTagContainer RuneTagContainer;
-	for (const auto& RuneTag : RuneTags)
-	{
-		RuneTagContainer.AddTag(RuneTag);
-	}
-
 	AMainGameMode* MainGameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	if(MainGameMode)
 	{
-		if(MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTagContainer) != nullptr)
+		TSubclassOf<UGameplayAbility> MatchedAbility = MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTags);
+		UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent());
+		if(MatchedAbility)
 		{
-			if(	TSubclassOf<UGameplayAbility> MatchedAbility = MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTagContainer))
-			{
-				FGameplayAbilitySpec AbilitySpec(MatchedAbility,1);
-				if(const UMainRuneSpellGameplayAbility* MainRuneSpellGameplayAbility = Cast<UMainRuneSpellGameplayAbility>(AbilitySpec.Ability))
-				{
-					AbilitySpec.DynamicAbilityTags.AddTag(MainRuneSpellGameplayAbility->StartupInputTag);
-					GetAbilitySystemComponent()->GiveAbilityAndActivateOnce(AbilitySpec);
-				}
-			}
+		TArray<TSubclassOf<UGameplayAbility>> AddAbilities;
+		AddAbilities.Add(MatchedAbility);
+		BaseAbilitySystemComponent->AddCharacterAbilities(AddAbilities);
 		}
 	}
 }
 
 void AMainPlayerCharacter::SetInteractObjectActor(AActor* Actor)
 {
-
 	// Only set if there's no current interact object
 	if (!InteractObjectActor)
 	{

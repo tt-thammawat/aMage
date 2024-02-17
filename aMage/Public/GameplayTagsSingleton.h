@@ -34,6 +34,10 @@ public:
  //Input Tag For Abilities Base Abilities And Casting
  FGameplayTag InputTag_LMB; 
  FGameplayTag InputTag_RMB;
+ //Loose Input Tag
+ FGameplayTag Input_Loose_LMB;
+ FGameplayTag Input_Loose_RMB;
+
  
  //Equipping Tag
  FGameplayTag Item_Equip_Staff;
@@ -42,6 +46,7 @@ public:
  FGameplayTag State_Action_Casting;
  FGameplayTag State_Action_Aiming;
  FGameplayTag State_InAir_Jumping;
+ 
  
 private:
  static FMainGameplayTags MainGameplayTags;

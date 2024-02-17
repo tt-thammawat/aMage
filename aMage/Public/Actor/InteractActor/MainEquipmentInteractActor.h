@@ -15,10 +15,10 @@ class AMAGE_API AMainEquipmentInteractActor : public AMainItemInteractActor
 	GENERATED_BODY()
 public:
 	AMainEquipmentInteractActor();
-private:
-	UPROPERTY(EditAnywhere,Category=Weapon)
+protected:
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Weapon)
 	TObjectPtr<USkeletalMeshComponent> WeaponEquipMesh;
-	UPROPERTY(EditAnywhere,Category=Weapon)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Weapon)
 	FName WeaponTipSocketName;
 public:
 	USkeletalMeshComponent* GetSkeletalMeshComponent() const {return WeaponEquipMesh;};

@@ -22,7 +22,9 @@ public:
 	FEffectAssetTags EffectAssetTags;
 
 	//Add Ability From Character
+	UFUNCTION(BlueprintCallable,Category="Abilities")
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddAbilities);
+	UFUNCTION(BlueprintCallable,Category="Abilities")
 	void RemoveCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities);
 	//Input Tags For Abilities
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);

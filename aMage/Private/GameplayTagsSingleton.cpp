@@ -33,6 +33,10 @@ void FMainGameplayTags::InitializeNativeGameplayTags()
 	MainGameplayTags.InputTag_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.LMB"), FString("Input Tag For Left Mouse Button"));
 	MainGameplayTags.InputTag_RMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.RMB"), FString("Input Tag For Right Mouse Button"));
 	//-------------------------------------------------------------------------------------------------------------//
+	//LooseInputTags----------------------------------------------------------------------------------------------------//
+	MainGameplayTags.Input_Loose_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.Loose.LMB"), FString("Loose Input Tag For Left Mouse Button"));
+	MainGameplayTags.Input_Loose_RMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.Loose.RMB"), FString("Loose Input Tag For Right Mouse Button"));
+	//-------------------------------------------------------------------------------------------------------------//
 	
 	//Equipping Tag---------------------------------------------------------------------------------------------//
 	MainGameplayTags.Item_Equip_Staff = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Item.Equip.Staff"),FString("Equip Item Staff Tags"));

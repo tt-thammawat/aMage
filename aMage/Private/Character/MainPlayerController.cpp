@@ -32,6 +32,7 @@ void AMainPlayerController::BeginPlay()
 	
 	check(MainInputContext);
 	check(AbilitiesInputContext);
+	check(GenericInputContext);
 	//Set New Enhanced Input For Local Player
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()); 
 
@@ -67,14 +68,13 @@ void AMainPlayerController::SetupInputComponent()
 	//Abilities
 	MainEnhancedInputComponent->BindAbilityActions(GenericInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
 	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
-	
 	MainEnhancedInputComponent->BindAbilityActions(AbilitiesInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
-	
 }
 
 // Check with the FMainGameplayTags Singleton if the InputTag = InputTag.LMB,RMB
 void AMainPlayerController::AbilityInputTagPressed(const FGameplayTag InputTag)
 {
+	
 	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
 	{
 		if(GetBaseAbilitySystemComponent())
@@ -109,6 +109,7 @@ void AMainPlayerController::AbilityInputTagHeld(const FGameplayTag InputTag)
 
 void AMainPlayerController::AbilityInputTagReleased(const FGameplayTag InputTag)
 {
+	
 	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
 	{
 		if(GetBaseAbilitySystemComponent())
