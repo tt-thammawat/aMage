@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Animation/AnimInstance.h"
-#include "Character/TurnInPlace.h"
 #include "PlayerAnimInstance.generated.h"
 
 class AMainPlayerCharacter;
@@ -31,8 +30,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsCrouch;
-	UPROPERTY(BlueprintReadOnly)
-	bool bAiming;
+
 
 	//For Check Tag
 	FGameplayTagContainer GameplayTagContainer;
@@ -43,8 +41,14 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsCasting;
-	
-	
+
+	//Aiming to Shoot Spell
+	UPROPERTY(BlueprintReadOnly)
+	bool bAiming;
+	UPROPERTY(BlueprintReadOnly)
+	float AO_Yaw;
+	UPROPERTY(BlueprintReadOnly)
+	float AO_Pitch;
 	
 
 };

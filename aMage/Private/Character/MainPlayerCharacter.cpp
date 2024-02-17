@@ -2,7 +2,10 @@
 
 
 #include "Character/MainPlayerCharacter.h"
+#include "GameplayTagsSingleton.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/MainRuneSpellGameplayAbility.h"
+#include "AbilitySystem/Data/RuneSpellClassInfo.h"
 #include "Actor/InteractActor/MainEquipmentInteractActor.h"
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
@@ -11,7 +14,10 @@
 #include "Components/AGR_ItemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Gamemode/MainGameMode.h"
 #include "Interact/InteractInterface.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AMainPlayerCharacter::AMainPlayerCharacter()
 {
@@ -53,9 +59,55 @@ void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,InteractObjectActor,COND_OwnerOnly);
 }
 
+void AMainPlayerCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	AimOffset(DeltaSeconds);
+}
+
 void AMainPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AMainPlayerCharacter::AimOffset(float DeltaTime)
+{
+	FGameplayTagContainer GameplayTagContainer;
+	if(GetAbilitySystemComponent())
+	{
+	GetAbilitySystemComponent()->GetOwnedGameplayTags(GameplayTagContainer);
+	if(GameplayTagContainer.HasTag(FMainGameplayTags::Get().Item_Equip_Staff))
+	{
+		FVector Velocity = GetVelocity();
+		Velocity.Z = 0.f;
+		float Speed = Velocity.Size();
+		bool bIsinAir = GetCharacterMovement()->IsFalling();
+
+		if(Speed == 0.f && !bIsinAir)
+		{
+			FRotator CurrentAimRotation = FRotator(0.f,GetBaseAimRotation().Yaw,0.f);
+			FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation,StartingAimRotation);
+			AO_Yaw = DeltaAimRotation.Yaw;
+		}
+		
+		if(Speed > 0.f || bIsinAir) // Running or Jumping Set Starting AimRotation To Set Yaw
+		{
+			StartingAimRotation = FRotator(0.f,GetBaseAimRotation().Yaw,0.f);
+			AO_Yaw = 0.f;
+		}
+
+		AO_Pitch = GetBaseAimRotation().Pitch;
+		if(AO_Pitch>90.f && !IsLocallyControlled())
+		{
+			//Map Pitch From [270-360) To Range [-90,0)
+			FVector2D InRange(270.f,360.f);
+			FVector2D OutRange(-90.f,0.f);
+			// Clamp AO_Pitch To The OutPutRange
+			AO_Pitch = FMath::GetMappedRangeValueClamped(InRange,OutRange,AO_Pitch);
+		}
+	}
+	}
 }
 
 //Get ABS and AS From MainPlayerState
@@ -117,6 +169,51 @@ void AMainPlayerCharacter::RemoveItemAbilities(TSubclassOf<UGameplayAbility> Rem
 	
 	if(!HasAuthority()) return;
 	BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveItemAbilities);
+}
+
+void AMainPlayerCharacter::MatchRuneSpellTags(TArray<FGameplayTag>& RuneTags)
+{
+	if (HasAuthority())
+	{
+		// Directly process on server
+		ProcessAbilityRequest(RuneTags);
+	}
+	else
+	{
+		// Send request to server
+		ServerRequestAbilityActivation(RuneTags);
+	}
+}
+
+void AMainPlayerCharacter::ServerRequestAbilityActivation_Implementation(const TArray<FGameplayTag>& RuneTags)
+{
+	ProcessAbilityRequest(RuneTags);
+}
+
+void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& RuneTags)
+{
+	FGameplayTagContainer RuneTagContainer;
+	for (const auto& RuneTag : RuneTags)
+	{
+		RuneTagContainer.AddTag(RuneTag);
+	}
+
+	AMainGameMode* MainGameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(MainGameMode)
+	{
+		if(MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTagContainer) != nullptr)
+		{
+			if(	TSubclassOf<UGameplayAbility> MatchedAbility = MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTagContainer))
+			{
+				FGameplayAbilitySpec AbilitySpec(MatchedAbility,1);
+				if(const UMainRuneSpellGameplayAbility* MainRuneSpellGameplayAbility = Cast<UMainRuneSpellGameplayAbility>(AbilitySpec.Ability))
+				{
+					AbilitySpec.DynamicAbilityTags.AddTag(MainRuneSpellGameplayAbility->StartupInputTag);
+					GetAbilitySystemComponent()->GiveAbilityAndActivateOnce(AbilitySpec);
+				}
+			}
+		}
+	}
 }
 
 void AMainPlayerCharacter::SetInteractObjectActor(AActor* Actor)

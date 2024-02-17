@@ -22,7 +22,7 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		//if Ability is derived from MainGameplayAbility it will have InputTag Button 1 23 4 LMB RMB
 		if(const UMainGameplayAbility* MainGameplayAbility = Cast<UMainGameplayAbility>(AbilitySpec.Ability))
 		{
-			MainGameplayAbility->StartupInputTag;
+	
 			//Add InputTag from StartupInputTag from MainGameplayAbility To DynamicAbilityTags ( FGameplayContainer )
 			AbilitySpec.DynamicAbilityTags.AddTag(MainGameplayAbility->StartupInputTag);
 			//Add StartUp Abilities if it derives from MainGameplayAbility

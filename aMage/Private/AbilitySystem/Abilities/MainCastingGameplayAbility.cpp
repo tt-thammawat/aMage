@@ -5,6 +5,9 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask.h"
 #include "Character/MainPlayerController.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Interact/CastingInterface.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "UI/Widget/MainPaintWidget.h"
 
@@ -18,7 +21,7 @@ void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
-	
+
 	if (GetActorInfo().PlayerController->IsLocalPlayerController())
 	{
 		if(PaintWidget == nullptr)
@@ -61,6 +64,11 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		{
 			PaintWidget->OnDrawingSpellSuccess.AddDynamic(this,&ThisClass::AddRuneTags);
 		}
+		//TODO : Move This WalkSpeed To Attribute
+		//Set Character WalkSpeed
+		const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+		OldMaxWalkSpeed=Character->GetCharacterMovement()->MaxWalkSpeed;
+		Character->GetCharacterMovement()->MaxWalkSpeed = SlowMaxWalkSpeed;
 	}
 
 
@@ -85,10 +93,14 @@ void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle
 			{
 				PaintWidget->SetVisibility(ESlateVisibility::Hidden);
 			}
+
+			const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+			//Set Character WalkSpeed
+			Character->GetCharacterMovement()->MaxWalkSpeed= OldMaxWalkSpeed;
+
 		}
 	}
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-
 }
 
 void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -101,12 +113,20 @@ void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 			FString TagString = Tag.ToString();
 			UE_LOG(LogTemp, Warning, TEXT("Rune Tag: %s"), *TagString);
 		}
-		//TODO: Use CastingInterface To Send Those Tag To PlayerCharacter
-		RuneTags.Empty();
-		if(PaintWidget)
-		{
-			PaintWidget->OnDrawingSpellSuccess.RemoveDynamic(this, &ThisClass::AddRuneTags);
-		}
+	
+	ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+	ICastingInterface* CastingInterface = CastChecked<ICastingInterface>(Character);
+	if(CastingInterface)
+	{
+		CastingInterface->MatchRuneSpellTags(RuneTags);
+	}
+	
+	RuneTags.Empty();
+	if(PaintWidget)
+	{
+		PaintWidget->OnDrawingSpellSuccess.RemoveDynamic(this, &ThisClass::AddRuneTags);
+	}
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 

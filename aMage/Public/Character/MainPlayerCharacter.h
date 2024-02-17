@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Character/BaseCharacter.h"
+#include "Interact/CastingInterface.h"
 #include "MainPlayerCharacter.generated.h"
 
+class UMainRuneSpellGameplayAbility;
 class UAmage_EquipmentManager;
 class AProjectile;
 class AMainPlayerController;
@@ -17,21 +19,29 @@ class AMainPlayerState;
  * 
  */
 UCLASS()
-class AMAGE_API AMainPlayerCharacter : public ABaseCharacter
+class AMAGE_API AMainPlayerCharacter : public ABaseCharacter,public  ICastingInterface
 {
 	GENERATED_BODY()
 public:
 	AMainPlayerCharacter();
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
-
+	
 	//CombatInterface
 	FORCEINLINE virtual int32 GetCharacterLevel() override;
-	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void Tick(float DeltaSeconds) override;
 protected:
 	virtual void BeginPlay() override;
-
+	//Aiming
+	void AimOffset(float DeltaTime);
+	UPROPERTY(BlueprintReadOnly)
+	float AO_Yaw;
+	float InterpAO_Yaw;
+	UPROPERTY(BlueprintReadOnly)
+	float AO_Pitch;
+	FRotator StartingAimRotation;
+	
 	//Init GAS
 	virtual void InitAbilityActorInfo() override;
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
@@ -61,12 +71,24 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerInteractButtonPressed();
 
+	//Interface Request Ability After Get Casting Rune Spell
+
+	virtual void MatchRuneSpellTags(TArray<FGameplayTag>& RuneTags) override;
+	UFUNCTION(Server,Reliable)
+	void ServerRequestAbilityActivation(const TArray<FGameplayTag>& RuneTags);
+	void ProcessAbilityRequest(const TArray<FGameplayTag>& RuneTags);
+	// UPROPERTY(ReplicatedUsing=OnRep_RuneSpellGameplayAbility,BlueprintReadOnly,Category="Rune Spell")
+	// TObjectPtr<UMainRuneSpellGameplayAbility> RuneSpellGameplayAbility;
+	// UFUNCTION()
+	// void OnRep_RuneSpellGameplayAbility();
+
 public:
 	UFUNCTION(BlueprintCallable,Category=Interact)
 	void SetInteractObjectActor(AActor* Actor);
 	UFUNCTION(BlueprintCallable,Category=Interact)
 	void ClearInteractObjectActor(AActor* Actor);
 
+	FORCEINLINE float GetAOYaw() const {return AO_Yaw;};
+	FORCEINLINE float GetAOPitch() const {return AO_Pitch;};
 
-	
 };

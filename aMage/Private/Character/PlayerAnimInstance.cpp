@@ -38,6 +38,8 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		MainPlayerCharacter->GetAbilitySystemComponent()->GetOwnedGameplayTags(GameplayTagContainer);
 		bIsEquippedStaff = GameplayTagContainer.HasTag(FMainGameplayTags::Get().Item_Equip_Staff);
 		bIsCasting = GameplayTagContainer.HasTag(FMainGameplayTags::Get().State_Action_Casting);
+		AO_Yaw = MainPlayerCharacter->GetAOYaw();
+		AO_Pitch = MainPlayerCharacter->GetAOPitch();
 	}
 	
 	//TODO: Implement AIming
