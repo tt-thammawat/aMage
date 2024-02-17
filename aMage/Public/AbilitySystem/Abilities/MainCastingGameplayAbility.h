@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/MainGameplayAbility.h"
+#include "Interact/CastingInterface.h"
 #include "MainCastingGameplayAbility.generated.h"
 
 class UAbilityTask_PlayMontageAndWait;
@@ -30,7 +31,9 @@ protected:
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
 
 private:
-
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float SlowMaxWalkSpeed = 350.f;
+	float OldMaxWalkSpeed = 0.f;
 	UFUNCTION()
 	void AddRuneTags(FGameplayTag RuneTag);
 	TArray<FGameplayTag> RuneTags;
