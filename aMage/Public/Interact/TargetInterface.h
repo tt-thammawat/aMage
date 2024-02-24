@@ -21,8 +21,15 @@ class AMAGE_API ITargetInterface
 	GENERATED_BODY()
 
 public:
-	//TODO: MoveThese To InteractInterface
+
+	// For Enemy
 	// Pure Virtual Function Need Other class Need To override
 	virtual void HighlightActor() = 0;
 	virtual void UnHighlightActor() = 0;
+
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
+	void SetCombatTarget(AActor* InCombatTarget);
+
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
+	AActor* GetCombatTarget() const;
 };

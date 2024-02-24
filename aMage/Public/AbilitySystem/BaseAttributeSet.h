@@ -89,6 +89,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Vigor,Category = "Primary Attributes")
 	FGameplayAttributeData Vigor;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,Vigor);
+	
 	// Secondary Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxMana,Category = "Secondary  Attributes")
 	FGameplayAttributeData MaxMana;
@@ -96,6 +97,20 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealth,Category = "Secondary Attributes")
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,MaxHealth);
+	
+	//Resistance Attributes
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ResistanceFire,Category = "Secondary Attributes")
+	FGameplayAttributeData ResistanceFire;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,ResistanceFire);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ResistanceLightning,Category = "Secondary Attributes")
+	FGameplayAttributeData ResistanceLightning;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,ResistanceLightning);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ResistanceIce,Category = "Secondary Attributes")
+	FGameplayAttributeData ResistanceIce;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,ResistanceIce);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ResistancePhysical,Category = "Secondary Attributes")
+	FGameplayAttributeData ResistancePhysical;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,ResistancePhysical);
 	
 	// Vital Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Mana,Category = "Vital Attributes")
@@ -119,6 +134,15 @@ public:
 	UFUNCTION()
 	void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) const;
 
+	UFUNCTION()
+	void OnRep_ResistanceFire(const FGameplayAttributeData& OldResistanceFire) const;
+	UFUNCTION()
+	void OnRep_ResistanceLightning(const FGameplayAttributeData& OldMResistanceLightning) const;
+	UFUNCTION()
+	void OnRep_ResistanceIce(const FGameplayAttributeData& OldResistanceIce) const;
+	UFUNCTION()
+	void OnRep_ResistancePhysical(const FGameplayAttributeData& OldResistancePhysical) const;
+	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
 	UFUNCTION()

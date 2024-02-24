@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/MainAbilitySystemLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "MainAbilityTypes.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/MainPlayerState.h"
 #include "Gamemode/MainGameMode.h"
@@ -99,26 +100,43 @@ void UMainAbilitySystemLibrary::GiveStartUpAbilities(const UObject* WorldContext
 	}
 }
 
-//TODO : Add Elemental Damage
 bool UMainAbilitySystemLibrary::IsFireDamage(const FGameplayEffectContextHandle& EffectContextHandle)
 {
+	const FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<const FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		return MainGameplayEffectContext->IsFireDamage();
+	}
 	return false;
 }
 
 bool UMainAbilitySystemLibrary::IsLightningDamage(const FGameplayEffectContextHandle& EffectContextHandle)
 {
+	const FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<const FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		return MainGameplayEffectContext->IsLightningDamage();
+	}
 	return false;
-
 }
 
 bool UMainAbilitySystemLibrary::IsIceDamage(const FGameplayEffectContextHandle& EffectContextHandle)
 {
+	const FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<const FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		return MainGameplayEffectContext->IsIceDamage();
+	}
 	return false;
-
 }
 
 bool UMainAbilitySystemLibrary::IsPhysicalDamage(const FGameplayEffectContextHandle& EffectContextHandle)
 {
+	const FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<const FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		return MainGameplayEffectContext->IsPhysicalDamage();
+	}
 	return false;
 
 }

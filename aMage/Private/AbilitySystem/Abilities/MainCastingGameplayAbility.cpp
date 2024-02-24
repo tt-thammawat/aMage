@@ -79,13 +79,11 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
 	
 	if (GetActorInfo().PlayerController->IsLocalPlayerController())
 	{
 		if (AMainPlayerController* PlayerController = Cast<AMainPlayerController>(GetActorInfo().PlayerController.Get()))
 		{
-			PlayerController->SetbIsDrawingSpell(true);
 			const FInputModeGameOnly InputMode;
 			PlayerController->SetbIsDrawingSpell(false);
 			PlayerController->SetInputMode(InputMode);
@@ -104,7 +102,6 @@ void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	
 		// Iterate over RuneTags and print each one
 		for (const FGameplayTag& Tag : RuneTags)
 		{

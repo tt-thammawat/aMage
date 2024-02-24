@@ -50,9 +50,6 @@ protected:
 	
 	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<AMainBeam> BeamREF;
-		
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 
 };

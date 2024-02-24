@@ -22,6 +22,11 @@ UBaseAttributeSet::UBaseAttributeSet()
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_MaxMana, GetMaxManaAttribute);
 
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Resistance_Fire, GetResistanceFireAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Resistance_Lightning, GetResistanceLightningAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Resistance_Ice, GetResistanceIceAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Resistance_Physical, GetResistancePhysicalAttribute);
+	
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Vital_Health, GetHealthAttribute);
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Vital_Mana, GetManaAttribute);
 
@@ -42,12 +47,16 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxHealth,COND_None,REPNOTIFY_Always);
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxMana,COND_None,REPNOTIFY_Always);
 
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,ResistanceFire,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,ResistanceLightning,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,ResistanceIce,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,ResistancePhysical,COND_None,REPNOTIFY_Always);
+		
 		// Replicate Health Without Condition Update with REPNOTIFY Always
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Health,COND_None,REPNOTIFY_Always);
 		//MANA
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Mana,COND_None,REPNOTIFY_Always);
 		
-
 	}
 }
 
@@ -179,6 +188,30 @@ void UBaseAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldMana) const
 void UBaseAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,MaxMana,OldMaxMana);
+}
+
+void UBaseAttributeSet::OnRep_ResistanceFire(const FGameplayAttributeData& OldResistanceFire) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,ResistanceFire,OldResistanceFire);
+
+}
+
+void UBaseAttributeSet::OnRep_ResistanceLightning(const FGameplayAttributeData& OldResistanceLightning) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,ResistanceLightning,OldResistanceLightning);
+
+}
+
+void UBaseAttributeSet::OnRep_ResistanceIce(const FGameplayAttributeData& OldResistanceIce) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,ResistanceIce,OldResistanceIce);
+
+}
+
+void UBaseAttributeSet::OnRep_ResistancePhysical(const FGameplayAttributeData& OldResistancePhysical) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,ResistancePhysical,OldResistancePhysical);
+
 }
 
 void UBaseAttributeSet::OnRep_Strength(const FGameplayAttributeData& OldStrength) const

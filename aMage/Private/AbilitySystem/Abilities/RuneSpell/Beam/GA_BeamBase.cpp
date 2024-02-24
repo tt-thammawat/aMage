@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayTagsSingleton.h"
 #include "Actor/Beam/MainBeam.h"
 #include "Character/MainPlayerCharacter.h"
 #include "Interact/ICombatInterface.h"
@@ -116,12 +117,30 @@ void UGA_BeamBase::SpawnBeam(const FVector& BeamEndLocation)
 							ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 							);
 
-		BeamREF->SetOwner(GetOwningActorFromActorInfo());
+	//Give The Projectile A Gameplay Effect Spec For Causing Damage
+	//Get AbilitySystemComponent
+	const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+	FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+	//Set AbilityCDO //Add Those Things to check if information is pass along
+	EffectContextHandle.SetAbility(this);
+	EffectContextHandle.AddSourceObject(BeamREF);
+	TArray<TWeakObjectPtr<AActor>> Actors;
+	Actors.Add(BeamREF);
+	EffectContextHandle.AddActors(Actors);
+	FHitResult HitResult;
+	HitResult.Location = BeamEndLocation;
+	EffectContextHandle.AddHitResult(HitResult);
 		
-		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
-		//Make Spec Handle That Contains Effect Information And Send It To Projectile
-		const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),SourceASC->MakeEffectContext());
-		//Now The Projectile Have The Damage From This Spell
+	//Make Spec Handle That Contains Effect Information And Send It To Projectile
+	const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),EffectContextHandle);
+	const FMainGameplayTags MainGameplayTags = FMainGameplayTags::Get();
+
+	for (auto& Pair : DamageType)
+	{
+		const float ScaledDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
+		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle,Pair.Key,ScaledDamage);
+	}
+		
 		BeamREF->DamageEffectSpecHandle=SpecHandle;
 		BeamREF->FinishSpawning(SpawnTransform);
 

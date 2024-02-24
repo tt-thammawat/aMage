@@ -39,9 +39,6 @@ protected:
 	virtual void SpawnChargeProjectile(const FVector& ProjectileTargetLocation, int32 NumProjectiles);
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	TSubclassOf<AChargeProjectile> ProjectileClass;
-
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 	FTimerHandle TimerHandle_InputHeld;
 	float InputPressTime = 0.0f;

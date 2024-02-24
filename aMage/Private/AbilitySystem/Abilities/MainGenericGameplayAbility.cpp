@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -11,12 +12,6 @@ void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(UMainGenericGameplayAbility,UsageTimes,COND_OwnerOnly);
-}
-
-void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
-                                               const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
-{
-	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 }
 
 void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -97,9 +92,15 @@ void UMainGenericGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UMainGenericGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+void UMainGenericGameplayAbility::CauseDamage(AActor* TargetActor)
 {
-	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
-
+	FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass,1);
+	for(TTuple<FGameplayTag, FScalableFloat>& Pair : DamageType)
+	{
+		float DamageMagnitude = Pair.Value.GetValueAtLevel(GetAbilityLevel());
+		
+		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle,Pair.Key,DamageMagnitude);
+		
+	}
+	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(),UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
 }

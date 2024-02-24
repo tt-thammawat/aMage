@@ -3,10 +3,15 @@
  
 #include "Character/BaseEnemy.h"
 
+#include "GameplayTagsSingleton.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "AbilitySystem/BaseAttributeSet.h"
 #include "AbilitySystem/MainAbilitySystemLibrary.h"
+#include "AI/MainAIController.h"
 #include "aMage/aMage.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
 
 ABaseEnemy::ABaseEnemy()
@@ -14,6 +19,11 @@ ABaseEnemy::ABaseEnemy()
 	PrimaryActorTick.bCanEverTick = true;
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
 	Weapon->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UBaseAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -22,6 +32,36 @@ ABaseEnemy::ABaseEnemy()
 
 	HealthBar=CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment((RootComponent));
+}
+
+void ABaseEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+	InitAbilityActorInfo();
+}
+
+void ABaseEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	if(!HasAuthority()) return;
+	//Set Ai Controller After Set Abilities
+	MainAIController = Cast<AMainAIController>(NewController);
+
+	MainAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	MainAIController->RunBehaviorTree(BehaviorTree);
+	MainAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"),false);
+	
+	MainAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),CharacterClass != ECharacterClass::Warrior);
+}
+
+void ABaseEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	CombatTarget = InCombatTarget;
+}
+
+AActor* ABaseEnemy::GetCombatTarget_Implementation() const
+{
+	return CombatTarget;
 }
 
 void ABaseEnemy::HighlightActor()
@@ -45,11 +85,6 @@ int32 ABaseEnemy::GetCharacterLevel()
 	return Level;
 }
 
-void ABaseEnemy::BeginPlay()
-{
-	Super::BeginPlay();
-	InitAbilityActorInfo();
-}
 
 void ABaseEnemy::Tick(float DeltaSeconds)
 {
@@ -61,7 +96,12 @@ void ABaseEnemy::InitAbilityActorInfo()
 	AbilitySystemComponent->InitAbilityActorInfo(this,this);
 	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
-	InitDefaultAttributes();
+	
+	if(HasAuthority())
+	{
+		InitDefaultAttributes();
+		UMainAbilitySystemLibrary::GiveStartUpAbilities(this,AbilitySystemComponent,CharacterClass);
+	}
 	BroadCastHealthValue();
 	BindCallBackHealthValue();
 }
@@ -69,6 +109,8 @@ void ABaseEnemy::InitAbilityActorInfo()
 void ABaseEnemy::InitDefaultAttributes() const
 {
 	UMainAbilitySystemLibrary::InitializeDefaultAttributes(this,CharacterClass,Level,AbilitySystemComponent);
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+
 }
 
 void ABaseEnemy::BroadCastHealthValue()
@@ -93,4 +135,24 @@ void ABaseEnemy::BindCallBackHealthValue()
 		OnEnemyHealthChanged.Broadcast(Data.NewValue);
 	}
 	);
+	
+	//Receive HitReactTag HitReactTagChanged run
+	AbilitySystemComponent->RegisterGameplayTagEvent(FMainGameplayTags::Get().Effects_HitReact,EGameplayTagEventType::NewOrRemoved).AddUObject(
+	this,&ABaseEnemy::HitReactTagChanged);
+}
+
+void ABaseEnemy::HitReactTagChanged(const FGameplayTag CallBackTag, int32 NewCount)
+{
+	bHitReacting = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
+	if(MainAIController && MainAIController->GetBlackboardComponent())
+	{
+		MainAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"),bHitReacting);
+	}
+}
+
+void ABaseEnemy::Die()
+{
+	SetLifeSpan(LifeSpan);
+	Super::Die();
 }

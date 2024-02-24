@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayTagsSingleton.h"
 #include "Actor/Projectile/ChargeProjectile.h"
 #include "Character/MainPlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
@@ -89,12 +90,30 @@ void UGA_SpellChargeProjectile::SpawnChargeProjectile(const FVector& ProjectileT
 					ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 					);
 
-			Projectile->SetOwner(GetOwningActorFromActorInfo());
 			//Give The Projectile A Gameplay Effect Spec For Causing Damage
 			//Get AbilitySystemComponent
 			const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+			FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+			//Set AbilityCDO //Add Those Things to check if information is pass along
+			EffectContextHandle.SetAbility(this);
+			EffectContextHandle.AddSourceObject(Projectile);
+			TArray<TWeakObjectPtr<AActor>> Actors;
+			Actors.Add(Projectile);
+			EffectContextHandle.AddActors(Actors);
+			FHitResult HitResult;
+			HitResult.Location = ProjectileTargetLocation;
+			EffectContextHandle.AddHitResult(HitResult);
+		
 			//Make Spec Handle That Contains Effect Information And Send It To Projectile
-			const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),SourceASC->MakeEffectContext());
+			const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),EffectContextHandle);
+			const FMainGameplayTags MainGameplayTags = FMainGameplayTags::Get();
+
+			for (auto& Pair : DamageType)
+			{
+				const float ScaledDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
+				UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle,Pair.Key,ScaledDamage);
+			}
+		
 			//Now The Projectile Have The Damage From This Spell
 			Projectile->DamageEffectSpecHandle=SpecHandle;
 			Projectile->FinishSpawning(SpawnTransform);

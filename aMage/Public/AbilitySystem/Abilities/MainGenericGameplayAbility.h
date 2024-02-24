@@ -18,18 +18,19 @@ class AMAGE_API UMainGenericGameplayAbility : public UMainGameplayAbility
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
-
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
+	//Do Damage By Caller
+	UFUNCTION(BlueprintCallable)
+	void CauseDamage(AActor* TargetActor);
 	
 protected:
 	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)
 	float UsageTimes;
-	
+
+	//TODO:May Remove This Later
 	UPROPERTY(EditAnywhere,Category=MatchRuneTag)
 	TObjectPtr<UMainInputAction> LMBInputAction;
 	UPROPERTY(EditAnywhere,Category=MatchRuneTag)
@@ -42,5 +43,12 @@ protected:
 	TArray<TSubclassOf<UGameplayEffect>>OngoingEffectsToApplyOnstart;
 
 	TArray<FActiveGameplayEffectHandle> RemoveOnEndEffectHandle;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+
+	//For UGameplayEffectExecutionCalculation
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Damage")
+	TMap<FGameplayTag,FScalableFloat> DamageType;
 
 };

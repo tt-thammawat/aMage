@@ -9,6 +9,8 @@
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "BaseEnemy.generated.h"
 
+class UBehaviorTree;
+class AMainAIController;
 enum class ECharacterClass : uint8;
 class UWidgetComponent;
 /**
@@ -20,14 +22,37 @@ class AMAGE_API ABaseEnemy : public ABaseCharacter, public ITargetInterface
 	GENERATED_BODY()
 public:
 	ABaseEnemy();
+	virtual void PossessedBy(AController* NewController) override;
 	
 	// Enemy Interface
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
 	// End Enemy Interface
 
+	//CombatInterface
 	virtual int32 GetCharacterLevel() override;
+	virtual void Die() override;
+	//EndCombatInterface
 
+	//ITargetInterface
+	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
+	virtual AActor* GetCombatTarget_Implementation() const override;
+	//End ITargetInterface
+
+	void HitReactTagChanged(const FGameplayTag CallBackTag , int32 NewCount);
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Combat")
+	bool bHitReacting=false;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Combat")
+	float BaseWalkSpeed = 250.f;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Combat")
+	float LifeSpan = 5.f;
+
+	UPROPERTY(BlueprintReadWrite,Category="Combat")
+	TObjectPtr<AActor> CombatTarget;
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -41,6 +66,13 @@ protected:
 	FOnAttributesChangedSignature OnEnemyHealthChanged;
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributesChangedSignature OnEnemyMaxHealthChanged;
+
+	
+	UPROPERTY(EditAnywhere,Category = "AI")
+	TObjectPtr<UBehaviorTree> BehaviorTree;
+	
+	UPROPERTY()
+	TObjectPtr<AMainAIController> MainAIController;
 	
 private:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category= "Character Class Defaults",meta=(AllowPrivateAccess=true))
