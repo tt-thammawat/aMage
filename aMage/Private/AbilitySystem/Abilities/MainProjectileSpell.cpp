@@ -18,13 +18,9 @@ void UMainProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 {
 	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
 	if(!bIsServer) return;
-	//Get Avatar Actor That Cast This
-	IICombatInterface* CombatInterface = Cast<IICombatInterface>(GetAvatarActorFromActorInfo());
-	if(CombatInterface)
-	{
 		// Get SocketLocation FVector via ICombatInterface
-		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
-		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+		// Get SocketLocation FVector via ICombatInterface
+		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 		
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
@@ -48,5 +44,4 @@ void UMainProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 		//Now The Projectile Have The Damage From This Spell
 		Projectile->DamageEffectSpecHandle=SpecHandle;
 		Projectile->FinishSpawning(SpawnTransform);
-	}
 }

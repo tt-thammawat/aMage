@@ -143,7 +143,7 @@ void AMainPlayerCharacter::BindButtonToCharacter(AMainPlayerController* PlayerCo
 	PlayerController->OnButtonPressed.BindUObject(this,&ThisClass::OnChangingButtonPressed);
 }
 
-FVector AMainPlayerCharacter::GetCombatSocketLocation()
+FVector AMainPlayerCharacter::GetCombatSocketLocation_Implementation()
 {
 	AActor* OutActor;
 	PlayerEquipmentManager->GetItemInSlot("WeaponHandSocket",OutActor);

@@ -8,6 +8,7 @@
 #include "Actor/Beam/MainBeam.h"
 #include "Character/MainPlayerCharacter.h"
 #include "Interact/ICombatInterface.h"
+#include "Net/UnrealNetwork.h"
 
 UGA_BeamBase::UGA_BeamBase()
 {
@@ -60,7 +61,10 @@ void UGA_BeamBase::InputReleased(const FGameplayAbilitySpecHandle Handle, const 
 	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
 
 	bIsInputHeld = false;
-	BeamREF->DeactivateBeam();
+	if(BeamREF)
+	{
+		BeamREF->DeactivateBeam();
+	}
 	GetWorld()->GetTimerManager().ClearTimer(AbilityActivationTimer);
 }
 
@@ -81,23 +85,24 @@ FVector UGA_BeamBase::GetSocketLocation()
 	if(CombatInterface)
 	{
 		// Get SocketLocation FVector via ICombatInterface
-		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
+		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
 		return SocketLocation;
 	}
 	return FVector();
+}
+
+void UGA_BeamBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(UGA_BeamBase,BeamREF,COND_OwnerOnly);
 }
 
 void UGA_BeamBase::SpawnBeam(const FVector& BeamEndLocation)
 {
 	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
 	if(!bIsServer) return;
-	//Get Avatar Actor That Cast This
-	IICombatInterface* CombatInterface = Cast<IICombatInterface>(GetAvatarActorFromActorInfo());
-	if(CombatInterface)
-	{
 		// Get SocketLocation FVector via ICombatInterface
-		FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
-		FRotator Rotation = (BeamEndLocation - SocketLocation).Rotation();
+		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());		FRotator Rotation = (BeamEndLocation - SocketLocation).Rotation();
 		FRotator SpawnRotation = Rotation;
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
@@ -119,6 +124,5 @@ void UGA_BeamBase::SpawnBeam(const FVector& BeamEndLocation)
 		//Now The Projectile Have The Damage From This Spell
 		BeamREF->DamageEffectSpecHandle=SpecHandle;
 		BeamREF->FinishSpawning(SpawnTransform);
-		
-	}
+
 }

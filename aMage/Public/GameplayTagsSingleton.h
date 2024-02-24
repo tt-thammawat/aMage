@@ -22,9 +22,6 @@ public:
  FGameplayTag Attributes_Primary_Vigor; // HP
  
  //Declare Gameplay Tags For Secondary Attributes
- FGameplayTag Attributes_Secondary_FireRes;
- FGameplayTag Attributes_Secondary_IceRes;
- FGameplayTag Attributes_Secondary_ElectricRes;
  FGameplayTag Attributes_Secondary_MaxHealth;
  FGameplayTag Attributes_Secondary_MaxMana;
  //Vital Attributes
@@ -34,10 +31,9 @@ public:
  //Input Tag For Abilities Base Abilities And Casting
  FGameplayTag InputTag_LMB; 
  FGameplayTag InputTag_RMB;
- //Loose Input Tag
+ //Loose Input Tag // Not:Use Yet
  FGameplayTag Input_Loose_LMB;
  FGameplayTag Input_Loose_RMB;
-
  
  //Equipping Tag
  FGameplayTag Item_Equip_Staff;
@@ -46,7 +42,24 @@ public:
  FGameplayTag State_Action_Casting;
  FGameplayTag State_Action_Aiming;
  FGameplayTag State_InAir_Jumping;
+
+ //Resistance
+ FGameplayTag Attributes_Resistance_Fire;
+ FGameplayTag Attributes_Resistance_Lightning;
+ FGameplayTag Attributes_Resistance_Ice;
+ FGameplayTag Attributes_Resistance_Physical;
+
+ //Damage
+ FGameplayTag Damage;
+ FGameplayTag Damage_Fire;
+ FGameplayTag Damage_Lightning;
+ FGameplayTag Damage_Ice;
+ FGameplayTag Damage_Physical;
+ TMap<FGameplayTag,FGameplayTag> DamageTypesToResistances;
  
+ FGameplayTag Abilities_Attack;
+ 
+ FGameplayTag Effects_HitReact;
  
 private:
  static FMainGameplayTags MainGameplayTags;

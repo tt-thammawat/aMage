@@ -43,6 +43,5 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bAiming = MainPlayerCharacter->GetIsAiming();
 	}
 	
-	//TODO: Implement AIming
 	
 }

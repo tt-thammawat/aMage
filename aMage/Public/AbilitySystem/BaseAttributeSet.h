@@ -96,15 +96,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealth,Category = "Secondary Attributes")
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,MaxHealth);
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireRes,Category = "Secondary Attributes")
-	FGameplayAttributeData FireRes;
-	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,FireRes);
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_IceRes,Category = "Secondary Attributes")
-	FGameplayAttributeData IceRes;
-	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,IceRes);
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ElectricRes,Category = "Secondary Attributes")
-	FGameplayAttributeData ElectricRes;
-	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,ElectricRes);
 	
 	// Vital Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Mana,Category = "Vital Attributes")
@@ -122,17 +113,9 @@ public:
 	void OnRep_Resilience(const FGameplayAttributeData& OldResilience) const;
 	UFUNCTION()
 	void OnRep_Vigor(const FGameplayAttributeData& OldVigor) const;
-
-	UFUNCTION()
-	void OnRep_FireRes(const FGameplayAttributeData& OldFireRes) const;
-	UFUNCTION()
-	void OnRep_IceRes(const FGameplayAttributeData& OldIceRes) const;
-	UFUNCTION()
-	void OnRep_ElectricRes(const FGameplayAttributeData& OldElectricRes) const;
-
+	
 	UFUNCTION()
 	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const;
-
 	UFUNCTION()
 	void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) const;
 
@@ -140,7 +123,16 @@ public:
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
 	UFUNCTION()
 	void OnRep_Mana(const FGameplayAttributeData& OldMana) const;
-	
+
+/*
+ *Meta Attributes
+*/
+	//Set On Server Process On Server
+	UPROPERTY(BlueprintReadOnly,Category = "Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,IncomingDamage);
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data,FEffectProperties& Props) const;
+	void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bIsFire,
+	bool bIsLightning,bool bIsIce,bool bIsPhysical) const;
 };

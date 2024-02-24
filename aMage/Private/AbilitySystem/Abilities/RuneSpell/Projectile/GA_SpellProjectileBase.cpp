@@ -90,12 +90,9 @@ void UGA_SpellProjectileBase::SpawnProjectile(const FVector& ProjectileTargetLoc
 {
 	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
 	if(!bIsServer) return;
-	//Get Avatar Actor That Cast This
-	IICombatInterface* CombatInterface = Cast<IICombatInterface>(GetAvatarActorFromActorInfo());
-	if(CombatInterface)
-	{
+	
 		// Get SocketLocation FVector via ICombatInterface
-		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
+		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
 		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 
 		// Adjust the angle based on the number of projectiles
@@ -141,5 +138,4 @@ void UGA_SpellProjectileBase::SpawnProjectile(const FVector& ProjectileTargetLoc
 			Projectile->DamageEffectSpecHandle=SpecHandle;
 			Projectile->FinishSpawning(SpawnTransform);
 		}
-	}
 }

@@ -12,6 +12,8 @@ class UNiagaraSystem;
 /**
  * 
  */
+
+//TODO: Fix Beam For Client
 UCLASS()
 class AMAGE_API UGA_BeamBase : public UMainGenericGameplayAbility
 {
@@ -32,6 +34,8 @@ public:
 	//Beam
 	UFUNCTION(BlueprintCallable,Category=Beam)
 	FVector GetSocketLocation();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 protected:
 	FTimerHandle AbilityActivationTimer;
@@ -44,7 +48,7 @@ protected:
 	UFUNCTION(BlueprintCallable,Category=Beam)
 	virtual void SpawnBeam(const FVector& BeamEndLocation);
 	
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<AMainBeam> BeamREF;
 		
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)

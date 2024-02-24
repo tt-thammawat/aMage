@@ -51,13 +51,8 @@ void UGA_SpellChargeProjectile::SpawnChargeProjectile(const FVector& ProjectileT
 {
 	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
 	if(!bIsServer) return;
-	//Get Avatar Actor That Cast This
-	IICombatInterface* CombatInterface = Cast<IICombatInterface>(GetAvatarActorFromActorInfo());
-	if(CombatInterface)
-	{
 		// Get SocketLocation FVector via ICombatInterface
-		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
-		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 		//Set Projectile Fly Parallel to the ground
 		Rotation.Pitch = 0.f;
 
@@ -104,7 +99,6 @@ void UGA_SpellChargeProjectile::SpawnChargeProjectile(const FVector& ProjectileT
 			Projectile->DamageEffectSpecHandle=SpecHandle;
 			Projectile->FinishSpawning(SpawnTransform);
 		}
-	}
 }
 
 void UGA_SpellChargeProjectile::EndAbility(const FGameplayAbilitySpecHandle Handle,
