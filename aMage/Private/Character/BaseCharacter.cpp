@@ -26,7 +26,23 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+}
+
+void ABaseCharacter::Dissolve()
+{
+	if(IsValid(DissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(DissolveMaterialInstance,this);
+		GetMesh()->SetMaterial(0,DynamicMatInst);
+
+		StartDissolveTimeline(DynamicMatInst);
+	}
+	if(IsValid(WeaponDissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance,this);
+		Weapon->SetMaterial(0,DynamicMatInst);
+		StartWeaponDissolveTimeline(DynamicMatInst);
+	}
 }
 
 //return this ASC
@@ -36,13 +52,52 @@ UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
 
 }
 
+void ABaseCharacter::Die()
+{
+	FDetachmentTransformRules TransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld,true);
+	Weapon->DetachFromComponent(TransformRules);
+	
+	MulticastHandleDeath();
+}
+
+void ABaseCharacter::MulticastHandleDeath_Implementation()
+{
+	Weapon->SetSimulatePhysics(true);
+	Weapon->SetEnableGravity(true);
+	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Dissolve();
+	bDead = true;
+}
+
+UAnimMontage* ABaseCharacter::GetHitReactMontage_Implementation()
+{
+	return HitReactMontage;
+}
+
+bool ABaseCharacter::IsDead_Implementation() const
+{
+	return bDead;
+}
+
+AActor* ABaseCharacter::GetAvatar_Implementation()
+{
+	return this;
+}
+
 //Override by derived
 void ABaseCharacter::InitAbilityActorInfo()
 {
 	
 }
 
-FVector ABaseCharacter::GetCombatSocketLocation()
+FVector ABaseCharacter::GetCombatSocketLocation_Implementation()
 {
 	check(Weapon);
 	return Weapon->GetSocketLocation(WeaponTipSocketName);

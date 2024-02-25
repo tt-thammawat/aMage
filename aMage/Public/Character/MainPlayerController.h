@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "MainPlayerController.generated.h"
 
+class UDamageTextComponent;
 class UMainInputAction;
 class UBaseAbilitySystemComponent;
 struct FGameplayTag;
@@ -29,6 +30,9 @@ public:
 	FOnInteractButtonPressedSignature InteractButtonPressedSignature;
 	FOnButtonPressedSignature OnButtonPressed;
 
+	UFUNCTION(Client,Reliable)
+	void ShowDamageNumber(float DamageAmount,ACharacter* TargetCharacter,bool bIsFireDamage,bool bIsLightningDamage,bool bIsIceDamage,bool bIsPhysicDamage);
+	
 protected:
 	
 	virtual void BeginPlay() override;
@@ -108,6 +112,9 @@ private:
 	TObjectPtr<UBaseAbilitySystemComponent> BaseAbilitySystemComponent;
 	UBaseAbilitySystemComponent* GetBaseAbilitySystemComponent();
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
+	
 	ITargetInterface* LastActor;
 	ITargetInterface* ThisActor;
 	

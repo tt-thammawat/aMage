@@ -27,6 +27,9 @@ struct FCharacterClassDefaultInfo
 	//UGameplayEffect Contains Tags and Effects of Attributes
 	UPROPERTY(EditDefaultsOnly,Category = "Class Defaults")
 	TSubclassOf<UGameplayEffect> PrimaryAttributes;
+
+	UPROPERTY(EditDefaultsOnly,Category = "Class Defaults")
+	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 	
 };
 
@@ -41,9 +44,16 @@ public:
 	UPROPERTY(EditDefaultsOnly,Category = "Common Class Defaults")
 	TSubclassOf<UGameplayEffect> VitalAttributes;
 
+	//Like Dead , Get Hit
+	UPROPERTY(EditDefaultsOnly,Category = "Common Class Defaults")
+	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;
+	
 	//TMap To Match Class And Attributes Struct
 	UPROPERTY(EditDefaultsOnly,Category = "Class Defaults")
 	TMap<ECharacterClass,FCharacterClassDefaultInfo> CharacterClassInformation;
 
+	UPROPERTY(EditDefaultsOnly,Category = "Class Defaults|Damage")
+	TObjectPtr<UCurveTable> DamageCalculationCoefficients;
+	
 	FCharacterClassDefaultInfo GetClassDefaultInfo(ECharacterClass CharacterClass);
 };

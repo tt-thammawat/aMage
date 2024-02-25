@@ -5,6 +5,8 @@
 
 AMainEquipmentInteractActor::AMainEquipmentInteractActor()
 {
+	bReplicates = true;
+
 	WeaponEquipMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponEquipMesh");
 	WeaponEquipMesh->SetupAttachment(CustomRootComponent);
 }

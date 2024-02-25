@@ -16,7 +16,7 @@ struct FRuneAbilityMapping
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FGameplayTagContainer RuneSpellTags;
+	TArray<FGameplayTag> RuneSpellTags;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UGameplayAbility> RuneSpellAbility;
@@ -34,5 +34,5 @@ public:
 	TArray<FRuneAbilityMapping> AllRuneAbilities;
 
 	UFUNCTION(BlueprintCallable,Category = "Rune Spell")
-	TSubclassOf<UGameplayAbility> GetRuneSpellMatchingAbility(const FGameplayTagContainer& RuneTagContainer);
+	TSubclassOf<UGameplayAbility> GetRuneSpellMatchingAbility(const TArray<FGameplayTag>& ReceivedRuneSpellTags);
 };

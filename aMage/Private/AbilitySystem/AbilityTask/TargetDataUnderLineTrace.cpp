@@ -27,12 +27,31 @@ void UTargetDataUnderLineTrace::PerformLineTrace()
 	const FVector2D CrossHairLocation(ViewPortSize.X/2,ViewPortSize.Y/2);
 	
 	APlayerController* PC = Cast<APlayerController>(Ability->GetCurrentActorInfo()->PlayerController);
-	PC->GetHitResultAtScreenPosition(CrossHairLocation,ECollisionChannel::ECC_Visibility,Params,TraceHitResult);
-
+	bool bHit  =(PC->GetHitResultAtScreenPosition(CrossHairLocation,ECollisionChannel::ECC_Visibility,Params,TraceHitResult));
 	FGameplayAbilityTargetData_SingleTargetHit* Data = new FGameplayAbilityTargetData_SingleTargetHit();
 
-	Data->HitResult = TraceHitResult;
+	if(bHit)
+	{
+		Data->HitResult = TraceHitResult;
+	}
+	else if (!bHit)
+	{
+		FVector WorldLocation, WorldDirection;
+		// Convert the crosshair screen position to a world space direction
+		if (PC->DeprojectScreenPositionToWorld(CrossHairLocation.X, CrossHairLocation.Y, WorldLocation, WorldDirection))
+		{
+			const float DefaultDistance = 1000.0f; // Example distance to project the point
+			FVector DefaultImpactPoint = WorldLocation + (WorldDirection * DefaultDistance);
+			
+			// Prepare the fake hit result
+			TraceHitResult = FHitResult(ForceInit);
+			TraceHitResult.ImpactPoint = DefaultImpactPoint;
+			TraceHitResult.Location = DefaultImpactPoint; // Use if ImpactPoint is not available
 
+			Data->HitResult = TraceHitResult;
+		}
+	}
+	
 	FGameplayAbilityTargetDataHandle DataHandle;
 	DataHandle.Add(Data);
 

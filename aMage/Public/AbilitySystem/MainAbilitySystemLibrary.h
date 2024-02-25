@@ -6,6 +6,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MainAbilitySystemLibrary.generated.h"
 
+struct FGameplayEffectContextHandle;
+class UCharacterClassInfo;
 enum class ECharacterClass : uint8;
 class UAbilitySystemComponent;
 class UOverlayWidgetController;
@@ -27,6 +29,42 @@ public:
 	//Get CharacterInfoData From GameMode
 	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|CharacterClassDefaults")
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject,ECharacterClass CharacterClass,float Level,UAbilitySystemComponent* TargetASC);
+	
+	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|CharacterClassDefaults")
+	static UCharacterClassInfo* GetCharacterClassInfo(const UObject* WorldContextObject);
+	
+	// Abilities
+	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|CharacterClassDefaults")
+	static void GiveStartUpAbilities(const UObject* WorldContextObject,UAbilitySystemComponent* TargetASC,ECharacterClass CharacterClass);
+	
+	//Damage
+	UFUNCTION(BlueprintPure,Category = "MainAbilitySystemLibrary|GameplayEffect")
+	static bool IsFireDamage(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintPure,Category = "MainAbilitySystemLibrary|GameplayEffect")
+	static bool IsLightningDamage(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintPure,Category = "MainAbilitySystemLibrary|GameplayEffect")
+	static bool IsIceDamage(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GameplayMechanics")
+	static bool IsPhysicalDamage(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GameplayEffect")
+	static void SetIsFireDamage(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle,bool bInIsFireDamage);
+	
+	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GameplayEffect")
+	static void SetIsLightningDamage(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle,bool bInIsLightningDamage);
+	
+	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GameplayEffect")
+	static void SetIsIceDamage(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle,bool bInIsIceDamage);
+	
+	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GameplayEffect")
+	static void SetIsPhysicalDamage(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle,bool bInIsPhysicalDamage);
+
+	//Radius
+	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GameplayMechanics")
+	static void GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors,const TArray<AActor*>& ActorsToIgnore,float Radius,const FVector& SphereOrigin);
 	
 	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|CharacterClassDefaults")
 	static FString GenerateUniqueKeyFromFName(FName Name);

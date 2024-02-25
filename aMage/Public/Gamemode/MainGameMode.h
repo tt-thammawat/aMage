@@ -8,7 +8,6 @@
 #include "MainGameMode.generated.h"
 
 class URuneSpellClassInfo;
-class UMainRuneSpellGameplayAbility;
 class UCharacterClassInfo;
 
 

@@ -58,7 +58,7 @@ struct FRuneSpecialAbility
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
 	FText SpecialAbilitiesDescription;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
-	float UsageTime;
+	float UsageTime = 1.f;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
 	TSubclassOf<UGameplayAbility> SpecialAbilities;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")

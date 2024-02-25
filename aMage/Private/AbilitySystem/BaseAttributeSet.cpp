@@ -6,7 +6,9 @@
 #include "GameFramework/Character.h"
 #include "GameplayEffectExtension.h"
 #include "GameplayTagsSingleton.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "AbilitySystem/MainAbilitySystemLibrary.h"
+#include "Character/MainPlayerController.h"
+#include "Interact/ICombatInterface.h"
 #include "Net/UnrealNetwork.h"
 
 UBaseAttributeSet::UBaseAttributeSet()
@@ -17,13 +19,15 @@ UBaseAttributeSet::UBaseAttributeSet()
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Primary_Intelligence, GetIntelligenceAttribute);
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Primary_Resilience, GetResilienceAttribute);
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Primary_Vigor, GetVigorAttribute);
-
-	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_FireRes, GetFireResAttribute);
-	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_IceRes, GetIceResAttribute);
-	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_ElectricRes, GetElectricResAttribute);
+	
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_MaxMana, GetMaxManaAttribute);
 
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Resistance_Fire, GetResistanceFireAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Resistance_Lightning, GetResistanceLightningAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Resistance_Ice, GetResistanceIceAttribute);
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Resistance_Physical, GetResistancePhysicalAttribute);
+	
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Vital_Health, GetHealthAttribute);
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Vital_Mana, GetManaAttribute);
 
@@ -40,19 +44,20 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Intelligence,COND_None,REPNOTIFY_Always);
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Resilience,COND_None,REPNOTIFY_Always);
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Vigor,COND_None,REPNOTIFY_Always);
-		//Secondary Attribures
-		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,FireRes,COND_None,REPNOTIFY_Always);
-		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,IceRes,COND_None,REPNOTIFY_Always);
-		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,ElectricRes,COND_None,REPNOTIFY_Always);
+		//Secondary Attributes
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxHealth,COND_None,REPNOTIFY_Always);
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxMana,COND_None,REPNOTIFY_Always);
 
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,ResistanceFire,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,ResistanceLightning,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,ResistanceIce,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,ResistancePhysical,COND_None,REPNOTIFY_Always);
+		
 		// Replicate Health Without Condition Update with REPNOTIFY Always
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Health,COND_None,REPNOTIFY_Always);
 		//MANA
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Mana,COND_None,REPNOTIFY_Always);
 		
-
 	}
 }
 
@@ -60,7 +65,6 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 void UBaseAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
 {
 	//Source = Causer of the effect, target = target of the effect Owner of this AS
-
 	Props.EffectContextHandle =Data.EffectSpec.GetContext();
 	Props.SourceASC = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
 	
@@ -89,7 +93,6 @@ void UBaseAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData
 	}
 }
 
-
 void UBaseAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
@@ -111,18 +114,74 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 	// Now You Have The instigator and target Information
 	FEffectProperties Props;
+	//Set Who is the Causer[Source] And Who is the Target[This]
 	SetEffectProperties(Data,Props);
-	//Champ Here Again TO Not Change The Value Above The scope
+	//Clamp Here Again TO Not Change The Value Above The scope
 	if(Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(),0.f,GetMaxHealth()));
-		FString Message = FString::Printf(TEXT("Changed Health On %s, Health %f"), *Props.TargetAvatarActor->GetName(), GetHealth());
-		UKismetSystemLibrary::PrintString(GetWorld(), Message, true, false, FLinearColor::Red, 3.0f);
 	}
 	if(Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
 		SetMana(FMath::Clamp(GetMana(),0.f,GetMaxMana()));
-	}}
+	}
+	
+	if(Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();
+		SetIncomingDamage(0.f);
+		if(LocalIncomingDamage > 0.f)
+		{
+			const float NewHealth = GetHealth()- LocalIncomingDamage;
+			SetHealth(FMath::Clamp(NewHealth,0.f,GetMaxHealth()));
+			const bool bFatal = NewHealth <= 0.f;
+			if(bFatal)
+			{
+				IICombatInterface* CombatInterface = Cast<IICombatInterface>(Props.TargetAvatarActor);
+				if(CombatInterface && !IICombatInterface::Execute_IsDead(Props.TargetAvatarActor))
+				{
+					CombatInterface->Die();
+				}
+			}
+			else
+			{
+				//Activate Abilities By Tags an ability that have HitReact Tag
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FMainGameplayTags::Get().Effects_HitReact);
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
+
+			const bool bIsFire = UMainAbilitySystemLibrary::IsFireDamage(Props.EffectContextHandle);
+			const bool bIsLightning = UMainAbilitySystemLibrary::IsLightningDamage(Props.EffectContextHandle);
+			const bool bIsIce = UMainAbilitySystemLibrary::IsIceDamage(Props.EffectContextHandle);
+			const bool bIsPhysical = UMainAbilitySystemLibrary::IsPhysicalDamage(Props.EffectContextHandle);
+			
+			ShowFloatingText(Props,LocalIncomingDamage,bIsFire,bIsLightning,bIsIce,bIsPhysical);
+		}
+	}
+}
+ 
+void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props,float Damage,bool bIsFireDamage,bool bIsLightningDamage,bool bIsIceDamage,bool bIsPhysicDamage) const
+{
+	//Check if Damage To Self
+	if(Props.SourceCharacter != Props.TargetCharacter)
+	{
+		//PC Hit Other
+		if(AMainPlayerController* PC=Cast<AMainPlayerController>(Props.SourceCharacter->Controller))
+		{
+			PC->ShowDamageNumber(Damage,Props.TargetCharacter,bIsFireDamage,bIsLightningDamage,bIsIceDamage,bIsPhysicDamage);
+			return;
+		}
+		//PC Got Hit
+		if(AMainPlayerController* PC=Cast<AMainPlayerController>(Props.TargetCharacter->Controller))
+		{
+			PC->ShowDamageNumber(Damage,Props.TargetCharacter,bIsFireDamage,bIsLightningDamage,bIsIceDamage,bIsPhysicDamage);
+		}
+	}
+}
+
+
+
 
 void UBaseAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
 {
@@ -146,6 +205,30 @@ void UBaseAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) 
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,MaxMana,OldMaxMana);
 }
 
+void UBaseAttributeSet::OnRep_ResistanceFire(const FGameplayAttributeData& OldResistanceFire) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,ResistanceFire,OldResistanceFire);
+
+}
+
+void UBaseAttributeSet::OnRep_ResistanceLightning(const FGameplayAttributeData& OldResistanceLightning) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,ResistanceLightning,OldResistanceLightning);
+
+}
+
+void UBaseAttributeSet::OnRep_ResistanceIce(const FGameplayAttributeData& OldResistanceIce) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,ResistanceIce,OldResistanceIce);
+
+}
+
+void UBaseAttributeSet::OnRep_ResistancePhysical(const FGameplayAttributeData& OldResistancePhysical) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,ResistancePhysical,OldResistancePhysical);
+
+}
+
 void UBaseAttributeSet::OnRep_Strength(const FGameplayAttributeData& OldStrength) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,Strength,OldStrength);
@@ -164,22 +247,6 @@ void UBaseAttributeSet::OnRep_Resilience(const FGameplayAttributeData& OldResili
 void UBaseAttributeSet::OnRep_Vigor(const FGameplayAttributeData& OldVigor) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,Vigor,OldVigor);
-}
-
-void UBaseAttributeSet::OnRep_FireRes(const FGameplayAttributeData& OldFireRes) const
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,FireRes,OldFireRes);
-}
-
-void UBaseAttributeSet::OnRep_IceRes(const FGameplayAttributeData& OldIceRes) const
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,IceRes,OldIceRes);
-}
-
-void UBaseAttributeSet::OnRep_ElectricRes(const FGameplayAttributeData& OldElectricRes) const
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,ElectricRes,OldElectricRes);
-
 }
 
 

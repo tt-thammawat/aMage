@@ -34,49 +34,70 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 
 void UBaseAbilitySystemComponent::RemoveCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities)
 {
-	for (const TSubclassOf<UGameplayAbility> AbilityClass : RemoveAbilities)
-	{
-        FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromClass(AbilityClass);
-		if(AbilitySpec)
+		for (const TSubclassOf<UGameplayAbility> AbilityClass : RemoveAbilities)
 		{
-			// ItemAbility->StartupInputTag;
-			// AbilitySpec.DynamicAbilityTags.RemoveTag(ItemAbility->StartupInputTag);
-			ClearAbility(AbilitySpec->Handle);
-		}
-	}
-}
-
-
-void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
-{
-	if(!InputTag.IsValid()) return;
-		// Check If We Have Activatable Abilities
-		for(FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
-		{
-			if(AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+			FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromClass(AbilityClass);
+			if(AbilitySpec)
 			{
-				//If a match is found, it first marks the ability as pressed [GAS]
-				AbilitySpecInputPressed(AbilitySpec);
-				if(!AbilitySpec.IsActive())
-				{
-					//TryActivateAbility serves as an initializer rather than an immediate activator for an ability
-					TryActivateAbility(AbilitySpec.Handle);
-				}
+				// ItemAbility->StartupInputTag;
+				// AbilitySpec.DynamicAbilityTags.RemoveTag(ItemAbility->StartupInputTag);
+				ClearAbility(AbilitySpec->Handle);
 			}
 		}
 }
 
-void UBaseAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
+void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
-	if(!InputTag.IsValid()) return;
+	if (!InputTag.IsValid()) return;
 
+	// Temporary array to store ability spec handles that match the input tag
+	TArray<FGameplayAbilitySpecHandle> MatchingAbilities;
+
+	// First pass: Identify abilities that match the criteria
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if(AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
 		{
-			//If a match is found, it marks the ability as released [GAS]
-			AbilitySpecInputReleased(AbilitySpec);
+			MatchingAbilities.Add(AbilitySpec.Handle);
 		}
+	}
+
+	// Second pass: Act on the collected abilities
+	for (const FGameplayAbilitySpecHandle& AbilityHandle : MatchingAbilities)
+	{
+		// Retrieve the spec again; it's safe because we're not iterating over the collection here
+		FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromHandle(AbilityHandle);
+		if (AbilitySpec)
+		{
+			AbilitySpecInputPressed(*AbilitySpec);
+			if (!AbilitySpec->IsActive())
+			{
+				TryActivateAbility(AbilityHandle);
+			}
+		}
+	}
+}
+
+void UBaseAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
+{
+	if (!InputTag.IsValid()) return;
+
+	// Temporary array to store matching ability specs
+	TArray<FGameplayAbilitySpec*> MatchingAbilitySpecs;
+
+	// First pass: collect abilities
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.IsActive() && AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			MatchingAbilitySpecs.Add(&AbilitySpec);
+		}
+	}
+
+	// Second pass: perform actions on collected abilities
+	for (FGameplayAbilitySpec* AbilitySpec : MatchingAbilitySpecs)
+	{
+		AbilitySpecInputReleased(*AbilitySpec);
 	}
 }
 

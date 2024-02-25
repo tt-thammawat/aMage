@@ -3,9 +3,11 @@
 
 #include "AbilitySystem/MainAbilitySystemLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "MainAbilityTypes.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/MainPlayerState.h"
 #include "Gamemode/MainGameMode.h"
+#include "Interact/ICombatInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "UI/WidgetController/BaseWidgetController.h"
@@ -38,37 +40,166 @@ void UMainAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 	//Need To Set Attributes To The Avatar in case of multiplayer
 	AActor* AvatarActor = TargetASC->GetAvatarActor();
 
-		//--PrimaryAttributes-------------------------------------------------------------------------------------------------------//
-
+	//--PrimaryAttributes
 	//Add SourceObject to correctly apply effect to
 	FGameplayEffectContextHandle PrimaryAttributesContextHandle = TargetASC->MakeEffectContext();
 	PrimaryAttributesContextHandle.AddSourceObject(AvatarActor);
 	
 	// Access to UCharacterClassInfo functions
-const	FCharacterClassDefaultInfo ClassDefaultInfo = MainGameMode->CharacterClassDefaultInfo->GetClassDefaultInfo(CharacterClass);
+	const FCharacterClassDefaultInfo ClassDefaultInfo = MainGameMode->CharacterClassDefaultInfo->GetClassDefaultInfo(CharacterClass);
 
 	//Make GameplayEffectSpecHandle To Apply Attributes
- const FGameplayEffectSpecHandle PrimaryAttributesSpecHandle=	TargetASC->MakeOutgoingSpec(ClassDefaultInfo.PrimaryAttributes,Level,PrimaryAttributesContextHandle);
+	const FGameplayEffectSpecHandle PrimaryAttributesSpecHandle=	TargetASC->MakeOutgoingSpec(ClassDefaultInfo.PrimaryAttributes,Level,PrimaryAttributesContextHandle);
 	
 	//Apply GamePlayEffect To Spawn
 	TargetASC->ApplyGameplayEffectSpecToSelf(*PrimaryAttributesSpecHandle.Data.Get());
-	//---------------------------------------------------------------------------------------------------------------------------------//
-	//--SecondaryAttributes-------------------------------------------------------------------------------------------------------//
-
+	
+	//--SecondaryAttributes
 	FGameplayEffectContextHandle SecondaryAttributesContextHandle = TargetASC->MakeEffectContext();
 	SecondaryAttributesContextHandle.AddSourceObject(AvatarActor);
 	const FGameplayEffectSpecHandle SecondaryAttributesSpecHandle =	TargetASC->MakeOutgoingSpec(MainGameMode->CharacterClassDefaultInfo->SecondaryAttributes,Level,SecondaryAttributesContextHandle);
-	
 	TargetASC->ApplyGameplayEffectSpecToSelf(*SecondaryAttributesSpecHandle.Data.Get());
 
-	//---------------------------------------------------------------------------------------------------------------------------------//
-	//--VitalAttributes-------------------------------------------------------------------------------------------------------//
+	//--VitalAttributes
 	FGameplayEffectContextHandle VitalAttributeContextHandle = TargetASC->MakeEffectContext();
 	VitalAttributeContextHandle.AddSourceObject(AvatarActor);
 	FGameplayEffectSpecHandle VitalAttributesSpecHandle = TargetASC->MakeOutgoingSpec(MainGameMode->CharacterClassDefaultInfo->VitalAttributes,Level,VitalAttributeContextHandle);
 	TargetASC->ApplyGameplayEffectSpecToSelf(*VitalAttributesSpecHandle.Data.Get());
-	//---------------------------------------------------------------------------------------------------------------------------------//
+}
 
+UCharacterClassInfo* UMainAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
+{
+	//Access TO ACrystalGamemodeBase
+
+	const AMainGameMode* MainGameMode=	Cast<AMainGameMode>(UGameplayStatics::GetGameMode	(WorldContextObject));
+	if(MainGameMode == nullptr) return nullptr;
+
+	UCharacterClassInfo* CharacterClassInfo = MainGameMode->CharacterClassDefaultInfo;
+	return CharacterClassInfo;
+}
+
+void UMainAbilitySystemLibrary::GiveStartUpAbilities(const UObject* WorldContextObject,
+	UAbilitySystemComponent* TargetASC, ECharacterClass CharacterClass)
+{
+	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if(CharacterClassInfo == nullptr) return;
+	for (TSubclassOf<UGameplayAbility> AbilityClass : CharacterClassInfo->CommonAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec=	FGameplayAbilitySpec(AbilityClass,1);
+		TargetASC->GiveAbility(AbilitySpec);
+	}
+	const FCharacterClassDefaultInfo& DefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+	for (TSubclassOf<UGameplayAbility> AbilityClass : DefaultInfo.StartupAbilities)
+	{
+		IICombatInterface* CombatInterface= Cast<IICombatInterface>(TargetASC->GetAvatarActor());
+		if(CombatInterface)
+		{
+			FGameplayAbilitySpec AbilitySpec=	FGameplayAbilitySpec(AbilityClass,CombatInterface->GetCharacterLevel());
+			TargetASC->GiveAbility(AbilitySpec);
+		}
+	}
+}
+
+bool UMainAbilitySystemLibrary::IsFireDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	const FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<const FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		return MainGameplayEffectContext->IsFireDamage();
+	}
+	return false;
+}
+
+bool UMainAbilitySystemLibrary::IsLightningDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	const FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<const FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		return MainGameplayEffectContext->IsLightningDamage();
+	}
+	return false;
+}
+
+bool UMainAbilitySystemLibrary::IsIceDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	const FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<const FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		return MainGameplayEffectContext->IsIceDamage();
+	}
+	return false;
+}
+
+bool UMainAbilitySystemLibrary::IsPhysicalDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	const FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<const FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		return MainGameplayEffectContext->IsPhysicalDamage();
+	}
+	return false;
+
+}
+
+void UMainAbilitySystemLibrary::SetIsFireDamage(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsFireDamage)
+{
+	FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		MainGameplayEffectContext->SetIsFireDamage(bInIsFireDamage);
+	}
+}
+
+void UMainAbilitySystemLibrary::SetIsLightningDamage(FGameplayEffectContextHandle& EffectContextHandle,
+	bool bInIsLightningDamage)
+{
+	FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		MainGameplayEffectContext->SetIsLightningDamage(bInIsLightningDamage);
+	}
+}
+
+void UMainAbilitySystemLibrary::SetIsIceDamage(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsIceDamage)
+{
+	FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		MainGameplayEffectContext->SetIsIceDamage(bInIsIceDamage);
+	}
+}
+
+void UMainAbilitySystemLibrary::SetIsPhysicalDamage(FGameplayEffectContextHandle& EffectContextHandle,
+	bool bInIsPhysicalDamage)
+{
+	FMainGameplayEffectContext* MainGameplayEffectContext = static_cast<FMainGameplayEffectContext*>(EffectContextHandle.Get());
+	if(MainGameplayEffectContext)
+	{
+		MainGameplayEffectContext->SetIsPhysicalDamage(bInIsPhysicalDamage);
+	}
+}
+
+void UMainAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject,
+                                                           TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius,
+                                                           const FVector& SphereOrigin)
+{
+	//Do Query
+	FCollisionQueryParams SphereParams;
+	SphereParams.AddIgnoredActors(ActorsToIgnore);
+	
+	TArray<FOverlapResult> Overlaps;
+	if(const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		World->OverlapMultiByObjectType(Overlaps, SphereOrigin, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), FCollisionShape::MakeSphere(Radius), SphereParams);
+		for( FOverlapResult& OverlapResult : Overlaps)
+		{
+			if(OverlapResult.GetActor()->Implements<UICombatInterface>() && !IICombatInterface::Execute_IsDead(OverlapResult.GetActor()))
+			{
+				//Prevent Duplication
+				OutOverlappingActors.AddUnique(IICombatInterface::Execute_GetAvatar(OverlapResult.GetActor()));
+			}
+		}
+	}
 }
 
 FString UMainAbilitySystemLibrary::GenerateUniqueKeyFromFName(FName Name)
@@ -84,7 +215,6 @@ FString UMainAbilitySystemLibrary::GenerateUniqueKeyFromFName(FName Name)
 	FString UniqueKey = FString::Printf(TEXT("%s_%s_%s"), *NameStr, *Now.ToString(), *GuidStr);
 	
 	return UniqueKey;
-
-
+	
 }
 

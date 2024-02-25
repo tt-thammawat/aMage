@@ -36,6 +36,7 @@ private:
 	float OldMaxWalkSpeed = 0.f;
 	UFUNCTION()
 	void AddRuneTags(FGameplayTag RuneTag);
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess="true"))
 	TArray<FGameplayTag> RuneTags;
 	TObjectPtr<UMainPaintWidget> PaintWidget;
 };

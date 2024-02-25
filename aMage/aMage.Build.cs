@@ -26,7 +26,9 @@ public class aMage : ModuleRules
 			"GameplayTasks",
 			"Slate",
 			"SlateCore", 
-			"Niagara"
+			"Niagara",
+			"AIModule"
+
 		});
 
 		// Uncomment if you are using Slate UI

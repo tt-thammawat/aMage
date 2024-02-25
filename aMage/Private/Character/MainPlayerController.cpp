@@ -10,6 +10,7 @@
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "Input/MainEnhancedInputComponent.h"
+#include "UI/Widget/DamageTextComponent.h"
 
 AMainPlayerController::AMainPlayerController() :
 bIsDrawingSpell(false)
@@ -25,6 +26,22 @@ void AMainPlayerController::PostInitializeComponents()
 	Super::PostInitializeComponents();
 }
 
+void AMainPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter,
+	bool bIsFireDamage, bool bIsLightningDamage, bool bIsIceDamage, bool bIsPhysicDamage)
+{
+	//IsValid Can Check both isNull And Pending Kill
+	if(IsValid(TargetCharacter) && DamageTextComponentClass && IsLocalController())
+	{
+		UDamageTextComponent* DamageTextComponent=  NewObject<UDamageTextComponent>(TargetCharacter,DamageTextComponentClass);
+		//When Create Component Dynamically Must RegisterComponent
+		DamageTextComponent->RegisterComponent();
+		//Attach To Target That Taking Damage
+		DamageTextComponent->AttachToComponent(TargetCharacter->GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);
+		DamageTextComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		DamageTextComponent->SetDamageText(DamageAmount,bIsFireDamage,bIsLightningDamage,bIsIceDamage,bIsPhysicDamage);
+	}
+}
+
 void AMainPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -32,6 +49,7 @@ void AMainPlayerController::BeginPlay()
 	
 	check(MainInputContext);
 	check(AbilitiesInputContext);
+	check(GenericInputContext);
 	//Set New Enhanced Input For Local Player
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()); 
 
@@ -67,14 +85,13 @@ void AMainPlayerController::SetupInputComponent()
 	//Abilities
 	MainEnhancedInputComponent->BindAbilityActions(GenericInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
 	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
-	
 	MainEnhancedInputComponent->BindAbilityActions(AbilitiesInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
-	
 }
 
 // Check with the FMainGameplayTags Singleton if the InputTag = InputTag.LMB,RMB
 void AMainPlayerController::AbilityInputTagPressed(const FGameplayTag InputTag)
 {
+	
 	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
 	{
 		if(GetBaseAbilitySystemComponent())
@@ -109,6 +126,7 @@ void AMainPlayerController::AbilityInputTagHeld(const FGameplayTag InputTag)
 
 void AMainPlayerController::AbilityInputTagReleased(const FGameplayTag InputTag)
 {
+	
 	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
 	{
 		if(GetBaseAbilitySystemComponent())

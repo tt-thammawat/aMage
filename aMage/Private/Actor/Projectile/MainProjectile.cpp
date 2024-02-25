@@ -6,7 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 #include "aMage/aMage.h"
-#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -16,13 +16,13 @@ AMainProjectile::AMainProjectile()
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates=true;
 
-	SphereComponent = CreateDefaultSubobject<USphereComponent>("Sphere");
-	SphereComponent->SetCollisionObjectType(ECC_PROJECTILE);
-	SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	SphereComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-	SphereComponent->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Overlap);
-	SphereComponent->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Overlap);
-	SphereComponent->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
+	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComponent");
+	CapsuleComponent->SetCollisionObjectType(ECC_PROJECTILE);
+	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Overlap);
+	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Overlap);
+	CapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
 
 	ProjectileMovementComponent =CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
 	ProjectileMovementComponent->InitialSpeed = 550.f;
@@ -71,7 +71,7 @@ void AMainProjectile::BeginPlay()
 	//Set Life For This Actor
 	SetLifeSpan(LifeSpan);
 	
-	SphereComponent->OnComponentBeginOverlap.AddDynamic(this,&ThisClass::OnSphereOverlap);
+	CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this,&ThisClass::OnSphereOverlap);
 
 	//Attached Sound For Looping
 	UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent(),NAME_None,FVector(ForceInit),FRotator::ZeroRotator,EAttachLocation::KeepRelativeOffset,true);
