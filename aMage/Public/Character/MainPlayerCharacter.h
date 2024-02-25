@@ -7,7 +7,6 @@
 #include "Interact/CastingInterface.h"
 #include "MainPlayerCharacter.generated.h"
 
-class UMainRuneSpellGameplayAbility;
 class UAmage_EquipmentManager;
 class AProjectile;
 class AMainPlayerController;
@@ -34,6 +33,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	//Aiming
+	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadOnly)
+	bool bIsAiming;
 	void AimOffset(float DeltaTime);
 	UPROPERTY(BlueprintReadOnly)
 	float AO_Yaw;
@@ -47,7 +48,7 @@ protected:
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
 	void BindButtonToCharacter(AMainPlayerController* PlayerController);
 	UFUNCTION(BlueprintCallable,Category = Weapon)
-	virtual FVector GetCombatSocketLocation() override;
+	virtual FVector GetCombatSocketLocation_Implementation() override;
 	
 	//Item Inventory+Equipping
 	UFUNCTION(BlueprintCallable,Category = Weapon)
@@ -72,15 +73,12 @@ protected:
 	void ServerInteractButtonPressed();
 
 	//Interface Request Ability After Get Casting Rune Spell
-
-	virtual void MatchRuneSpellTags(TArray<FGameplayTag>& RuneTags) override;
+	UPROPERTY(Replicated)
+	TArray<FGameplayTag> RefRuneTags;
+	virtual void MatchRuneSpellTags(TArray<FGameplayTag> RuneTags) override;
 	UFUNCTION(Server,Reliable)
 	void ServerRequestAbilityActivation(const TArray<FGameplayTag>& RuneTags);
 	void ProcessAbilityRequest(const TArray<FGameplayTag>& RuneTags);
-	// UPROPERTY(ReplicatedUsing=OnRep_RuneSpellGameplayAbility,BlueprintReadOnly,Category="Rune Spell")
-	// TObjectPtr<UMainRuneSpellGameplayAbility> RuneSpellGameplayAbility;
-	// UFUNCTION()
-	// void OnRep_RuneSpellGameplayAbility();
 
 public:
 	UFUNCTION(BlueprintCallable,Category=Interact)
@@ -88,6 +86,9 @@ public:
 	UFUNCTION(BlueprintCallable,Category=Interact)
 	void ClearInteractObjectActor(AActor* Actor);
 
+	UFUNCTION()
+	void SetIsAiming(bool IsAiming) {bIsAiming = IsAiming;};
+	FORCEINLINE bool GetIsAiming() const {return bIsAiming;};
 	FORCEINLINE float GetAOYaw() const {return AO_Yaw;};
 	FORCEINLINE float GetAOPitch() const {return AO_Pitch;};
 

@@ -14,7 +14,7 @@
 UMainCastingGameplayAbility::UMainCastingGameplayAbility()
 {
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
@@ -41,6 +41,7 @@ void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 				PlayerController->SetInputMode(InputMode);
 				PlayerController->bShowMouseCursor = true;
 				PaintWidget->SetIsStartFocus(true);
+
 			}
 		}
 	}
@@ -64,27 +65,26 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		{
 			PaintWidget->OnDrawingSpellSuccess.AddDynamic(this,&ThisClass::AddRuneTags);
 		}
-		//TODO : Move This WalkSpeed To Attribute
-		//Set Character WalkSpeed
-		const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-		OldMaxWalkSpeed=Character->GetCharacterMovement()->MaxWalkSpeed;
-		Character->GetCharacterMovement()->MaxWalkSpeed = SlowMaxWalkSpeed;
-	}
 
+	}
+	
+	//TODO : Move This WalkSpeed To Attribute Fix This Cause Client Doesn't Work
+	//Set Character WalkSpeed
+	const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+	OldMaxWalkSpeed=Character->GetCharacterMovement()->MaxWalkSpeed;
+	Character->GetCharacterMovement()->MaxWalkSpeed = SlowMaxWalkSpeed;
 
 }
 
 void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
 	
 	if (GetActorInfo().PlayerController->IsLocalPlayerController())
 	{
 		if (AMainPlayerController* PlayerController = Cast<AMainPlayerController>(GetActorInfo().PlayerController.Get()))
 		{
-			PlayerController->SetbIsDrawingSpell(true);
-			const 	FInputModeGameOnly InputMode;
+			const FInputModeGameOnly InputMode;
 			PlayerController->SetbIsDrawingSpell(false);
 			PlayerController->SetInputMode(InputMode);
 			PlayerController->bShowMouseCursor = false;
@@ -93,11 +93,6 @@ void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle
 			{
 				PaintWidget->SetVisibility(ESlateVisibility::Hidden);
 			}
-
-			const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-			//Set Character WalkSpeed
-			Character->GetCharacterMovement()->MaxWalkSpeed= OldMaxWalkSpeed;
-
 		}
 	}
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -121,12 +116,15 @@ void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 		CastingInterface->MatchRuneSpellTags(RuneTags);
 	}
 	
-	RuneTags.Empty();
 	if(PaintWidget)
 	{
 		PaintWidget->OnDrawingSpellSuccess.RemoveDynamic(this, &ThisClass::AddRuneTags);
 	}
-	
+
+	//Set Character WalkSpeed
+	Character->GetCharacterMovement()->MaxWalkSpeed= OldMaxWalkSpeed;
+	RuneTags.Empty();
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 

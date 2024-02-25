@@ -34,18 +34,17 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 
 void UBaseAbilitySystemComponent::RemoveCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities)
 {
-	for (const TSubclassOf<UGameplayAbility> AbilityClass : RemoveAbilities)
-	{
-        FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromClass(AbilityClass);
-		if(AbilitySpec)
+		for (const TSubclassOf<UGameplayAbility> AbilityClass : RemoveAbilities)
 		{
-			// ItemAbility->StartupInputTag;
-			// AbilitySpec.DynamicAbilityTags.RemoveTag(ItemAbility->StartupInputTag);
-			ClearAbility(AbilitySpec->Handle);
+			FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromClass(AbilityClass);
+			if(AbilitySpec)
+			{
+				// ItemAbility->StartupInputTag;
+				// AbilitySpec.DynamicAbilityTags.RemoveTag(ItemAbility->StartupInputTag);
+				ClearAbility(AbilitySpec->Handle);
+			}
 		}
-	}
 }
-
 
 void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {

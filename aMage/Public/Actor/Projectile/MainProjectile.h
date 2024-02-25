@@ -7,10 +7,10 @@
 #include "GameFramework/Actor.h"
 #include "MainProjectile.generated.h"
 
+class UCapsuleComponent;
 struct FGameplayEffectSpecHandle;
 class UNiagaraSystem;
 class UProjectileMovementComponent;
-class USphereComponent;
 UCLASS()
 class AMAGE_API AMainProjectile : public AActor
 {
@@ -33,7 +33,7 @@ protected:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USphereComponent> SphereComponent;
+	TObjectPtr<UCapsuleComponent> CapsuleComponent;
 
 	UPROPERTY(EditAnyWhere)
 	TObjectPtr<UNiagaraSystem> ImpactEffect;
