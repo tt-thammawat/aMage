@@ -2,6 +2,8 @@
 
 
 #include "UI/Widget/MainPaintWidget.h"
+
+#include "GameplayTagsSingleton.h"
 #include "MainAssetManager.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Character/MainPlayerController.h"
@@ -22,13 +24,24 @@ void UMainPaintWidget::CheckDrawSpell()
 	
 	if (Result.Score < 0.8f)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "No Magic", true, FVector2D(1, 1));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, "No Magic", true, FVector2D(1, 1));
 			RemoveAllPoints();
 		}
 	else
 		{
-			OnDrawingSpellSuccess.Broadcast(Result.NameTag);
-GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("MaGic %s"), *Result.NameTag.GetTagName().ToString()));
+			if (Result.NameTag.MatchesTagExact(FMainGameplayTags::Get().Rune_Tag_04_Clear))
+			{
+				OnDrawingClearSpellSuccessSignature.Broadcast();
+				RuneTags.Empty();
+			}
+			else
+			{
+				RuneTags.Add(Result.NameTag);
+				OnDrawingSpellSuccess.Broadcast();
+			}
+
+
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("MaGic %s"), *Result.NameTag.GetTagName().ToString()));
 			RemoveAllPoints();
 		}
 }

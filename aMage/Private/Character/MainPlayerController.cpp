@@ -8,7 +8,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameplayTagsSingleton.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
+#include "AbilitySystem/Data/RuneSpellClassInfo.h"
 #include "GameFramework/Character.h"
+#include "Gamemode/MainGameMode.h"
 #include "Input/MainEnhancedInputComponent.h"
 #include "UI/Widget/DamageTextComponent.h"
 
@@ -40,6 +42,21 @@ void AMainPlayerController::ShowDamageNumber_Implementation(float DamageAmount, 
 		DamageTextComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		DamageTextComponent->SetDamageText(DamageAmount,bIsFireDamage,bIsLightningDamage,bIsIceDamage,bIsPhysicDamage);
 	}
+}
+
+void AMainPlayerController::ServerRequestRuneAbilitiesLists_Implementation()
+{
+	AMainGameMode* GM = Cast<AMainGameMode>(GetWorld()->GetAuthGameMode());
+	if (GM)
+	{
+		TArray<FRuneAbilityMapping> RuneAbilitiesLists = GM->RuneSpellClassInfos->AllRuneAbilities;
+		ClientReceiveRuneAbilitiesLists(RuneAbilitiesLists);
+	}
+}
+
+void AMainPlayerController::ClientReceiveRuneAbilitiesLists_Implementation(const TArray<FRuneAbilityMapping>& Abilities)
+{
+	OnRuneAbilitiesListReceived.Broadcast(Abilities);
 }
 
 void AMainPlayerController::BeginPlay()
@@ -91,7 +108,6 @@ void AMainPlayerController::SetupInputComponent()
 // Check with the FMainGameplayTags Singleton if the InputTag = InputTag.LMB,RMB
 void AMainPlayerController::AbilityInputTagPressed(const FGameplayTag InputTag)
 {
-	
 	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
 	{
 		if(GetBaseAbilitySystemComponent())

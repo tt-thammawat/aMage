@@ -56,8 +56,13 @@ public:
  FGameplayTag Damage_Ice;
  FGameplayTag Damage_Physical;
  TMap<FGameplayTag,FGameplayTag> DamageTypesToResistances;
- 
- FGameplayTag Abilities_Attack;
+
+ //Abilities
+ FGameplayTag Ability_Action_Attack;
+ FGameplayTag Ability_Rune_NormalSpell;
+
+ //Rune Drawing
+ FGameplayTag Rune_Tag_04_Clear;
  
  FGameplayTag Effects_HitReact;
  

@@ -15,6 +15,12 @@ struct FRuneAbilityMapping
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString RuneSpellName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString RuneSpellDescription;
+	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TArray<FGameplayTag> RuneSpellTags;
 	

@@ -34,6 +34,7 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 
 void UBaseAbilitySystemComponent::RemoveCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities)
 {
+
 		for (const TSubclassOf<UGameplayAbility> AbilityClass : RemoveAbilities)
 		{
 			FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromClass(AbilityClass);

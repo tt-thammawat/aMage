@@ -16,6 +16,7 @@ struct FGameplayTag;
  */
 DECLARE_DELEGATE(FOnInteractButtonPressedSignature);
 DECLARE_DELEGATE_OneParam(FOnButtonPressedSignature,int);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRuneAbilitiesListReceived, const TArray<FRuneAbilityMapping>&, Abilities);
 class ITargetInterface;
 struct FInputActionValue;
 class UInputMappingContext;
@@ -32,7 +33,16 @@ public:
 
 	UFUNCTION(Client,Reliable)
 	void ShowDamageNumber(float DamageAmount,ACharacter* TargetCharacter,bool bIsFireDamage,bool bIsLightningDamage,bool bIsIceDamage,bool bIsPhysicDamage);
+
+	//Get Abilities For Drawing Widget
+    UFUNCTION(Server, Reliable,BlueprintCallable)
+	void ServerRequestRuneAbilitiesLists();
 	
+	UFUNCTION(Client, Reliable)
+	void ClientReceiveRuneAbilitiesLists(const TArray<FRuneAbilityMapping>& Abilities);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnRuneAbilitiesListReceived OnRuneAbilitiesListReceived;
 protected:
 	
 	virtual void BeginPlay() override;

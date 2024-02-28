@@ -59,9 +59,14 @@ void FMainGameplayTags::InitializeNativeGameplayTags()
 	MainGameplayTags.State_Action_Aiming = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Action.Aiming"),FString("State When Aiming"));
 	MainGameplayTags.State_InAir_Jumping = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.InAir.Jumping"),FString("State When Jumping In The Air"));
 
+	//Rune Drawing
+	MainGameplayTags.Rune_Tag_04_Clear = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Rune.Tag.04.Clear"), FString("Rune Tag Clear"));
+
+	//Abilities
+	MainGameplayTags.Ability_Action_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Action.Attack"), FString("Attack Ability Tag"));
+	MainGameplayTags.Ability_Rune_NormalSpell = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Rune.NormalSpell"), FString("Rune NormalSpell Ability Tag"));
+
 	//Effects
 	MainGameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects.HitReact"), FString("HitReact"));
 
-	//Abilities
-	MainGameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Attack"), FString("Attack Ability Tag"));
 }

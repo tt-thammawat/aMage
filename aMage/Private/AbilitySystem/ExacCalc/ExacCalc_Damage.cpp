@@ -6,7 +6,6 @@
 #include "GameplayTagsSingleton.h"
 #include "AbilitySystem/BaseAttributeSet.h"
 #include "AbilitySystem/MainAbilitySystemLibrary.h"
-#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interact/ICombatInterface.h"
 
 struct MainDamageStatics
@@ -73,7 +72,7 @@ void UExacCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	AggregatorEvaluateParameters.SourceTags = SourceTags;
 	AggregatorEvaluateParameters.TargetTags = TargetTags;
 
-	const UCharacterClassInfo* CharacterClassInfo = UMainAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatar);
+//	const UCharacterClassInfo* CharacterClassInfo = UMainAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatar);
 
 	//Get Damage Set By Caller Magnitude [Source]
 	float Damage = 0.f;
@@ -112,8 +111,8 @@ void UExacCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		checkf(MainDamageStatics().TagsToCaptureDefs.Contains(ResistanceTag),TEXT("TagsToCaptureDefs doesn't Contain Tag : %s in ExecCalc_Damage"),*ResistanceTag.ToString());
 		//Capture Value by using KEY (FGameplayTag)
 		const FGameplayEffectAttributeCaptureDefinition CaptureDefinition = MainDamageStatics().TagsToCaptureDefs[ResistanceTag];
-		float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key);
-		
+		float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag,false,DamageTypeValue = 0.f);
+
 		float Resistance = 0.f;
 		
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CaptureDefinition,AggregatorEvaluateParameters,Resistance);

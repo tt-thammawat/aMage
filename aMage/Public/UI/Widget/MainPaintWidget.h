@@ -7,11 +7,23 @@
 #include "UI/Widget/MainPlayerWidget.h"
 #include "MainPaintWidget.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FAbilitiesTagList
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FGameplayTag> Tags;
+};
+
 class AMainPlayerController;
 /**
  * 
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDrawingSpellSuccessSignature,FGameplayTag,RuneNameTag);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawingSpellSuccessSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawingClearSpellSuccessSignature);
+
 UCLASS()
 class AMAGE_API UMainPaintWidget : public UMainPlayerWidget
 {
@@ -26,6 +38,11 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingSpellSuccessSignature OnDrawingSpellSuccess;
+	UPROPERTY(BlueprintAssignable)
+	FOnDrawingClearSpellSuccessSignature OnDrawingClearSpellSuccessSignature;
+	UFUNCTION(BlueprintCallable)
+	TArray<FGameplayTag> GetRuneTags() const {return RuneTags;};
+	
 	UFUNCTION(BlueprintCallable)
 	void SetIsStartFocus(bool bStartFocus) { bIsStartFocus = bStartFocus;};
 private:
@@ -33,9 +50,16 @@ private:
 	void CheckDrawSpell();
 	bool bIsStartFocus=false;
 	bool bIsDrawing=false;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=Player,meta=(AllowPrivateAccess=true))
 	TObjectPtr<AMainPlayerController> MainPlayerController;
 
+	//Initial Tag Lists
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
+	TArray<FAbilitiesTagList> RuneAbilitiesTagMatchesLists;
+
+	//Save Tag From Drawing
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
+	TArray<FGameplayTag> RuneTags;
 
 //Drawing Canvas Line
 	
@@ -43,6 +67,7 @@ protected:
 	virtual int32 NativePaint(const FPaintArgs &Args, const FGeometry &AllottedGeometry, const FSlateRect &MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle &InWidgetStyle, bool bParentEnabled) const override;
 
 public:
+	
 	void AddPoint(const FVector2D &Point);
 	UFUNCTION(BlueprintCallable,Category=Default)	
 	void RemoveAllPoints();

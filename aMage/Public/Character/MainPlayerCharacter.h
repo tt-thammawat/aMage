@@ -79,7 +79,7 @@ protected:
 	UFUNCTION(Server,Reliable)
 	void ServerRequestAbilityActivation(const TArray<FGameplayTag>& RuneTags);
 	void ProcessAbilityRequest(const TArray<FGameplayTag>& RuneTags);
-
+	virtual void ClearRuneSpell() override;
 public:
 	UFUNCTION(BlueprintCallable,Category=Interact)
 	void SetInteractObjectActor(AActor* Actor);

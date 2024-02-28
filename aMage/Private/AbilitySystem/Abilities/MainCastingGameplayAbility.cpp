@@ -20,8 +20,62 @@ UMainCastingGameplayAbility::UMainCastingGameplayAbility()
 void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
+	static bool bIsDebouncing = false;
+	if (bIsDebouncing) return;
 
+	// Toggle the ability activation state.
+	bIsAbilityActive = !bIsAbilityActive;
+
+
+		if(bIsAbilityActive)
+		{
+			// The ability has just been activated.
+			ActivateDrawingMode();
+		}
+		else
+		{
+			// The ability is being deactivated.
+			DeactivateDrawingMode(Handle,ActorInfo,ActivationInfo);
+		}
+
+	bIsDebouncing = true;
+	FTimerHandle UnusedHandle;
+	GetWorld()->GetTimerManager().SetTimer(UnusedHandle, [this]()
+		{ bIsDebouncing = false; }
+		, 0.2f, false);
+
+}
+
+void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	
+	if (GetActorInfo().PlayerController->IsLocalPlayerController())
+	{
+		if(PaintWidget == nullptr)
+		{
+			const AMainPlayerHUD* MainPlayerHUD=  Cast<AMainPlayerHUD>(GetActorInfo().PlayerController->GetHUD());
+			PaintWidget= MainPlayerHUD->DrawingWidget;
+		}
+	
+		if(PaintWidget)
+		{
+			PaintWidget->OnDrawingSpellSuccess.AddDynamic(this,&ThisClass::AddRuneTags);
+			PaintWidget->OnDrawingClearSpellSuccessSignature.AddDynamic(this,&ThisClass::ClearRuneTags);
+		}
+	}
+	
+	//TODO : Move This WalkSpeed To Attribute Fix This Cause Client Doesn't Work
+	//Set Character WalkSpeed
+	const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+	OldMaxWalkSpeed=Character->GetCharacterMovement()->MaxWalkSpeed;
+	Character->GetCharacterMovement()->MaxWalkSpeed = SlowMaxWalkSpeed;
+
+}
+
+void UMainCastingGameplayAbility::ActivateDrawingMode()
+{
 	if (GetActorInfo().PlayerController->IsLocalPlayerController())
 	{
 		if(PaintWidget == nullptr)
@@ -42,43 +96,41 @@ void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 				PlayerController->bShowMouseCursor = true;
 				PaintWidget->SetIsStartFocus(true);
 
+				//Set Mouse To Center
+				int32 ViewportSizeX, ViewportSizeY;
+				PlayerController->GetViewportSize(ViewportSizeX, ViewportSizeY);
+				int32 CenterX = ViewportSizeX / 2;
+				int32 CenterY = ViewportSizeY / 2;
+
+				PlayerController->SetMouseLocation(CenterX, CenterY);
 			}
 		}
 	}
 }
 
-void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
+void UMainCastingGameplayAbility::AddRuneTags()
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	if (GetActorInfo().PlayerController->IsLocalPlayerController())
+	ACharacter* Character = CastChecked<ACharacter>(GetActorInfo().AvatarActor.Get(),ECastCheckedType::NullAllowed);
+	ICastingInterface* CastingInterface = CastChecked<ICastingInterface>(Character);
+	if(CastingInterface)
 	{
-		if(PaintWidget == nullptr)
-		{
-			const AMainPlayerHUD* MainPlayerHUD=  Cast<AMainPlayerHUD>(GetActorInfo().PlayerController->GetHUD());
-			PaintWidget= MainPlayerHUD->DrawingWidget;
-		}
-	
-		if(PaintWidget)
-		{
-			PaintWidget->OnDrawingSpellSuccess.AddDynamic(this,&ThisClass::AddRuneTags);
-		}
+		CastingInterface->MatchRuneSpellTags(PaintWidget->GetRuneTags());
 	}
-	
-	//TODO : Move This WalkSpeed To Attribute Fix This Cause Client Doesn't Work
-	//Set Character WalkSpeed
-	const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-	OldMaxWalkSpeed=Character->GetCharacterMovement()->MaxWalkSpeed;
-	Character->GetCharacterMovement()->MaxWalkSpeed = SlowMaxWalkSpeed;
-
 }
 
-void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+void UMainCastingGameplayAbility::ClearRuneTags()
 {
-	
+	ACharacter* Character = CastChecked<ACharacter>(GetActorInfo().AvatarActor.Get(),ECastCheckedType::NullAllowed);
+	ICastingInterface* CastingInterface = CastChecked<ICastingInterface>(Character);
+	if(CastingInterface)
+	{
+		CastingInterface->MatchRuneSpellTags(PaintWidget->GetRuneTags());
+	}
+}
+
+void UMainCastingGameplayAbility::DeactivateDrawingMode(const FGameplayAbilitySpecHandle& Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo& ActivationInfo)
+{
 	if (GetActorInfo().PlayerController->IsLocalPlayerController())
 	{
 		if (AMainPlayerController* PlayerController = Cast<AMainPlayerController>(GetActorInfo().PlayerController.Get()))
@@ -94,17 +146,16 @@ void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle
 			}
 		}
 	}
-
-	ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-	ICastingInterface* CastingInterface = CastChecked<ICastingInterface>(Character);
-	if(CastingInterface)
-	{
-		CastingInterface->MatchRuneSpellTags(RuneTags);
-	}
-	//Set Character WalkSpeed
-	Character->GetCharacterMovement()->MaxWalkSpeed= OldMaxWalkSpeed;
 	
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+}
+
+void UMainCastingGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle Handle,
+                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                                bool bReplicateCancelAbility)
+{
+	DeactivateDrawingMode(Handle,ActorInfo,ActivationInfo);
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -115,24 +166,13 @@ void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	if(PaintWidget)
 	{
 		PaintWidget->OnDrawingSpellSuccess.RemoveDynamic(this, &ThisClass::AddRuneTags);
+		PaintWidget->OnDrawingClearSpellSuccessSignature.RemoveDynamic(this,&ThisClass::ClearRuneTags);
 	}
+	
+	ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
 
-	RuneTags.Empty();
-
+	//Set Character WalkSpeed
+	Character->GetCharacterMovement()->MaxWalkSpeed= OldMaxWalkSpeed;
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
-void UMainCastingGameplayAbility::AddRuneTags(FGameplayTag RuneTag)
-{
-	RuneTags.Add(RuneTag);
-}
-
-void UMainCastingGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateCancelAbility)
-{
-	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
-	
-	InputReleased(Handle,ActorInfo,ActivationInfo);
-	
 }

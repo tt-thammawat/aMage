@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/MainGameplayAbility.h"
-#include "Interact/CastingInterface.h"
 #include "MainCastingGameplayAbility.generated.h"
 
 class UAbilityTask_PlayMontageAndWait;
@@ -24,8 +23,6 @@ protected:
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
-	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
-
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
@@ -35,8 +32,13 @@ private:
 	float SlowMaxWalkSpeed = 350.f;
 	float OldMaxWalkSpeed = 0.f;
 	UFUNCTION()
-	void AddRuneTags(FGameplayTag RuneTag);
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess="true"))
-	TArray<FGameplayTag> RuneTags;
+	void AddRuneTags();
+	UFUNCTION()
+	void ClearRuneTags();
 	TObjectPtr<UMainPaintWidget> PaintWidget;
+	// Tracks whether the ability is currently active.
+	bool bIsAbilityActive = false;
+	void ActivateDrawingMode();
+	void DeactivateDrawingMode(const FGameplayAbilitySpecHandle& Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo& ActivationInfo);
 };

@@ -15,7 +15,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Gamemode/MainGameMode.h"
 #include "Interact/InteractInterface.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 AMainPlayerCharacter::AMainPlayerCharacter()
@@ -193,18 +192,49 @@ void AMainPlayerCharacter::ServerRequestAbilityActivation_Implementation(const T
 
 void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& RuneTags)
 {
-	AMainGameMode* MainGameMode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	AMainGameMode* MainGameMode = Cast<AMainGameMode>(GetWorld()->GetAuthGameMode());
+
 	if(MainGameMode)
 	{
-		TSubclassOf<UGameplayAbility> MatchedAbility = MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTags);
 		UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent());
+		//Get Abilities From Server
+		TSubclassOf<UGameplayAbility> MatchedAbility = MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTags);
 		if(MatchedAbility)
 		{
-		TArray<TSubclassOf<UGameplayAbility>> AddAbilities;
-		AddAbilities.Add(MatchedAbility);
-		BaseAbilitySystemComponent->AddCharacterAbilities(AddAbilities);
+			ClearRuneSpell();
+			
+			TArray<TSubclassOf<UGameplayAbility>> AddAbilities;
+			AddAbilities.Add(MatchedAbility);
+			BaseAbilitySystemComponent->AddCharacterAbilities(AddAbilities);
 		}
 	}
+}
+
+void AMainPlayerCharacter::ClearRuneSpell()
+{
+		if (!HasAuthority()) return;
+
+		UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent());
+		
+		TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove;
+
+		for (const FGameplayAbilitySpec& Spec : BaseAbilitySystemComponent->GetActivatableAbilities())
+		{
+			//Remove Normal Spell
+			if (Spec.Ability && Spec.Ability->AbilityTags.HasTagExact(FMainGameplayTags::Get().Ability_Rune_NormalSpell))
+			{
+				AbilitiesToRemove.Add(Spec.Handle);
+			}
+		}
+
+		for (const FGameplayAbilitySpecHandle& Handle : AbilitiesToRemove)
+		{
+			BaseAbilitySystemComponent->ClearAbility(Handle);
+		}
+
+		// Clear reference tags after successfully removing the abilities.
+		RefRuneTags.Empty();
+	
 }
 
 void AMainPlayerCharacter::SetInteractObjectActor(AActor* Actor)

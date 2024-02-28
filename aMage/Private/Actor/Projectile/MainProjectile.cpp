@@ -23,11 +23,14 @@ AMainProjectile::AMainProjectile()
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Overlap);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Overlap);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
-
+	SetRootComponent(CapsuleComponent);
+	
 	ProjectileMovementComponent =CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
 	ProjectileMovementComponent->InitialSpeed = 550.f;
 	ProjectileMovementComponent->MaxSpeed = 550.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
+	// Ensure the projectile movement component updates its position based on the root component
+	ProjectileMovementComponent->UpdatedComponent = CapsuleComponent;
 }
 
 void AMainProjectile::Destroyed()
