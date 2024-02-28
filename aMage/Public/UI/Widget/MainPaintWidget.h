@@ -12,6 +12,9 @@ USTRUCT(BlueprintType)
 struct FAbilitiesTagList
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Name;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FGameplayTag> Tags;
@@ -40,12 +43,20 @@ public:
 	FOnDrawingSpellSuccessSignature OnDrawingSpellSuccess;
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingClearSpellSuccessSignature OnDrawingClearSpellSuccessSignature;
+	
 	UFUNCTION(BlueprintCallable)
 	TArray<FGameplayTag> GetRuneTags() const {return RuneTags;};
 	
 	UFUNCTION(BlueprintCallable)
 	void SetIsStartFocus(bool bStartFocus) { bIsStartFocus = bStartFocus;};
+	
+	//Bind Tag When GameplayAbilities Change
+	UFUNCTION(BlueprintImplementableEvent,Category=Rune)
+	void OnSpecificTagChanged(const FGameplayTag Tag, int32 NewCount);
 private:
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
+	bool bIsDrawToUpgraded = false;
 	
 	void CheckDrawSpell();
 	bool bIsStartFocus=false;
@@ -61,6 +72,7 @@ private:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
 	TArray<FGameplayTag> RuneTags;
 
+	
 //Drawing Canvas Line
 	
 protected:

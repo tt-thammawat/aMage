@@ -120,14 +120,16 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UBaseAbilitySystemComponent> BaseAbilitySystemComponent;
-	UBaseAbilitySystemComponent* GetBaseAbilitySystemComponent();
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 	
 	ITargetInterface* LastActor;
 	ITargetInterface* ThisActor;
-	
+
+public:
+	UBaseAbilitySystemComponent* GetBaseAbilitySystemComponent();
+
 	/*************************************************************************************************************/
 	//DRAW FUNCTION IS HERE!
 

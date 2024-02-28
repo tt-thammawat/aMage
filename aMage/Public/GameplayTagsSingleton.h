@@ -42,6 +42,7 @@ public:
  FGameplayTag State_Action_Casting;
  FGameplayTag State_Action_Aiming;
  FGameplayTag State_InAir_Jumping;
+ FGameplayTag State_Action_Spell_NormalSpell;
 
  //Resistance
  FGameplayTag Attributes_Resistance_Fire;
@@ -60,7 +61,7 @@ public:
  //Abilities
  FGameplayTag Ability_Action_Attack;
  FGameplayTag Ability_Rune_NormalSpell;
-
+ 
  //Rune Drawing
  FGameplayTag Rune_Tag_04_Clear;
  

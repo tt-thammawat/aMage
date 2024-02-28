@@ -2,7 +2,6 @@
 
 
 #include "AbilitySystem/Abilities/RuneSpell/Projectile/GA_SpellChargeProjectile.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayTagsSingleton.h"
@@ -13,7 +12,7 @@
 UGA_SpellChargeProjectile::UGA_SpellChargeProjectile():
 bIsPlayingAnimation(false)
 {
-	NetExecutionPolicy=EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	NetExecutionPolicy=EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 	InstancingPolicy=EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
@@ -25,40 +24,51 @@ void UGA_SpellChargeProjectile::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 }
 
+bool UGA_SpellChargeProjectile::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if(!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+		return false;
+	
+	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+}
+
+void UGA_SpellChargeProjectile::CancelAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateCancelAbility)
+{
+	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+
+	MainPlayerCharacter->SetIsAiming(false);
+	
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+}
+
 void UGA_SpellChargeProjectile::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                              const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	//Remove These Super Because it make ActivateAbility Run Twice
-	if(!bIsPlayingAnimation)
-	{
-		Super::InputPressed(Handle, ActorInfo, ActivationInfo);
-		K2_ActivateAbility();
-	}
+	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(CurrentActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+	MainPlayerCharacter->SetIsAiming(true);
 	
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &UGA_SpellChargeProjectile::ActivateAbilityAfterHold, InputHeldDuration);
-
 }
 
 void UGA_SpellChargeProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	//Remove These Super Because it make ActivateAbility Run Twice
-	//Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-	
-	MainPlayerCharacter->SetIsAiming(true);
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 void UGA_SpellChargeProjectile::SpawnChargeProjectile(const FVector& ProjectileTargetLocation, int32 NumProjectiles)
 {
 	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
 	if(!bIsServer) return;
+	
 		// Get SocketLocation FVector via ICombatInterface
-		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
-		//Set Projectile Fly Parallel to the ground
-		Rotation.Pitch = 0.f;
+		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
+		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 
 		// Adjust the angle based on the number of projectiles
 		float AngleOffset;
@@ -80,11 +90,12 @@ void UGA_SpellChargeProjectile::SpawnChargeProjectile(const FVector& ProjectileT
 			// Calculate rotation for each projectile
 			float RotationOffset = AngleOffset * (i - NumProjectiles / 2);
 			FRotator SpawnRotation = Rotation + FRotator(0.0f, RotationOffset, 0.0f);
+			SpawnRotation.Pitch = 0;
+			
 			FTransform SpawnTransform;
 			SpawnTransform.SetLocation(SocketLocation);
 			SpawnTransform.SetRotation(SpawnRotation.Quaternion());
 			
-			//It gives developers the opportunity to modify or configure the newly spawned actor or its components before the actor's construction scripts and initialization are fully completed.
 			AChargeProjectile* Projectile = GetWorld()->SpawnActorDeferred<AChargeProjectile>(
 					ProjectileClass,
 					SpawnTransform,
@@ -145,7 +156,7 @@ void UGA_SpellChargeProjectile::ActivateAbilityAfterHold()
 void UGA_SpellChargeProjectile::InputReleased(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	//Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
 
 	if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_InputHeld))
 	{

@@ -201,8 +201,6 @@ void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& Run
 		TSubclassOf<UGameplayAbility> MatchedAbility = MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTags);
 		if(MatchedAbility)
 		{
-			ClearRuneSpell();
-			
 			TArray<TSubclassOf<UGameplayAbility>> AddAbilities;
 			AddAbilities.Add(MatchedAbility);
 			BaseAbilitySystemComponent->AddCharacterAbilities(AddAbilities);
@@ -212,29 +210,44 @@ void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& Run
 
 void AMainPlayerCharacter::ClearRuneSpell()
 {
-		if (!HasAuthority()) return;
-
-		UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent());
-		
-		TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove;
-
-		for (const FGameplayAbilitySpec& Spec : BaseAbilitySystemComponent->GetActivatableAbilities())
-		{
-			//Remove Normal Spell
-			if (Spec.Ability && Spec.Ability->AbilityTags.HasTagExact(FMainGameplayTags::Get().Ability_Rune_NormalSpell))
-			{
-				AbilitiesToRemove.Add(Spec.Handle);
-			}
-		}
-
-		for (const FGameplayAbilitySpecHandle& Handle : AbilitiesToRemove)
-		{
-			BaseAbilitySystemComponent->ClearAbility(Handle);
-		}
-
-		// Clear reference tags after successfully removing the abilities.
-		RefRuneTags.Empty();
+	// Clear reference tags after successfully removing the abilities.
+	RefRuneTags.Empty();
 	
+		if (HasAuthority())
+		{
+			ProcessClearRuneSpellRequest();
+		}
+		else
+		{
+			ServerRequestClearRuneSpell();
+		}
+	
+}
+
+void AMainPlayerCharacter::ServerRequestClearRuneSpell_Implementation()
+{
+	ProcessClearRuneSpellRequest();
+}
+
+void AMainPlayerCharacter::ProcessClearRuneSpellRequest()
+{
+	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent());
+		
+	TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove;
+
+	for (const FGameplayAbilitySpec& Spec : BaseAbilitySystemComponent->GetActivatableAbilities())
+	{
+		//Remove Normal Spell
+		if (Spec.Ability && Spec.Ability->AbilityTags.HasTagExact(FMainGameplayTags::Get().Ability_Rune_NormalSpell))
+		{
+			AbilitiesToRemove.Add(Spec.Handle);
+		}
+	}
+
+	for (const FGameplayAbilitySpecHandle& Handle : AbilitiesToRemove)
+	{
+		BaseAbilitySystemComponent->ClearAbility(Handle);
+	}
 }
 
 void AMainPlayerCharacter::SetInteractObjectActor(AActor* Actor)

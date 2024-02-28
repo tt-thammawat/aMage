@@ -5,6 +5,7 @@
 
 #include "GameplayTagsSingleton.h"
 #include "MainAssetManager.h"
+#include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Character/MainPlayerController.h"
 #include "DrawMagic/UnistrokeRecognizer.h"
@@ -32,7 +33,6 @@ void UMainPaintWidget::CheckDrawSpell()
 			if (Result.NameTag.MatchesTagExact(FMainGameplayTags::Get().Rune_Tag_04_Clear))
 			{
 				OnDrawingClearSpellSuccessSignature.Broadcast();
-				RuneTags.Empty();
 			}
 			else
 			{
@@ -49,6 +49,10 @@ void UMainPaintWidget::CheckDrawSpell()
 void UMainPaintWidget::SetUpMainPlayerController(APlayerController* PlayerController)
 {
 	MainPlayerController = Cast<AMainPlayerController>(PlayerController);
+	if(MainPlayerController->GetBaseAbilitySystemComponent())
+	{
+		MainPlayerController->GetBaseAbilitySystemComponent()->RegisterGameplayTagEvent(FMainGameplayTags::Get().State_Action_Spell_NormalSpell,EGameplayTagEventType::NewOrRemoved).AddUObject(this,&ThisClass::OnSpecificTagChanged);
+	}
 }
 
 FReply UMainPaintWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

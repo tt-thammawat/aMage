@@ -123,7 +123,7 @@ void UMainCastingGameplayAbility::ClearRuneTags()
 	ICastingInterface* CastingInterface = CastChecked<ICastingInterface>(Character);
 	if(CastingInterface)
 	{
-		CastingInterface->MatchRuneSpellTags(PaintWidget->GetRuneTags());
+	  CastingInterface->ClearRuneSpell();
 	}
 }
 
