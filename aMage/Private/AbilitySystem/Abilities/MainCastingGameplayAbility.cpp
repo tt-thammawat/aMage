@@ -20,13 +20,10 @@ UMainCastingGameplayAbility::UMainCastingGameplayAbility()
 void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	static bool bIsDebouncing = false;
 	if (bIsDebouncing) return;
-
 	// Toggle the ability activation state.
 	bIsAbilityActive = !bIsAbilityActive;
-
-
+	
 		if(bIsAbilityActive)
 		{
 			// The ability has just been activated.
@@ -35,7 +32,7 @@ void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 		else
 		{
 			// The ability is being deactivated.
-			DeactivateDrawingMode(Handle,ActorInfo,ActivationInfo);
+			DeactivateDrawingMode();
 		}
 
 	bIsDebouncing = true;
@@ -65,6 +62,8 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 			PaintWidget->OnDrawingClearSpellSuccessSignature.AddDynamic(this,&ThisClass::ClearRuneTags);
 		}
 	}
+
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	//TODO : Move This WalkSpeed To Attribute Fix This Cause Client Doesn't Work
 	//Set Character WalkSpeed
@@ -128,8 +127,7 @@ void UMainCastingGameplayAbility::ClearRuneTags()
 	}
 }
 
-void UMainCastingGameplayAbility::DeactivateDrawingMode(const FGameplayAbilitySpecHandle& Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo& ActivationInfo)
+void UMainCastingGameplayAbility::DeactivateDrawingMode()
 {
 	if (GetActorInfo().PlayerController->IsLocalPlayerController())
 	{
@@ -146,21 +144,29 @@ void UMainCastingGameplayAbility::DeactivateDrawingMode(const FGameplayAbilitySp
 			}
 		}
 	}
-	
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
 
 void UMainCastingGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle Handle,
                                                 const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                 bool bReplicateCancelAbility)
 {
-	DeactivateDrawingMode(Handle,ActorInfo,ActivationInfo);
+	DeactivateDrawingMode();
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
+void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+	if(!bIsAbilityActive)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo,true,false);
+	}
+	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+}
+
 void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateEndAbility, bool bWasCancelled)
+                                             const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                             bool bReplicateEndAbility, bool bWasCancelled)
 {
 	
 	if(PaintWidget)

@@ -29,9 +29,12 @@ void UGA_SpellChargeProjectile::InputPressed(const FGameplayAbilitySpecHandle Ha
                                              const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	//Remove These Super Because it make ActivateAbility Run Twice
-	//Super::InputPressed(Handle, ActorInfo, ActivationInfo);
+	if(!bIsPlayingAnimation)
+	{
+		Super::InputPressed(Handle, ActorInfo, ActivationInfo);
+		K2_ActivateAbility();
+	}
 	
-	InputPressTime = GetWorld()->GetTimeSeconds();
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &UGA_SpellChargeProjectile::ActivateAbilityAfterHold, InputHeldDuration);
 
 }

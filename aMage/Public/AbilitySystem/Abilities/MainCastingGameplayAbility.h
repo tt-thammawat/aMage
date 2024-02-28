@@ -27,6 +27,8 @@ protected:
 
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
 
+	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
+	
 private:
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float SlowMaxWalkSpeed = 350.f;
@@ -38,7 +40,8 @@ private:
 	TObjectPtr<UMainPaintWidget> PaintWidget;
 	// Tracks whether the ability is currently active.
 	bool bIsAbilityActive = false;
+	// Prevent double press
+	bool bIsDebouncing = false;
 	void ActivateDrawingMode();
-	void DeactivateDrawingMode(const FGameplayAbilitySpecHandle& Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo& ActivationInfo);
+	void DeactivateDrawingMode();
 };

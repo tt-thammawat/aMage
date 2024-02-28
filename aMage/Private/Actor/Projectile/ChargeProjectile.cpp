@@ -29,6 +29,8 @@ AChargeProjectile::AChargeProjectile()
 	ProjectileMovementComponent->InitialSpeed = 550.f;
 	ProjectileMovementComponent->MaxSpeed = 550.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
+	// Ensure the projectile movement component updates its position based on the root component
+	ProjectileMovementComponent->UpdatedComponent = CapsuleComponent;
 }
 
 void AChargeProjectile::Destroyed()
