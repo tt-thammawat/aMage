@@ -30,9 +30,24 @@ protected:
 	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	
 private:
+	//Speed
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float SlowMaxWalkSpeed = 350.f;
 	float OldMaxWalkSpeed = 0.f;
+	//Camera
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float DefaultFOV= 90.f;
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float NewFOV= 90.f;
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float DefaultVignetteIntensity= 0.4f;
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float NewVignetteIntensity= 1.5f;
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float DefaultDepthOfFieldVignetteSize= 200.f;
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float NewDepthOfFieldVignetteSize= 200.f;
+	//RuneTag
 	UFUNCTION()
 	void AddRuneTags();
 	UFUNCTION()

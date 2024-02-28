@@ -18,6 +18,7 @@ void UMainPaintWidget::NativeConstruct()
 	bIsStartFocus=false;
 }
 
+
 void UMainPaintWidget::CheckDrawSpell()
 {
 	const TArray<FVector2D>CurrentPoints = Points;
@@ -49,9 +50,13 @@ void UMainPaintWidget::CheckDrawSpell()
 void UMainPaintWidget::SetUpMainPlayerController(APlayerController* PlayerController)
 {
 	MainPlayerController = Cast<AMainPlayerController>(PlayerController);
-	if(MainPlayerController->GetBaseAbilitySystemComponent())
+}
+
+void UMainPaintWidget::SetBindOnSpecificTagChanged(UAbilitySystemComponent* AbilitySystemComponent)
+{
+	if(AbilitySystemComponent)
 	{
-		MainPlayerController->GetBaseAbilitySystemComponent()->RegisterGameplayTagEvent(FMainGameplayTags::Get().State_Action_Spell_NormalSpell,EGameplayTagEventType::NewOrRemoved).AddUObject(this,&ThisClass::OnSpecificTagChanged);
+		AbilitySystemComponent->RegisterGameplayTagEvent(FMainGameplayTags::Get().State_Action_Spell_NormalSpell,EGameplayTagEventType::NewOrRemoved).AddUObject(this,&ThisClass::OnSpecificTagChanged);
 	}
 }
 

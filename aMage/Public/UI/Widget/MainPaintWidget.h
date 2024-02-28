@@ -51,6 +51,8 @@ public:
 	void SetIsStartFocus(bool bStartFocus) { bIsStartFocus = bStartFocus;};
 	
 	//Bind Tag When GameplayAbilities Change
+	UFUNCTION(BlueprintCallable,Category=Rune)
+	void SetBindOnSpecificTagChanged(UAbilitySystemComponent* AbilitySystemComponent);
 	UFUNCTION(BlueprintImplementableEvent,Category=Rune)
 	void OnSpecificTagChanged(const FGameplayTag Tag, int32 NewCount);
 private:

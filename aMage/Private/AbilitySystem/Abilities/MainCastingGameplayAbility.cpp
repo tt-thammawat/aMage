@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/MainCastingGameplayAbility.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask.h"
+#include "Camera/CameraComponent.h"
 #include "Character/MainPlayerController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -104,7 +105,20 @@ void UMainCastingGameplayAbility::ActivateDrawingMode()
 				PlayerController->SetMouseLocation(CenterX, CenterY);
 			}
 		}
-	}
+		//Camera
+		if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+		{
+			if (UCameraComponent* Camera = Character->FindComponentByClass<UCameraComponent>())
+			{
+				DefaultFOV = Camera->FieldOfView;
+				Camera->SetFieldOfView(NewFOV); 
+				DefaultVignetteIntensity = Camera->PostProcessSettings.VignetteIntensity;
+				Camera->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
+				DefaultDepthOfFieldVignetteSize= Camera->PostProcessSettings.DepthOfFieldVignetteSize;
+				Camera->PostProcessSettings.DepthOfFieldVignetteSize=NewDepthOfFieldVignetteSize;
+				}
+			}
+		}
 }
 
 void UMainCastingGameplayAbility::AddRuneTags()
@@ -143,6 +157,16 @@ void UMainCastingGameplayAbility::DeactivateDrawingMode()
 				PaintWidget->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
+		
+		if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+		{
+			if (UCameraComponent* Camera = Character->FindComponentByClass<UCameraComponent>())
+			{
+				Camera->SetFieldOfView(DefaultFOV); 
+				Camera->PostProcessSettings.VignetteIntensity = DefaultVignetteIntensity;
+				Camera->PostProcessSettings.DepthOfFieldVignetteSize=DefaultDepthOfFieldVignetteSize;
+			}
+		}
 	}
 }
 
@@ -160,8 +184,9 @@ void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle
 	if(!bIsAbilityActive)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo,true,false);
+		Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+
 	}
-	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
 }
 
 void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,

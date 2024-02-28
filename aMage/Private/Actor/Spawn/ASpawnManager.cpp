@@ -24,6 +24,8 @@ void AASpawnManager::StartSpawningWaves()
 
 void AASpawnManager::SpawnWave()
 {
+	if(!HasAuthority()) return;
+	
 	if (GoblinClass == nullptr || SpawnPoints.Num() == 0) return;
 
 	for (int32 i = 0; i < GoblinsPerWave; ++i)
