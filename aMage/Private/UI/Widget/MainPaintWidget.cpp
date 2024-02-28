@@ -79,7 +79,6 @@ FReply UMainPaintWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FP
 		FVector2D LocalMousePosition = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
 		AddPoint(LocalMousePosition);
 		return FReply::Handled();
-
 	}
 	
 	return Super::NativeOnMouseMove(InGeometry, InMouseEvent);
@@ -94,6 +93,11 @@ FReply UMainPaintWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, cons
 		return FReply::Handled();
 	}
 	return Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
+}
+
+void UMainPaintWidget::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
+{
+	Super::NativeOnFocusLost(InFocusEvent);
 }
 
 //Drawing Canvas Line

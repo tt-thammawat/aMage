@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/MainCastingGameplayAbility.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask.h"
+#include "AbilitySystem/AbilityTask/InterpolateFOV.h"
 #include "Camera/CameraComponent.h"
 #include "Character/MainPlayerController.h"
 #include "GameFramework/Character.h"
@@ -40,7 +41,7 @@ void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 	FTimerHandle UnusedHandle;
 	GetWorld()->GetTimerManager().SetTimer(UnusedHandle, [this]()
 		{ bIsDebouncing = false; }
-		, 0.2f, false);
+		, 0.3f, false);
 
 }
 
@@ -63,7 +64,10 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 			PaintWidget->OnDrawingClearSpellSuccessSignature.AddDynamic(this,&ThisClass::ClearRuneTags);
 		}
 	}
-
+	CurrentSpecHandle=Handle;
+	CurrentActorInfo=ActorInfo;
+	CurrentActivationInfo=ActivationInfo;
+	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	//TODO : Move This WalkSpeed To Attribute Fix This Cause Client Doesn't Work
@@ -72,6 +76,36 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	OldMaxWalkSpeed=Character->GetCharacterMovement()->MaxWalkSpeed;
 	Character->GetCharacterMovement()->MaxWalkSpeed = SlowMaxWalkSpeed;
 
+}
+
+void UMainCastingGameplayAbility::ToggleDrawingMode(bool IsActivate)
+{
+	if(InterpFOVTask && InterpFOVTask->IsActive())
+	{
+		InterpFOVTask->EndTask();
+	}
+	
+
+	
+	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	{
+		if (UCameraComponent* Camera = Character->FindComponentByClass<UCameraComponent>())
+		{
+			float CurrentFOV = Camera->FieldOfView;
+			float DesiredFOV = IsActivate ? NewFOV : DefaultFOV; 
+			float InterpSpeed = IsActivate ? Duration:Duration/2;
+			// Create and activate the interpolation task
+			InterpFOVTask = UInterpolateFOV::InterpolateFOV(this, Camera, CurrentFOV, DesiredFOV, InterpSpeed);
+			InterpFOVTask->OnInterpolationCompleted.AddDynamic(this,&ThisClass::ManualEndAbility);
+			InterpFOVTask->ReadyForActivation();
+		}
+	}
+}
+
+void UMainCastingGameplayAbility::ManualEndAbility()
+{
+	if(bIsAbilityActive) return;
+	EndAbility(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo,true,false);
 }
 
 void UMainCastingGameplayAbility::ActivateDrawingMode()
@@ -110,15 +144,19 @@ void UMainCastingGameplayAbility::ActivateDrawingMode()
 		{
 			if (UCameraComponent* Camera = Character->FindComponentByClass<UCameraComponent>())
 			{
-				DefaultFOV = Camera->FieldOfView;
-				Camera->SetFieldOfView(NewFOV); 
-				DefaultVignetteIntensity = Camera->PostProcessSettings.VignetteIntensity;
-				Camera->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
-				DefaultDepthOfFieldVignetteSize= Camera->PostProcessSettings.DepthOfFieldVignetteSize;
-				Camera->PostProcessSettings.DepthOfFieldVignetteSize=NewDepthOfFieldVignetteSize;
+				if (Camera)
+				{
+					ToggleDrawingMode(true);
+					
+					DefaultVignetteIntensity = Camera->PostProcessSettings.VignetteIntensity;
+					Camera->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
+					
+					DefaultDepthOfFieldVignetteSize= Camera->PostProcessSettings.DepthOfFieldVignetteSize;
+					Camera->PostProcessSettings.DepthOfFieldVignetteSize=NewDepthOfFieldVignetteSize;
 				}
 			}
 		}
+	}
 }
 
 void UMainCastingGameplayAbility::AddRuneTags()
@@ -162,7 +200,8 @@ void UMainCastingGameplayAbility::DeactivateDrawingMode()
 		{
 			if (UCameraComponent* Camera = Character->FindComponentByClass<UCameraComponent>())
 			{
-				Camera->SetFieldOfView(DefaultFOV); 
+				ToggleDrawingMode(false);
+				
 				Camera->PostProcessSettings.VignetteIntensity = DefaultVignetteIntensity;
 				Camera->PostProcessSettings.DepthOfFieldVignetteSize=DefaultDepthOfFieldVignetteSize;
 			}
@@ -178,21 +217,16 @@ void UMainCastingGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
-void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
-{
-	if(!bIsAbilityActive)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo,true,false);
-		Super::InputReleased(Handle, ActorInfo, ActivationInfo);
-
-	}
-}
 
 void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
                                              const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                              bool bReplicateEndAbility, bool bWasCancelled)
 {
+	
+	if(InterpFOVTask)
+	{
+		InterpFOVTask->OnInterpolationCompleted.RemoveDynamic(this,&ThisClass::ManualEndAbility);
+	}
 	
 	if(PaintWidget)
 	{

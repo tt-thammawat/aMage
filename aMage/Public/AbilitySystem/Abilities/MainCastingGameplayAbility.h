@@ -6,6 +6,7 @@
 #include "AbilitySystem/Abilities/MainGameplayAbility.h"
 #include "MainCastingGameplayAbility.generated.h"
 
+class UInterpolateFOV;
 class UAbilityTask_PlayMontageAndWait;
 class UMainPaintWidget;
 /**
@@ -27,8 +28,6 @@ protected:
 
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
 
-	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
-	
 private:
 	//Speed
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
@@ -40,13 +39,19 @@ private:
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float NewFOV= 90.f;
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float Duration = 0.5f;
+	TObjectPtr<UInterpolateFOV> InterpFOVTask;
+	
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float DefaultVignetteIntensity= 0.4f;
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float NewVignetteIntensity= 1.5f;
+	
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float DefaultDepthOfFieldVignetteSize= 200.f;
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float NewDepthOfFieldVignetteSize= 200.f;
+	
 	//RuneTag
 	UFUNCTION()
 	void AddRuneTags();
@@ -57,6 +62,9 @@ private:
 	bool bIsAbilityActive = false;
 	// Prevent double press
 	bool bIsDebouncing = false;
+	void ToggleDrawingMode(bool IsActivate);
+	UFUNCTION()
+	void ManualEndAbility();
 	void ActivateDrawingMode();
 	void DeactivateDrawingMode();
 };
