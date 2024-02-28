@@ -8,6 +8,8 @@
 #include "MainPaintWidget.generated.h"
 
 
+class UAbilitySystemComponent;
+
 USTRUCT(BlueprintType)
 struct FAbilitiesTagList
 {
@@ -38,7 +40,6 @@ public:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	virtual void NativeOnFocusLost(const FFocusEvent& InFocusEvent) override;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingSpellSuccessSignature OnDrawingSpellSuccess;

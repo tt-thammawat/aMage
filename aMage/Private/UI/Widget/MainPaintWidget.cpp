@@ -86,18 +86,13 @@ FReply UMainPaintWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FP
 
 FReply UMainPaintWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && bIsStartFocus)
 	{
 		bIsDrawing = false;
 		CheckDrawSpell();
 		return FReply::Handled();
 	}
 	return Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
-}
-
-void UMainPaintWidget::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
-{
-	Super::NativeOnFocusLost(InFocusEvent);
 }
 
 //Drawing Canvas Line
