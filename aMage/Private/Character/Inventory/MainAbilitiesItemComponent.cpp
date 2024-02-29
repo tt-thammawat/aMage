@@ -5,12 +5,4 @@
 
 #include "Net/UnrealNetwork.h"
 
-void UMainAbilitiesItemComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ThisClass, ItemIcon);
-	DOREPLIFETIME(ThisClass, ItemDescription);
-	DOREPLIFETIME(ThisClass, ItemAbilities);
-	DOREPLIFETIME(ThisClass, AbilitiesDescriptions);
 
-}

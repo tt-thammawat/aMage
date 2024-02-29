@@ -145,29 +145,28 @@ void AMainPlayerCharacter::BindButtonToCharacter(AMainPlayerController* PlayerCo
 FVector AMainPlayerCharacter::GetCombatSocketLocation_Implementation()
 {
 	AActor* OutActor;
-	PlayerEquipmentManager->GetItemInSlot("WeaponHandSocket",OutActor);
-	const AMainEquipmentInteractActor* EquipmentInteractActor = Cast<AMainEquipmentInteractActor>(OutActor);
-	FVector CombatSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
-	return  CombatSocketLocation;
+	PlayerEquipmentManager->GetItemInSlot(PlayerEquipmentManager->CurrentlyEquipSlot,OutActor);
+	if(OutActor)
+	{
+		const AMainEquipmentInteractActor* EquipmentInteractActor = Cast<AMainEquipmentInteractActor>(OutActor);
+		FVector CombatSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
+		return  CombatSocketLocation;
+	}
+	return FVector(0.f);
 }
 
-void AMainPlayerCharacter::AddItemAbilities(TSubclassOf<UGameplayAbility> AddItemAbility)
+void AMainPlayerCharacter::AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities)
 {
-	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
-	TArray<TSubclassOf<UGameplayAbility>> AddItemAbilities;
-	AddItemAbilities.Add(AddItemAbility);
-	
 	if(!HasAuthority()) return;
+
+	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
 	BaseAbilitySystemComponent->AddCharacterAbilities(AddItemAbilities);
 }
 
-void AMainPlayerCharacter::RemoveItemAbilities(TSubclassOf<UGameplayAbility> RemoveItemAbility)
+void AMainPlayerCharacter::RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities)
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
-	TArray<TSubclassOf<UGameplayAbility>> RemoveItemAbilities;
-	RemoveItemAbilities.Add(RemoveItemAbility);
 	
-	if(!HasAuthority()) return;
 	BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveItemAbilities);
 }
 
@@ -196,6 +195,16 @@ void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& Run
 
 	if(MainGameMode)
 	{
+
+		if (HasAuthority())
+		{
+			ProcessClearRuneSpellRequest();
+		}
+		else
+		{
+			ServerRequestClearRuneSpell();
+		}
+		
 		UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent());
 		//Get Abilities From Server
 		TSubclassOf<UGameplayAbility> MatchedAbility = MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTags);

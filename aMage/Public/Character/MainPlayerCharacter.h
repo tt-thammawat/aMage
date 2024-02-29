@@ -52,9 +52,9 @@ protected:
 	
 	//Item Inventory+Equipping
 	UFUNCTION(BlueprintCallable,Category = Weapon)
-	void AddItemAbilities(TSubclassOf<UGameplayAbility> AddItemAbility);
+	void AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities);
 	UFUNCTION(BlueprintCallable,Category = Weapon)
-	void RemoveItemAbilities(TSubclassOf<UGameplayAbility> RemoveItemAbility);
+	void RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities);
 	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)
 	void OnChangingButtonPressed(int ButtonNumber);
 	

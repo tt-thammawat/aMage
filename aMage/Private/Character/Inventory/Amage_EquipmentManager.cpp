@@ -8,5 +8,5 @@
 void UAmage_EquipmentManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ThisClass,CurrentlyEquipSlot);
+	DOREPLIFETIME_CONDITION(ThisClass,CurrentlyEquipSlot,COND_OwnerOnly);
 }

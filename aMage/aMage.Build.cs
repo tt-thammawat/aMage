@@ -28,7 +28,6 @@ public class aMage : ModuleRules
 			"SlateCore", 
 			"Niagara",
 			"AIModule"
-
 		});
 
 		// Uncomment if you are using Slate UI

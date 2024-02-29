@@ -10,6 +10,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interact/CastingInterface.h"
+#include "Net/UnrealNetwork.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "UI/Widget/MainPaintWidget.h"
 
@@ -17,6 +18,19 @@ UMainCastingGameplayAbility::UMainCastingGameplayAbility()
 {
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
+
+void UMainCastingGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(UMainCastingGameplayAbility,bIsCancel,COND_OwnerOnly);
+}
+
+void UMainCastingGameplayAbility::OnRep_bIsCancel()
+{
+	bIsAbilityActive=false;
+	ToggleDrawingMode(false);
+	DeactivateDrawingMode();
 }
 
 void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
@@ -42,14 +56,12 @@ void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 	GetWorld()->GetTimerManager().SetTimer(UnusedHandle, [this]()
 		{ bIsDebouncing = false; }
 		, 0.3f, false);
-
 }
 
 void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	
 	if (GetActorInfo().PlayerController->IsLocalPlayerController())
 	{
 		if(PaintWidget == nullptr)
@@ -68,13 +80,15 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	CurrentActorInfo=ActorInfo;
 	CurrentActivationInfo=ActivationInfo;
 	
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
 	//TODO : Move This WalkSpeed To Attribute Fix This Cause Client Doesn't Work
 	//Set Character WalkSpeed
 	const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
 	OldMaxWalkSpeed=Character->GetCharacterMovement()->MaxWalkSpeed;
 	Character->GetCharacterMovement()->MaxWalkSpeed = SlowMaxWalkSpeed;
+	
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+
 
 }
 
@@ -84,8 +98,6 @@ void UMainCastingGameplayAbility::ToggleDrawingMode(bool IsActivate)
 	{
 		InterpFOVTask->EndTask();
 	}
-	
-
 	
 	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
 	{
@@ -100,6 +112,13 @@ void UMainCastingGameplayAbility::ToggleDrawingMode(bool IsActivate)
 			InterpFOVTask->ReadyForActivation();
 		}
 	}
+}
+
+void UMainCastingGameplayAbility::ClientCancelAbilities_Implementation()
+{
+	bIsAbilityActive=false;
+	ToggleDrawingMode(false);
+	DeactivateDrawingMode();
 }
 
 void UMainCastingGameplayAbility::ManualEndAbility()
@@ -213,8 +232,7 @@ void UMainCastingGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle
                                                 const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                 bool bReplicateCancelAbility)
 {
-	DeactivateDrawingMode();
-	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+	ClientCancelAbilities();
 }
 
 

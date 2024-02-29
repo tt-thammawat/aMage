@@ -72,7 +72,7 @@ void UGA_SpellProjectileBase::EndAbility(const FGameplayAbilitySpecHandle Handle
 	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
 
 	MainPlayerCharacter->SetIsAiming(false);
-
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 

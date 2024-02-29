@@ -19,6 +19,7 @@ class AMAGE_API UMainCastingGameplayAbility : public UMainGameplayAbility
 public:
 	UMainCastingGameplayAbility();
 protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	
@@ -32,7 +33,7 @@ private:
 	//Speed
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float SlowMaxWalkSpeed = 350.f;
-	float OldMaxWalkSpeed = 0.f;
+	float OldMaxWalkSpeed = 600.f;
 	//Camera
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float DefaultFOV= 90.f;
@@ -58,13 +59,24 @@ private:
 	UFUNCTION()
 	void ClearRuneTags();
 	TObjectPtr<UMainPaintWidget> PaintWidget;
-	// Tracks whether the ability is currently active.
+	
+	//For Client
+	UPROPERTY(ReplicatedUsing=OnRep_bIsCancel)
+	bool bIsCancel=false;
+	UFUNCTION()
+	void OnRep_bIsCancel();
+	
+	// Tracks whether the ability is currently active by Input.
 	bool bIsAbilityActive = false;
 	// Prevent double press
 	bool bIsDebouncing = false;
 	void ToggleDrawingMode(bool IsActivate);
+	UFUNCTION(Client, Reliable)
+	void ClientCancelAbilities();
+	
 	UFUNCTION()
 	void ManualEndAbility();
 	void ActivateDrawingMode();
 	void DeactivateDrawingMode();
+	
 };

@@ -65,14 +65,7 @@ public:
 	//AI Damage Radius
 	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GameplayMechanics")
 	static void GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors,const TArray<AActor*>& ActorsToIgnore,float Radius,const FVector& SphereOrigin);
-
-	//Dynamic Icon Gen
-	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|DynamicIconGeneration")
-	static bool CaptureMeshWithCameraAndBounds(USceneCaptureComponent2D* SceneCaptureComponent, 
-		float SphereRadius, float BoundingBoxExtentY, float BoundingBoxExtentZ);
 	
-	UFUNCTION(BlueprintCallable, Category = "Icon Generator")
-	static void CreateIcon(UTextureRenderTarget2D* TextureRenderTarget, UTexture2D*& OutputIcon);
 	//Gen Unique Key
 	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GenerateUniqueKey")
 	static FString GenerateUniqueKeyFromFName(FName Name);

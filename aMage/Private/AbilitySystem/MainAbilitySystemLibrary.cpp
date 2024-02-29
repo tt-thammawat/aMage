@@ -6,12 +6,10 @@
 #include "MainAbilityTypes.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/MainPlayerState.h"
-#include "Components/SceneCaptureComponent2D.h"
 #include "Gamemode/MainGameMode.h"
 #include "Interact/ICombatInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/MainPlayerHUD.h"
-#include "Engine/TextureRenderTarget2D.h"
 #include "UI/WidgetController/BaseWidgetController.h"
 
 UOverlayWidgetController* UMainAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
@@ -202,73 +200,6 @@ void UMainAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldC
 			}
 		}
 	}
-}
-
-bool UMainAbilitySystemLibrary::CaptureMeshWithCameraAndBounds(USceneCaptureComponent2D* SceneCaptureComponent, 
-	float SphereRadius, float BoundingBoxExtentY, float BoundingBoxExtentZ)
-{
-	if (!SceneCaptureComponent)
-	{
-		return false;
-	}
-	
-	float NewCameraX = BoundingBoxExtentY + BoundingBoxExtentZ+SphereRadius;
-
-	FVector CurrentLocation = SceneCaptureComponent->GetRelativeLocation();
-
-	FVector NewCameraLocation = FVector(NewCameraX, CurrentLocation.Y, CurrentLocation.Z);
-
-	SceneCaptureComponent->SetRelativeLocation(-NewCameraLocation);
-
-	// Capture the scene.
-	SceneCaptureComponent->CaptureScene();
-
-	return true;
-}
-
-void UMainAbilitySystemLibrary::CreateIcon(UTextureRenderTarget2D* TextureRenderTarget, UTexture2D*& OutputIcon)
-{
-	if (!TextureRenderTarget)
-	{
-		OutputIcon = nullptr;
-		return;
-	}
-
-	// Create a new Texture2D to store the RenderTarget content.
-	UTexture2D* Texture = UTexture2D::CreateTransient(TextureRenderTarget->SizeX, TextureRenderTarget->SizeY, PF_B8G8R8A8);
-
-#if WITH_EDITORONLY_DATA
-	Texture->MipGenSettings = TMGS_NoMipmaps;
-#endif
-
-	// Read the pixels from the RenderTarget and store them in a FColor array.
-	TArray<FColor> SurfData;
-	FRenderTarget* RenderTargetResource = TextureRenderTarget->GameThread_GetRenderTargetResource();
-
-	if (RenderTargetResource)
-	{
-		RenderTargetResource->ReadPixels(SurfData);
-	}
-
-	// Apply alpha threshold operation: Set the alpha to 0 for black pixels, leave it unchanged for others.
-	for (FColor& Pixel : SurfData)
-	{
-		if (Pixel.R == 0 && Pixel.G == 0 && Pixel.B == 0) // Check if the pixel is black
-		{
-			Pixel.A = 0; // Set alpha to 0 for black pixels
-		}
-	}
-	// Lock and copy the data between the textures.
-	void* TextureData = Texture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-	const int32 TextureDataSize = SurfData.Num() * sizeof(FColor);
-	FMemory::Memcpy(TextureData, SurfData.GetData(), TextureDataSize);
-	Texture->GetPlatformData()->Mips[0].BulkData.Unlock();
-
-	// Apply Texture changes to GPU memory.
-	Texture->UpdateResource();
-
-	// Set the output icon.
-	OutputIcon = Texture;
 }
 
 FString UMainAbilitySystemLibrary::GenerateUniqueKeyFromFName(FName Name)
