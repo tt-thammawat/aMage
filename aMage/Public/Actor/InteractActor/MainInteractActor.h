@@ -38,6 +38,7 @@ protected:
 	TObjectPtr<UWidgetComponent> InteractWidget;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Default")
 	TObjectPtr<USceneComponent> CustomRootComponent;
+
 public:	
 
 };

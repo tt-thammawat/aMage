@@ -20,5 +20,7 @@ public:
 private:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Item,meta=(AllowPrivateAccess=true))
 	TObjectPtr<UMainAbilitiesItemComponent> AbilitiesItemComponent;
+	
+
 
 };

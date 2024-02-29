@@ -29,12 +29,6 @@ public:
 protected:
 	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)
 	float UsageTimes;
-
-	//TODO:May Remove This Later
-	UPROPERTY(EditAnywhere,Category=MatchRuneTag)
-	TObjectPtr<UMainInputAction> LMBInputAction;
-	UPROPERTY(EditAnywhere,Category=MatchRuneTag)
-	TObjectPtr<UMainInputAction> RMBInputAction;
 	
 	UPROPERTY(EditDefaultsOnly,Category="Effects")
 	TArray<TSubclassOf<UGameplayEffect>> OngoingEffectsToRemoveOnEnd;

@@ -35,7 +35,6 @@ public:
 	UFUNCTION(BlueprintCallable,Category ="Generate Rune")
 	ERuneType RandomRuneType();
 
-	//TODO: May Break This Down In to Separate Spell Just In Case There Ara Too Many Spells
 	//Matching RuneSpell
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Rune Spell")
 	TObjectPtr<URuneSpellClassInfo> RuneSpellClassInfos;

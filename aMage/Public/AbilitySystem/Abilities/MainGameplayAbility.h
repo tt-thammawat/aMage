@@ -20,7 +20,4 @@ public:
 	// Input Button Tag
 	UPROPERTY(EditDefaultsOnly,Category = "Input")
 	FGameplayTag StartupInputTag;
-	//Tag For Additional Press
-	UPROPERTY(EditDefaultsOnly,Category = "Input")
-	FGameplayTag SecondaryInputTag;
 };
