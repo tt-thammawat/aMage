@@ -57,7 +57,8 @@ protected:
 	void RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities);
 	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)
 	void OnChangingButtonPressed(int ButtonNumber);
-	
+	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)
+	void OnDropButtonPressed();
 	//Object Reference
 	UPROPERTY(ReplicatedUsing=OnRep_InteractObjectActor,BlueprintReadOnly,Category=Interact)
 	TObjectPtr<AActor> InteractObjectActor;
@@ -79,7 +80,7 @@ protected:
 	UFUNCTION(Server,Reliable)
 	void ServerRequestAbilityActivation(const TArray<FGameplayTag>& RuneTags);
 	void ProcessAbilityRequest(const TArray<FGameplayTag>& RuneTags);
-	virtual void ClearRuneSpell() override;
+	void ClearRuneSpell_Implementation() override;
 	UFUNCTION(Server,Reliable)
 	void ServerRequestClearRuneSpell();
 	void ProcessClearRuneSpellRequest();

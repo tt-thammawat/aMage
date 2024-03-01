@@ -17,10 +17,17 @@ class AMAGE_API AMainItemInteractActor : public AMainInteractActor
 public:
 	AMainItemInteractActor();
 
+protected:
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Weapon)
+	TObjectPtr<USkeletalMeshComponent> ItemEquipMesh;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Weapon)
+	FName WeaponTipSocketName;
 private:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Item,meta=(AllowPrivateAccess=true))
-	TObjectPtr<UMainAbilitiesItemComponent> AbilitiesItemComponent;
+	TObjectPtr<UMainAbilitiesItemComponent> MainAbilitiesItemComponent;
 	
-
+public:
+	USkeletalMeshComponent* GetSkeletalMeshComponent() const {return ItemEquipMesh;};
+	FORCEINLINE FName GetWeaponTipSocketName() const {return WeaponTipSocketName;};
 
 };

@@ -35,8 +35,37 @@ void AMainBeam::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SphereComponent->OnComponentBeginOverlap.AddDynamic(this,&ThisClass::OnSphereOverlap);
+}
 
+
+void AMainBeam::OnOverlap(AActor* TargetActor)
+{
+		if(UAbilitySystemComponent* TargetAsc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+		{
+			//ApplyGameplayEffectSpecToThe OtherActor
+			ActiveDamageEffect=TargetAsc->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
+		}
+}
+
+void AMainBeam::OnEndOverlap(AActor* TargetActor)
+{
+	if(ActiveDamageEffect.IsValid())
+	{
+		RemoveSingleEffect(TargetActor);
+	}
+}
+
+void AMainBeam::RemoveSingleEffect(AActor* RemoveEffectTarget)
+{
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(RemoveEffectTarget);
+
+	if (!IsValid(TargetASC)) return;
+
+	if (ActiveDamageEffect.IsValid())
+	{
+		TargetASC->RemoveActiveGameplayEffect(ActiveDamageEffect, INT32_MAX);
+		ActiveDamageEffect.Invalidate(); 
+	}
 }
 
 void AMainBeam::ActivateBeamAndSetBeam(FVector BeamEndLocation, FVector BeamStartLocation)
@@ -70,17 +99,6 @@ void AMainBeam::DeactivateBeam()
 	}
 }
 
-void AMainBeam::OnSphereOverlap(UPrimitiveComponent* OverlapComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if(HasAuthority())
-	{
-		if(UAbilitySystemComponent* TargetAsc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
-		{
-			//ApplyGameplayEffectSpecToThe OtherActor
-			TargetAsc->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
-		}
-	}
-}
+
 
 

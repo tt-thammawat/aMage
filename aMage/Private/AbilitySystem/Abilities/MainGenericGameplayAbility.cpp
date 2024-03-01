@@ -92,19 +92,6 @@ void UMainGenericGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UMainGenericGameplayAbility::RemoveAbilityAfterEnd(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities)
-{
-	for (const TSubclassOf<UGameplayAbility> AbilityClass : RemoveAbilities)
-	{
-		
-		FGameplayAbilitySpec* AbilitySpec = GetAbilitySystemComponentFromActorInfo()->FindAbilitySpecFromClass(AbilityClass);
-		if(AbilitySpec)
-		{
-
-			GetAbilitySystemComponentFromActorInfo()->ClearAbility(AbilitySpec->Handle);
-		}
-	}
-}
 
 void UMainGenericGameplayAbility::CauseDamage(AActor* TargetActor)
 {
@@ -119,4 +106,19 @@ void UMainGenericGameplayAbility::CauseDamage(AActor* TargetActor)
 		
 	}
 	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(),UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
+}
+
+
+void UMainGenericGameplayAbility::RemoveAbilityAfterEnd(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities)
+{
+	for (const TSubclassOf<UGameplayAbility> AbilityClass : RemoveAbilities)
+	{
+		
+		FGameplayAbilitySpec* AbilitySpec = GetAbilitySystemComponentFromActorInfo()->FindAbilitySpecFromClass(AbilityClass);
+		if(AbilitySpec)
+		{
+
+			GetAbilitySystemComponentFromActorInfo()->ClearAbility(AbilitySpec->Handle);
+		}
+	}
 }

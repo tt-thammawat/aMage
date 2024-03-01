@@ -43,7 +43,7 @@ protected:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
-
+	
 	//For UGameplayEffectExecutionCalculation
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Damage")
 	TMap<FGameplayTag,FScalableFloat> DamageType;

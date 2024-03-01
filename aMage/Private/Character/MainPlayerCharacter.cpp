@@ -6,7 +6,7 @@
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
 #include "AbilitySystem/Data/RuneSpellClassInfo.h"
-#include "Actor/InteractActor/MainEquipmentInteractActor.h"
+#include "Actor/InteractActor/MainItemInteractActor.h"
 #include "Character/MainPlayerController.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
@@ -29,6 +29,7 @@ AMainPlayerCharacter::AMainPlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f,400.f,0.f);
 
 	PlayerEquipmentManager = CreateDefaultSubobject<UAmage_EquipmentManager>("PlayerEquipmentManager");
+	PlayerEquipmentManager->SetIsReplicated(true);
 }
 
 void AMainPlayerCharacter::PossessedBy(AController* NewController)
@@ -73,10 +74,11 @@ void AMainPlayerCharacter::BeginPlay()
 
 void AMainPlayerCharacter::AimOffset(float DeltaTime)
 {
-	FGameplayTagContainer GameplayTagContainer;
 	if(GetAbilitySystemComponent())
 	{
-	GetAbilitySystemComponent()->GetOwnedGameplayTags(GameplayTagContainer);
+		FGameplayTagContainer GameplayTagContainer;
+		GetAbilitySystemComponent()->GetOwnedGameplayTags(GameplayTagContainer);
+		
 	if(GameplayTagContainer.HasTag(FMainGameplayTags::Get().Item_Equip_Staff))
 	{
 		FVector Velocity = GetVelocity();
@@ -139,16 +141,16 @@ void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)
 void AMainPlayerCharacter::BindButtonToCharacter(AMainPlayerController* PlayerController)
 {
 	PlayerController->InteractButtonPressedSignature.BindUObject(this,&ThisClass::InteractItemButtonPress);
-	PlayerController->OnButtonPressed.BindUObject(this,&ThisClass::OnChangingButtonPressed);
+	PlayerController->OnToolbarButtonPressed.AddDynamic(this,&ThisClass::OnChangingButtonPressed);
+	PlayerController->OnDropButtonPressed.AddDynamic(this,&ThisClass::OnDropButtonPressed);
 }
 
 FVector AMainPlayerCharacter::GetCombatSocketLocation_Implementation()
 {
-	AActor* OutActor;
-	PlayerEquipmentManager->GetItemInSlot(PlayerEquipmentManager->CurrentlyEquipSlot,OutActor);
-	if(OutActor)
+	FEquipment EquippedActor = PlayerEquipmentManager->EquipmentList[PlayerEquipmentManager->CurrentlyEquipIndex];
+	if(EquippedActor.ItemActor)
 	{
-		const AMainEquipmentInteractActor* EquipmentInteractActor = Cast<AMainEquipmentInteractActor>(OutActor);
+		const AMainItemInteractActor* EquipmentInteractActor = Cast<AMainItemInteractActor>(EquippedActor.ItemActor);
 		FVector CombatSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
 		return  CombatSocketLocation;
 	}
@@ -217,7 +219,7 @@ void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& Run
 	}
 }
 
-void AMainPlayerCharacter::ClearRuneSpell()
+void AMainPlayerCharacter::ClearRuneSpell_Implementation()
 {
 	// Clear reference tags after successfully removing the abilities.
 	RefRuneTags.Empty();

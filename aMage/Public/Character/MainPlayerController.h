@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystem/Data/RuneSpellClassInfo.h"
 #include "Interact/TargetInterface.h"
 #include "GameFramework/PlayerController.h"
 #include "MainPlayerController.generated.h"
@@ -15,7 +16,8 @@ struct FGameplayTag;
  * 
  */
 DECLARE_DELEGATE(FOnInteractButtonPressedSignature);
-DECLARE_DELEGATE_OneParam(FOnButtonPressedSignature,int);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDropButtonPressedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonPressedSignature,int,ButtonPressedNumber);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRuneAbilitiesListReceived, const TArray<FRuneAbilityMapping>&, Abilities);
 class ITargetInterface;
 struct FInputActionValue;
@@ -28,9 +30,13 @@ class AMAGE_API AMainPlayerController : public APlayerController
 	GENERATED_BODY()
 public:
 	AMainPlayerController();
+	
 	FOnInteractButtonPressedSignature InteractButtonPressedSignature;
-	FOnButtonPressedSignature OnButtonPressed;
-
+	UPROPERTY(BlueprintAssignable)
+	FOnButtonPressedSignature OnToolbarButtonPressed;
+	UPROPERTY(BlueprintAssignable)
+	FOnDropButtonPressedSignature OnDropButtonPressed;
+	
 	UFUNCTION(Client,Reliable)
 	void ShowDamageNumber(float DamageAmount,ACharacter* TargetCharacter,bool bIsFireDamage,bool bIsLightningDamage,bool bIsIceDamage,bool bIsPhysicDamage);
 
@@ -53,6 +59,7 @@ protected:
 	void Turn(const FInputActionValue& Value);
 	void LookUp(const FInputActionValue& Value);
 	void InteractButtonPressed();
+	void DropButtonPressed();
 	//For Equipping
 	void Button01Pressed();
 	void Button02Pressed();
@@ -88,6 +95,8 @@ private:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> InteractButton;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> DropButton;
 	
 	//For Equipping
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))

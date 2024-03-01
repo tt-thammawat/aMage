@@ -25,20 +25,20 @@ public:
 			DefaultToSelf="OwningAbility",
 			BlueprintInternalUseOnly="true" )
 			)
-	static UTargetDataUnderLineTrace* TargetDataUnderLineTrace(UGameplayAbility* OwningAbility);
+	static UTargetDataUnderLineTrace* TargetDataUnderLineTrace(UGameplayAbility* OwningAbility,float DefaultDistance=1000.f,bool bIsHoming=false);
 
 	UPROPERTY(BlueprintAssignable)
-	FLineTraceDelegate OnLineTraceComplete;
+	FLineTraceDelegate OnLineTraceComplete; 
+
 
 private:
+	float DefaultDistance = 1000.0f;
+	bool bIsHoming = false;
+	
 	virtual void Activate() override;
 
 	// The line trace logic
 	void PerformLineTrace();
-
-	FVector StartPoint;
-	FVector EndPoint;
-	ECollisionChannel Channel;
 
 	void OnTargetDataReplicatedCallback(const FGameplayAbilityTargetDataHandle& DataHandle,FGameplayTag ActivationTag);	
 };

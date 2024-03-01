@@ -191,11 +191,7 @@ void UMainCastingGameplayAbility::AddRuneTags()
 void UMainCastingGameplayAbility::ClearRuneTags()
 {
 	ACharacter* Character = CastChecked<ACharacter>(GetActorInfo().AvatarActor.Get(),ECastCheckedType::NullAllowed);
-	ICastingInterface* CastingInterface = CastChecked<ICastingInterface>(Character);
-	if(CastingInterface)
-	{
-	  CastingInterface->ClearRuneSpell();
-	}
+	ICastingInterface::Execute_ClearRuneSpell(Character);
 }
 
 void UMainCastingGameplayAbility::DeactivateDrawingMode()

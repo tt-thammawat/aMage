@@ -10,12 +10,13 @@ AMainInteractActor::AMainInteractActor()
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates=true;
 
-	CustomRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("CustomRootComponent"));
-	CustomRootComponent->SetupAttachment(RootComponent);
-	
-	InteractWidget = CreateDefaultSubobject<UWidgetComponent>("InteractWidget");
-	InteractWidget->SetupAttachment(CustomRootComponent);
+	CustomRootBug = CreateDefaultSubobject<USceneComponent>(TEXT("CustomRootBug"));
+	CustomRootBug->SetupAttachment(RootComponent);
+
+	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidget"));
+	InteractWidget->SetupAttachment(CustomRootBug);
 	InteractWidget->SetVisibility(false);
+
 }
 
 void AMainInteractActor::BeginPlay()
@@ -26,7 +27,15 @@ void AMainInteractActor::BeginPlay()
 
 void AMainInteractActor::InteractWithItem(AActor* Actor)
 {
-	GetInteractActor(Actor);
+	if (HasAuthority())
+	{
+		GetInteractActor(Actor);
+	}
+	else
+	{
+		// Call the server function from the client
+		ServerGetInteractActor(Actor);
+	}
 }
 
 
@@ -38,4 +47,10 @@ void AMainInteractActor::ShowInteractDetail()
 void AMainInteractActor::HideInteractDetail()
 {
 	InteractWidget->SetVisibility(false);
+
+}
+
+void AMainInteractActor::ServerGetInteractActor_Implementation(AActor* Actor)
+{
+	GetInteractActor(Actor);
 }

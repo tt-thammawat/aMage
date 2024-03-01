@@ -9,6 +9,8 @@
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquipmentListUpdated, const TArray<FEquipment>&, EquipmentList);
+
 UCLASS()
 class AMAGE_API UAmage_EquipmentManager : public UAGR_EquipmentManager
 {
@@ -16,6 +18,8 @@ class AMAGE_API UAmage_EquipmentManager : public UAGR_EquipmentManager
 
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated, SaveGame, Category="AGR|Game Play")
-	FName CurrentlyEquipSlot;
+	int32 CurrentlyEquipIndex;
 };

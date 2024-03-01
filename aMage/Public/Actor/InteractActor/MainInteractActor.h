@@ -33,12 +33,13 @@ protected:
 protected:
 	UFUNCTION(BlueprintImplementableEvent,Category=Interact)
 	void GetInteractActor(AActor* Actor);
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Default")
-	TObjectPtr<UWidgetComponent> InteractWidget;
+	UFUNCTION(Server,Reliable,Category=Interact)
+	void ServerGetInteractActor(AActor* Actor);
+
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Default")
-	TObjectPtr<USceneComponent> CustomRootComponent;
+	TObjectPtr<USceneComponent> CustomRootBug;
 
 public:	
-
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Default")
+	TObjectPtr<UWidgetComponent> InteractWidget;
 };

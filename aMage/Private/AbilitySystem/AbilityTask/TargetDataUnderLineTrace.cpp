@@ -5,9 +5,11 @@
 #include "AbilitySystemComponent.h"
 
 
-UTargetDataUnderLineTrace* UTargetDataUnderLineTrace::TargetDataUnderLineTrace(UGameplayAbility* OwningAbility)
+UTargetDataUnderLineTrace* UTargetDataUnderLineTrace::TargetDataUnderLineTrace(UGameplayAbility* OwningAbility,float DefaultDistance,bool bIsHoming)
 {
 	UTargetDataUnderLineTrace* MyTask = NewAbilityTask<UTargetDataUnderLineTrace>(OwningAbility);
+	MyTask->DefaultDistance = DefaultDistance;
+	MyTask->bIsHoming = bIsHoming;
 	return MyTask;
 }
 
@@ -29,18 +31,18 @@ void UTargetDataUnderLineTrace::PerformLineTrace()
 	APlayerController* PC = Cast<APlayerController>(Ability->GetCurrentActorInfo()->PlayerController);
 	bool bHit  =(PC->GetHitResultAtScreenPosition(CrossHairLocation,ECollisionChannel::ECC_Visibility,Params,TraceHitResult));
 	FGameplayAbilityTargetData_SingleTargetHit* Data = new FGameplayAbilityTargetData_SingleTargetHit();
-
-	if(bHit)
-	{
-		Data->HitResult = TraceHitResult;
-	}
-	else if (!bHit)
+	
+	//set this if homing
+	 if(bHit && bIsHoming)
+	 {
+	 	Data->HitResult = TraceHitResult;
+	 }
+	else if (!bHit || !bIsHoming)
 	{
 		FVector WorldLocation, WorldDirection;
 		// Convert the crosshair screen position to a world space direction
 		if (PC->DeprojectScreenPositionToWorld(CrossHairLocation.X, CrossHairLocation.Y, WorldLocation, WorldDirection))
 		{
-			const float DefaultDistance = 1000.0f; // Example distance to project the point
 			FVector DefaultImpactPoint = WorldLocation + (WorldDirection * DefaultDistance);
 			
 			// Prepare the fake hit result

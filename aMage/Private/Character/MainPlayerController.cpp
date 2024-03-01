@@ -99,9 +99,11 @@ void AMainPlayerController::SetupInputComponent()
 	MainEnhancedInputComponent->BindAction(Button04Action,ETriggerEvent::Completed,this,&ThisClass::Button04Pressed);
 	MainEnhancedInputComponent->BindAction(Button05Action,ETriggerEvent::Completed,this,&ThisClass::Button05Pressed);
 	
+	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
+	MainEnhancedInputComponent->BindAction(DropButton,ETriggerEvent::Completed,this,&ThisClass::DropButtonPressed);
+
 	//Abilities
 	MainEnhancedInputComponent->BindAbilityActions(GenericInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
-	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
 	MainEnhancedInputComponent->BindAbilityActions(AbilitiesInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
 }
 
@@ -220,30 +222,35 @@ void AMainPlayerController::InteractButtonPressed()
 	}
 }
 
+void AMainPlayerController::DropButtonPressed()
+{
+	OnDropButtonPressed.Broadcast();
+}
+
 void AMainPlayerController::Button01Pressed()
 {
-	OnButtonPressed.ExecuteIfBound(1);
+	OnToolbarButtonPressed.Broadcast(0);
 }
 
 void AMainPlayerController::Button02Pressed()
 {
-	OnButtonPressed.ExecuteIfBound(2);
+	OnToolbarButtonPressed.Broadcast(1);
 }
 
 void AMainPlayerController::Button03Pressed()
 {
-	OnButtonPressed.ExecuteIfBound(3);
+	OnToolbarButtonPressed.Broadcast(2);
 }
 
 void AMainPlayerController::Button04Pressed()
 {
-	OnButtonPressed.ExecuteIfBound(4);
+	OnToolbarButtonPressed.Broadcast(3);
 
 }
 
 void AMainPlayerController::Button05Pressed()
 {
-	OnButtonPressed.ExecuteIfBound(5);
+	OnToolbarButtonPressed.Broadcast(5);
 }
 
 

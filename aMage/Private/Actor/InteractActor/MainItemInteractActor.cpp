@@ -6,6 +6,11 @@
 
 AMainItemInteractActor::AMainItemInteractActor()
 {
-	AbilitiesItemComponent = CreateDefaultSubobject<UMainAbilitiesItemComponent>("AbilitiesItemComponent");
-	
+	PrimaryActorTick.bCanEverTick = false;
+	bReplicates=true;
+
+	MainAbilitiesItemComponent = CreateDefaultSubobject<UMainAbilitiesItemComponent>("MainAbilitiesItemComponent");
+
+	ItemEquipMesh = CreateDefaultSubobject<USkeletalMeshComponent>("ItemEquipMesh");
+	ItemEquipMesh->SetupAttachment(CustomRootBug);
 }

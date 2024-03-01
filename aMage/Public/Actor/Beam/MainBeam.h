@@ -27,11 +27,19 @@ public:
 	//HandleThisDamageEffect
 	UPROPERTY(BlueprintReadWrite,meta = (ExposeOnSpawn = true))
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;
+
+	FActiveGameplayEffectHandle ActiveDamageEffect;
+	
 protected:
 	virtual void BeginPlay() override;
 	
-	UFUNCTION()
-	void OnSphereOverlap(UPrimitiveComponent* OverlapComponent,AActor* OtherActor , UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult);
+	UFUNCTION(BlueprintCallable)
+	virtual void OnOverlap(AActor* TargetActor);
+
+	UFUNCTION(BlueprintCallable)
+	virtual void OnEndOverlap(AActor* TargetActor);
+
+	virtual void RemoveSingleEffect(AActor* RemoveEffectTarget);
 
 private:
 	UPROPERTY(VisibleAnywhere,Category="Default")
