@@ -23,7 +23,7 @@ UMainCastingGameplayAbility::UMainCastingGameplayAbility()
 void UMainCastingGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME_CONDITION(UMainCastingGameplayAbility,bIsCancel,COND_OwnerOnly);
+	DOREPLIFETIME(UMainCastingGameplayAbility,bIsCancel);
 }
 
 void UMainCastingGameplayAbility::OnRep_bIsCancel()

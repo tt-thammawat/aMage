@@ -20,10 +20,19 @@ public:
 	
 	UFUNCTION(BlueprintCallable,Category=Beam)
 	void ActivateBeamAndSetBeam(FVector BeamEndLocation,FVector BeamStartLocation);
+	UFUNCTION(Server,Reliable,Category=Beam)
+	void ServerRequestActivateBeam(FVector BeamEndLocation, FVector BeamStartLocation);
+	UFUNCTION(NetMulticast,Reliable,Category=Beam)
+	void NetMulticastActivateBeamAndSetBeam(FVector BeamEndLocation, FVector BeamStartLocation);
 
+	
 	UFUNCTION(BlueprintCallable,Category=Beam)
 	void DeactivateBeam();
-
+	UFUNCTION(Server,Reliable,Category=Beam)
+	void ServerDeactivateBeam();
+	UFUNCTION(NetMulticast,Reliable,Category=Beam)
+	void MulticastDeactivateBeam();
+	
 	//HandleThisDamageEffect
 	UPROPERTY(BlueprintReadWrite,meta = (ExposeOnSpawn = true))
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;

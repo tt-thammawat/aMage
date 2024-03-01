@@ -22,7 +22,7 @@ void UGA_SpellProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
-	DOREPLIFETIME_CONDITION(UGA_SpellProjectileBase,bIsPlayingAnimation,COND_OwnerOnly);
+	DOREPLIFETIME(UGA_SpellProjectileBase,bIsPlayingAnimation);
 
 }
 

@@ -47,8 +47,9 @@ protected:
 	
 	UFUNCTION(BlueprintCallable,Category=Beam)
 	virtual void SpawnBeam(const FVector& BeamEndLocation);
-	
-	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadOnly)
+	UFUNCTION(Server,Reliable,Category=Beam)
+	virtual void RequestServerSpawnBeam(const FVector& BeamEndLocation);
+	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadWrite)
 	TObjectPtr<AMainBeam> BeamREF;
 	
 
