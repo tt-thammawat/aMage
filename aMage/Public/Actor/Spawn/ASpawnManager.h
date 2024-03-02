@@ -27,8 +27,8 @@ public:
 	TSubclassOf<AActor> GoblinClass;
 
 	// Points where goblins will be spawned
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Goblin Spawning")
-	TArray<AActor*> SpawnPoints;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Goblin Spawning",meta=(MakeEditWidget="true"))
+	TArray<FVector> SpawnPoints;
 
 	// Number of goblins per wave
 	UPROPERTY(EditAnywhere, Category="Goblin Spawning")

@@ -3,6 +3,8 @@
 
 #include "Actor/Spawn/ASpawnManager.h"
 
+#include "Kismet/KismetMathLibrary.h"
+
 // Sets default values
 AASpawnManager::AASpawnManager()
 {
@@ -31,11 +33,9 @@ void AASpawnManager::SpawnWave()
 	for (int32 i = 0; i < GoblinsPerWave; ++i)
 	{
 		int32 SpawnPointIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
-		AActor* SpawnPoint = SpawnPoints[SpawnPointIndex];
-		if (SpawnPoint)
-		{
-			GetWorld()->SpawnActor<AActor>(GoblinClass, SpawnPoint->GetTransform());
-		}
+		FVector SpawnLocation = UKismetMathLibrary::TransformLocation(GetActorTransform(),SpawnPoints[SpawnPointIndex]);
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+		GetWorld()->SpawnActor<AActor>(GoblinClass, SpawnLocation,SpawnRotation);
 	}
 
 	++CurrentWave;
