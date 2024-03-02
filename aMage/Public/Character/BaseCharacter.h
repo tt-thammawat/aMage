@@ -90,4 +90,6 @@ public:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartUpAbilities;
+	
+	bool GetIsDead() const {return bDead;};
 };

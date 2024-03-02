@@ -9,19 +9,16 @@
 AASpawnManager::AASpawnManager()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
 }
 
 void AASpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AASpawnManager::StartSpawningWaves()
 {
 	SpawnWave();
-
 }
 
 void AASpawnManager::SpawnWave()

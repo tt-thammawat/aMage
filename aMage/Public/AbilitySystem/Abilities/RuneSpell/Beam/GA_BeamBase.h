@@ -13,7 +13,6 @@ class UNiagaraSystem;
  * 
  */
 
-//TODO: Fix Beam For Client
 UCLASS()
 class AMAGE_API UGA_BeamBase : public UMainGenericGameplayAbility
 {
@@ -51,6 +50,5 @@ protected:
 	virtual void RequestServerSpawnBeam(const FVector& BeamEndLocation);
 	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadWrite)
 	TObjectPtr<AMainBeam> BeamREF;
-	
 
 };

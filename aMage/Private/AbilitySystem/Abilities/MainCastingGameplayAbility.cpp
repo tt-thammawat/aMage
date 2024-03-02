@@ -228,6 +228,7 @@ void UMainCastingGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle
                                                 const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                 bool bReplicateCancelAbility)
 {
+	//server make the client disable visual
 	ClientCancelAbilities();
 }
 
