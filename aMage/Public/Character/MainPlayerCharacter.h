@@ -75,7 +75,7 @@ protected:
 
 	//Interface Request Ability After Get Casting Rune Spell
 	UPROPERTY(Replicated)
-	TArray<FGameplayTag> RefRuneTags;
+	bool bIsRuneMatched=false;
 	virtual void MatchRuneSpellTags(TArray<FGameplayTag> RuneTags) override;
 	UFUNCTION(Server,Reliable)
 	void ServerRequestAbilityActivation(const TArray<FGameplayTag>& RuneTags);

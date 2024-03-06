@@ -19,7 +19,6 @@ class AMAGE_API UMainCastingGameplayAbility : public UMainGameplayAbility
 public:
 	UMainCastingGameplayAbility();
 protected:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	
@@ -60,12 +59,6 @@ private:
 	void ClearRuneTags();
 	TObjectPtr<UMainPaintWidget> PaintWidget;
 	
-	//For Client
-	UPROPERTY(ReplicatedUsing=OnRep_bIsCancel)
-	bool bIsCancel=false;
-	UFUNCTION()
-	void OnRep_bIsCancel();
-	
 	// Tracks whether the ability is currently active by Input.
 	bool bIsAbilityActive = false;
 	// Prevent double press
@@ -77,6 +70,7 @@ private:
 	UFUNCTION()
 	void ManualEndAbility();
 	void ActivateDrawingMode();
+	UFUNCTION()
 	void DeactivateDrawingMode();
 	
 };

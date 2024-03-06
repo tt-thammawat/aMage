@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Actor/InteractActor/MainInteractActor.h"
 #include "ASpawnManager.generated.h"
 
 UCLASS()
-class AMAGE_API AASpawnManager : public AActor
+class AMAGE_API AASpawnManager : public AMainInteractActor
 {
 	GENERATED_BODY()
 	

@@ -18,7 +18,6 @@ void UMainPaintWidget::NativeConstruct()
 	bIsStartFocus=false;
 }
 
-
 void UMainPaintWidget::CheckDrawSpell()
 {
 	const TArray<FVector2D>CurrentPoints = Points;
@@ -33,12 +32,12 @@ void UMainPaintWidget::CheckDrawSpell()
 		{
 			if (Result.NameTag.MatchesTagExact(FMainGameplayTags::Get().Rune_Tag_04_Clear))
 			{
-				OnDrawingClearSpellSuccessSignature.Broadcast();
+				OnClearSpellSuccess.Broadcast();
 			}
 			else
 			{
 				RuneTags.Add(Result.NameTag);
-				OnDrawingSpellSuccess.Broadcast();
+				OnDrawingRuneSuccess.Broadcast();
 			}
 
 
@@ -50,15 +49,23 @@ void UMainPaintWidget::CheckDrawSpell()
 void UMainPaintWidget::SetUpMainPlayerController(APlayerController* PlayerController)
 {
 	MainPlayerController = Cast<AMainPlayerController>(PlayerController);
+
 }
 
-void UMainPaintWidget::SetBindOnSpecificTagChanged(UAbilitySystemComponent* AbilitySystemComponent)
+void UMainPaintWidget::BindIsAbilityIsRemoved(UAbilitySystemComponent* AbilitySystemComponent)
 {
-	if(AbilitySystemComponent)
+	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent);
+	if(BaseAbilitySystemComponent)
 	{
-		AbilitySystemComponent->RegisterGameplayTagEvent(FMainGameplayTags::Get().State_Action_Spell_NormalSpell,EGameplayTagEventType::NewOrRemoved).AddUObject(this,&ThisClass::OnSpecificTagChanged);
+		BaseAbilitySystemComponent->OnAbilityRemoved.AddUObject(this,&ThisClass::AbilityIsRemoved);
 	}
 }
+
+void UMainPaintWidget::AbilityIsRemoved()
+{
+	OnClearSpellSuccess.Broadcast();
+}
+
 
 FReply UMainPaintWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {

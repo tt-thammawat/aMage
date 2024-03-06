@@ -9,19 +9,10 @@
 #include "Character/MainPlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 
-UGA_SpellChargeProjectile::UGA_SpellChargeProjectile():
-bIsPlayingAnimation(false)
+UGA_SpellChargeProjectile::UGA_SpellChargeProjectile()
 {
 	NetExecutionPolicy=EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 	InstancingPolicy=EGameplayAbilityInstancingPolicy::InstancedPerActor;
-}
-
-void UGA_SpellChargeProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME(UGA_SpellChargeProjectile,bIsPlayingAnimation);
-
 }
 
 bool UGA_SpellChargeProjectile::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -34,17 +25,6 @@ bool UGA_SpellChargeProjectile::CanActivateAbility(const FGameplayAbilitySpecHan
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
-void UGA_SpellChargeProjectile::CancelAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateCancelAbility)
-{
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-
-	MainPlayerCharacter->SetIsAiming(false);
-	
-	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
-}
-
 void UGA_SpellChargeProjectile::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                              const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
@@ -52,6 +32,14 @@ void UGA_SpellChargeProjectile::InputPressed(const FGameplayAbilitySpecHandle Ha
 	MainPlayerCharacter->SetIsAiming(true);
 	
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &UGA_SpellChargeProjectile::ActivateAbilityAfterHold, InputHeldDuration);
+}
+
+void UGA_SpellChargeProjectile::ActivateAbilityAfterHold()
+{
+	if (GetWorld()->GetTimeSeconds() - InputPressTime >= InputHeldDuration)
+	{
+		K2_ActivateAbility();
+	}
 }
 
 void UGA_SpellChargeProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -134,23 +122,15 @@ void UGA_SpellChargeProjectile::SpawnChargeProjectile(const FVector& ProjectileT
 		}
 }
 
-void UGA_SpellChargeProjectile::EndAbility(const FGameplayAbilitySpecHandle Handle,
-                                           const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-                                           bool bReplicateEndAbility, bool bWasCancelled)
+void UGA_SpellChargeProjectile::CancelAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateCancelAbility)
 {
 	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
 
 	MainPlayerCharacter->SetIsAiming(false);
 	
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
-void UGA_SpellChargeProjectile::ActivateAbilityAfterHold()
-{
-	if (GetWorld()->GetTimeSeconds() - InputPressTime >= InputHeldDuration)
-	{
-		K2_ActivateAbility();
-	}
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 void UGA_SpellChargeProjectile::InputReleased(const FGameplayAbilitySpecHandle Handle,
@@ -163,4 +143,16 @@ void UGA_SpellChargeProjectile::InputReleased(const FGameplayAbilitySpecHandle H
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_InputHeld);
 
 	}
+}
+
+
+void UGA_SpellChargeProjectile::EndAbility(const FGameplayAbilitySpecHandle Handle,
+                                           const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                           bool bReplicateEndAbility, bool bWasCancelled)
+{
+	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+
+	MainPlayerCharacter->SetIsAiming(false);
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

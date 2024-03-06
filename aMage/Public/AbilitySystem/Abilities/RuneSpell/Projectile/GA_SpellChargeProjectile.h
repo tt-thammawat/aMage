@@ -18,8 +18,6 @@ class AMAGE_API UGA_SpellChargeProjectile : public UMainGenericGameplayAbility
 public:
 	UGA_SpellChargeProjectile();
 	
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
 
 	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
@@ -36,9 +34,6 @@ public:
 	virtual void ActivateAbilityAfterHold();
 
 protected:
-
-	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadWrite)
-	bool bIsPlayingAnimation;
 	
 	UFUNCTION(BlueprintCallable,Category=Projectile)
 	virtual void SpawnChargeProjectile(const FVector& ProjectileTargetLocation, int32 NumProjectiles);

@@ -26,7 +26,7 @@ class AMainPlayerController;
 /**
  * 
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawingSpellSuccessSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawingRuneSuccessSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawingClearSpellSuccessSignature);
 
 UCLASS()
@@ -42,9 +42,9 @@ public:
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnDrawingSpellSuccessSignature OnDrawingSpellSuccess;
+	FOnDrawingRuneSuccessSignature OnDrawingRuneSuccess;
 	UPROPERTY(BlueprintAssignable)
-	FOnDrawingClearSpellSuccessSignature OnDrawingClearSpellSuccessSignature;
+	FOnDrawingClearSpellSuccessSignature OnClearSpellSuccess;
 	
 	UFUNCTION(BlueprintCallable)
 	TArray<FGameplayTag> GetRuneTags() const {return RuneTags;};
@@ -52,11 +52,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetIsStartFocus(bool bStartFocus) { bIsStartFocus = bStartFocus;};
 	
-	//Bind Tag When GameplayAbilities Change
+	//Bind Tag When GameplayAbilities remove
 	UFUNCTION(BlueprintCallable,Category=Rune)
-	void SetBindOnSpecificTagChanged(UAbilitySystemComponent* AbilitySystemComponent);
-	UFUNCTION(BlueprintImplementableEvent,Category=Rune)
-	void OnSpecificTagChanged(const FGameplayTag Tag, int32 NewCount);
+	void BindIsAbilityIsRemoved(UAbilitySystemComponent* AbilitySystemComponent);
+	UFUNCTION()
+	void AbilityIsRemoved();
 
 private:
 

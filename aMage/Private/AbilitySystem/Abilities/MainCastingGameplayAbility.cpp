@@ -4,13 +4,13 @@
 #include "AbilitySystem/Abilities/MainCastingGameplayAbility.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask.h"
+#include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "AbilitySystem/AbilityTask/InterpolateFOV.h"
 #include "Camera/CameraComponent.h"
 #include "Character/MainPlayerController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interact/CastingInterface.h"
-#include "Net/UnrealNetwork.h"
 #include "UI/HUD/MainPlayerHUD.h"
 #include "UI/Widget/MainPaintWidget.h"
 
@@ -18,19 +18,6 @@ UMainCastingGameplayAbility::UMainCastingGameplayAbility()
 {
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-}
-
-void UMainCastingGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(UMainCastingGameplayAbility,bIsCancel);
-}
-
-void UMainCastingGameplayAbility::OnRep_bIsCancel()
-{
-	bIsAbilityActive=false;
-	ToggleDrawingMode(false);
-	DeactivateDrawingMode();
 }
 
 void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
@@ -72,10 +59,20 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	
 		if(PaintWidget)
 		{
-			PaintWidget->OnDrawingSpellSuccess.AddDynamic(this,&ThisClass::AddRuneTags);
-			PaintWidget->OnDrawingClearSpellSuccessSignature.AddDynamic(this,&ThisClass::ClearRuneTags);
+			//success in draw rune
+			PaintWidget->OnDrawingRuneSuccess.AddDynamic(this,&ThisClass::AddRuneTags);
+			//clear
+			PaintWidget->OnClearSpellSuccess.AddDynamic(this,&ThisClass::ClearRuneTags);
 		}
 	}
+
+	//When Successfull get spell;
+	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+	if(BaseAbilitySystemComponent)
+	{
+		BaseAbilitySystemComponent->OnAbilityGranted.AddUObject(this,&ThisClass::ClientCancelAbilities);
+	}
+	
 	CurrentSpecHandle=Handle;
 	CurrentActorInfo=ActorInfo;
 	CurrentActivationInfo=ActivationInfo;
@@ -87,8 +84,6 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	Character->GetCharacterMovement()->MaxWalkSpeed = SlowMaxWalkSpeed;
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-
 
 }
 
@@ -245,8 +240,14 @@ void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	
 	if(PaintWidget)
 	{
-		PaintWidget->OnDrawingSpellSuccess.RemoveDynamic(this, &ThisClass::AddRuneTags);
-		PaintWidget->OnDrawingClearSpellSuccessSignature.RemoveDynamic(this,&ThisClass::ClearRuneTags);
+		PaintWidget->OnDrawingRuneSuccess.RemoveDynamic(this, &ThisClass::AddRuneTags);
+		PaintWidget->OnClearSpellSuccess.RemoveDynamic(this,&ThisClass::ClearRuneTags);
+	}
+
+	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+	if(BaseAbilitySystemComponent)
+	{
+		BaseAbilitySystemComponent->OnAbilityGranted.RemoveAll(this);
 	}
 	
 	ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);

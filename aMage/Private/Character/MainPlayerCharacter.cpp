@@ -56,7 +56,7 @@ void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,InteractObjectActor,COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,RefRuneTags,COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,bIsRuneMatched,COND_OwnerOnly);
 	DOREPLIFETIME(AMainPlayerCharacter,bIsAiming);
 }
 
@@ -174,15 +174,14 @@ void AMainPlayerCharacter::RemoveItemAbilities(const TArray<TSubclassOf<UGamepla
 
 void AMainPlayerCharacter::MatchRuneSpellTags(TArray<FGameplayTag> RuneTags)
 {
-	RefRuneTags = RuneTags;
 	
 	if (HasAuthority())
 	{
-		ProcessAbilityRequest(RefRuneTags);
+		ProcessAbilityRequest(RuneTags);
 	}
 	else
 	{
-		ServerRequestAbilityActivation(RefRuneTags);
+		ServerRequestAbilityActivation(RuneTags);
 	}
 }
 
@@ -221,8 +220,6 @@ void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& Run
 
 void AMainPlayerCharacter::ClearRuneSpell_Implementation()
 {
-	// Clear reference tags after successfully removing the abilities.
-	RefRuneTags.Empty();
 	
 		if (HasAuthority())
 		{

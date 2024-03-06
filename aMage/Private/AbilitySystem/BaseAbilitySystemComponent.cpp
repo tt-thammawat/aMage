@@ -30,6 +30,8 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 				//Add StartUp Abilities if it derives from MainGameplayAbility
 				GiveAbility(AbilitySpec);
 				//	GiveAbilityAndActivateOnce(AbilitySpec);
+				//broadcast this if ability was granted
+				OnAbilityGranted.Broadcast();
 			}
 		}
 	}
@@ -50,8 +52,14 @@ void UBaseAbilitySystemComponent::RemoveCharacterAbilities(const TArray<TSubclas
 				{
 					ClearAbility(AbilitySpec->Handle);
 				}
+				ClientOnAbilityRemoved();
 			}
 		}
+}
+
+void UBaseAbilitySystemComponent::ClientOnAbilityRemoved_Implementation()
+{
+	OnAbilityRemoved.Broadcast();
 }
 
 void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)

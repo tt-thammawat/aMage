@@ -8,27 +8,17 @@
 #include "Actor/Projectile/MainProjectile.h"
 #include "Character/MainPlayerCharacter.h"
 #include "Interact/ICombatInterface.h"
-#include "Net/UnrealNetwork.h"
 
 
-UGA_SpellProjectileBase::UGA_SpellProjectileBase() :
-bIsPlayingAnimation(false)
+UGA_SpellProjectileBase::UGA_SpellProjectileBase() 
 {
-	NetExecutionPolicy=EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	NetExecutionPolicy=EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 	InstancingPolicy=EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-void UGA_SpellProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME(UGA_SpellProjectileBase,bIsPlayingAnimation);
-
-}
-
 bool UGA_SpellProjectileBase::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                                 const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
-                                                 const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if(!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 		return false;
@@ -39,12 +29,10 @@ bool UGA_SpellProjectileBase::CanActivateAbility(const FGameplayAbilitySpecHandl
 void UGA_SpellProjectileBase::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                            const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	if(!bIsPlayingAnimation)
-	{
-		Super::InputPressed(Handle, ActorInfo, ActivationInfo);
-		K2_ActivateAbility();
-	}
+	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(CurrentActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+	MainPlayerCharacter->SetIsAiming(true);
 	
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &ThisClass::ActivateAbilityAfterHold, InputHeldDuration);
 }
 
 void UGA_SpellProjectileBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -52,48 +40,48 @@ void UGA_SpellProjectileBase::ActivateAbility(const FGameplayAbilitySpecHandle H
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-	
-	MainPlayerCharacter->SetIsAiming(true);
 }
 
 void UGA_SpellProjectileBase::InputReleased(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	
 	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+
+	if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_InputHeld))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_InputHeld);
+
+	}
 }
 
-void UGA_SpellProjectileBase::EndAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateEndAbility, bool bWasCancelled)
+void UGA_SpellProjectileBase::ActivateAbilityAfterHold()
 {
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-
-	MainPlayerCharacter->SetIsAiming(false);
-	
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	if (GetWorld()->GetTimeSeconds() - InputPressTime >= InputHeldDuration)
+	{
+		K2_ActivateAbility();
+	}
 }
 
-void UGA_SpellProjectileBase::CancelAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateCancelAbility)
+FVector UGA_SpellProjectileBase::GetSocketLocation()
 {
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-
-	MainPlayerCharacter->SetIsAiming(false);
-	
-	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+	//Get Avatar Actor That Cast This
+	IICombatInterface* CombatInterface = Cast<IICombatInterface>(GetAvatarActorFromActorInfo());
+	if(CombatInterface)
+	{
+		// Get SocketLocation FVector via ICombatInterface
+		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
+		return SocketLocation;
+	}
+	return FVector();
 }
 
-void UGA_SpellProjectileBase::SpawnProjectile(const FVector& ProjectileTargetLocation, int32 NumProjectiles)
+void UGA_SpellProjectileBase::SpawnProjectile(const FVector& ProjectileTargetLocation,const FVector& CharSocketLocation, int32 NumProjectiles)
 {
 	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
 	if(!bIsServer) return;
 	
 		// Get SocketLocation FVector via ICombatInterface
-		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
+		const FVector SocketLocation = 	CharSocketLocation;
 		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 
 		// Adjust the angle based on the number of projectiles
@@ -157,4 +145,27 @@ void UGA_SpellProjectileBase::SpawnProjectile(const FVector& ProjectileTargetLoc
 			Projectile->DamageEffectSpecHandle=SpecHandle;
 			Projectile->FinishSpawning(SpawnTransform);
 		}
+}
+
+
+void UGA_SpellProjectileBase::CancelAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateCancelAbility)
+{
+	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+
+	MainPlayerCharacter->SetIsAiming(false);
+	
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+}
+
+void UGA_SpellProjectileBase::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+
+	MainPlayerCharacter->SetIsAiming(false);
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

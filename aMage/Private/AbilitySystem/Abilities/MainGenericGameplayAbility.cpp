@@ -12,84 +12,30 @@ void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(UMainGenericGameplayAbility,UsageTimes,COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UMainGenericGameplayAbility,bIsCancel,COND_OwnerOnly);
+
 }
 
-void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+void UMainGenericGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
+	bool bReplicateCancelAbility)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if(UAbilitySystemComponent* AbilitySystemComponent = ActorInfo->AbilitySystemComponent.Get())
-	{
-		FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
-
-		//Case Not Remove Effect
-		for(auto& GameplayEffect : OngoingEffectsToApplyOnstart)
-		{
-			if(!GameplayEffect.Get()) continue;
-
-			FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect,1,EffectContextHandle);
-
-			if(SpecHandle.IsValid())
-			{
-				FActiveGameplayEffectHandle GameplayEffectHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-				if(!GameplayEffectHandle.WasSuccessfullyApplied())
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Ability %s Failed to apply Effect %s"),*GetName(), *GetNameSafe(GameplayEffect));
-				}
-			}
-		}
-		if(IsInstantiated())
-		{
-			for(auto& GameplayEffect : OngoingEffectsToRemoveOnEnd)
-			{
-				//not valid skip this one and proceed to check the next gameplay effect in the loop.
-				if(!GameplayEffect.Get()) continue;
-
-				FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect,1,EffectContextHandle);
-				if(SpecHandle.IsValid())
-				{
-					FActiveGameplayEffectHandle GameplayEffectHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		
-					if(!GameplayEffectHandle.WasSuccessfullyApplied())
-					{
-						UE_LOG(LogTemp, Warning, TEXT("Ability %s Failed to apply Effect %s"),*GetName(), *GetNameSafe(GameplayEffect));
-
-					}
-					else
-					{
-						//Add Handle To Remove This Effect Just In Case The Effect Can be removed
-						RemoveOnEndEffectHandle.Add(GameplayEffectHandle);
-					}
-				}
-			}
-		}
-	}
+	bIsCancel = true;
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
-void UMainGenericGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateEndAbility, bool bWasCancelled)
+bool UMainGenericGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
-	//Instanced Abilities: unique instances of an ability for each actor. Each actor gets its own copy of the ability it own state ,own information
-	if(IsInstantiated())
+	if(!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+		return false;
+
+	if(bIsCancel == true)
 	{
-		if(UAbilitySystemComponent* AbilitySystemComponent = ActorInfo->AbilitySystemComponent.Get())
-		{
-			for (FActiveGameplayEffectHandle& ActiveGameplayEffectHandle : RemoveOnEndEffectHandle)
-			{
-				if(ActiveGameplayEffectHandle.IsValid())
-				{
-					AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveGameplayEffectHandle);
-				}
-			}
-		}
-		//clear handle when abilities end
-		RemoveOnEndEffectHandle.Empty();
+		return false;
 	}
-	
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
 
@@ -111,14 +57,10 @@ void UMainGenericGameplayAbility::CauseDamage(AActor* TargetActor)
 
 void UMainGenericGameplayAbility::RemoveAbilityAfterEnd(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities)
 {
-	for (const TSubclassOf<UGameplayAbility> AbilityClass : RemoveAbilities)
+	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+	if(BaseAbilitySystemComponent)
 	{
-		
-		FGameplayAbilitySpec* AbilitySpec = GetAbilitySystemComponentFromActorInfo()->FindAbilitySpecFromClass(AbilityClass);
-		if(AbilitySpec)
-		{
+			BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveAbilities);
 
-			GetAbilitySystemComponentFromActorInfo()->ClearAbility(AbilitySpec->Handle);
-		}
 	}
 }
