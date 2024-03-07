@@ -12,7 +12,7 @@ void UBaseAbilitySystemComponent::AbilityActorInfoSet()
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this,&UBaseAbilitySystemComponent::ClientEffectApplied);
 }
 
-void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddAbilities)
+void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddAbilities,bool bIsAddedByDrawing)
 {
 	for (const TSubclassOf<UGameplayAbility> AbilityClass : AddAbilities)
 	{
@@ -28,8 +28,15 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 				//Add InputTag from StartupInputTag from MainGameplayAbility To DynamicAbilityTags ( FGameplayContainer )
 				AbilitySpec.DynamicAbilityTags.AddTag(MainGameplayAbility->StartupInputTag);
 				//Add StartUp Abilities if it derives from MainGameplayAbility
-				GiveAbility(AbilitySpec);
-				//	GiveAbilityAndActivateOnce(AbilitySpec);
+				FGameplayAbilitySpecHandle Handle = GiveAbility(AbilitySpec);
+				if(bIsAddedByDrawing)
+				{
+					// Activate the ability once
+					if(Handle.IsValid())
+					{
+						TryActivateAbility(Handle);
+					}
+				}
 				//broadcast this if ability was granted
 				OnAbilityGranted.Broadcast();
 			}
@@ -52,14 +59,8 @@ void UBaseAbilitySystemComponent::RemoveCharacterAbilities(const TArray<TSubclas
 				{
 					ClearAbility(AbilitySpec->Handle);
 				}
-				ClientOnAbilityRemoved();
 			}
 		}
-}
-
-void UBaseAbilitySystemComponent::ClientOnAbilityRemoved_Implementation()
-{
-	OnAbilityRemoved.Broadcast();
 }
 
 void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)

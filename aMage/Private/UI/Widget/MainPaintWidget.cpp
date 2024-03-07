@@ -25,7 +25,6 @@ void UMainPaintWidget::CheckDrawSpell()
 	
 	if (Result.Score < 0.8f)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, "No Magic", true, FVector2D(1, 1));
 			RemoveAllPoints();
 		}
 	else
@@ -39,9 +38,6 @@ void UMainPaintWidget::CheckDrawSpell()
 				RuneTags.Add(Result.NameTag);
 				OnDrawingRuneSuccess.Broadcast();
 			}
-
-
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("MaGic %s"), *Result.NameTag.GetTagName().ToString()));
 			RemoveAllPoints();
 		}
 }
@@ -49,23 +45,7 @@ void UMainPaintWidget::CheckDrawSpell()
 void UMainPaintWidget::SetUpMainPlayerController(APlayerController* PlayerController)
 {
 	MainPlayerController = Cast<AMainPlayerController>(PlayerController);
-
 }
-
-void UMainPaintWidget::BindIsAbilityIsRemoved(UAbilitySystemComponent* AbilitySystemComponent)
-{
-	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent);
-	if(BaseAbilitySystemComponent)
-	{
-		BaseAbilitySystemComponent->OnAbilityRemoved.AddUObject(this,&ThisClass::AbilityIsRemoved);
-	}
-}
-
-void UMainPaintWidget::AbilityIsRemoved()
-{
-	OnClearSpellSuccess.Broadcast();
-}
-
 
 FReply UMainPaintWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {

@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/MainCastingGameplayAbility.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayTagsSingleton.h"
 #include "Abilities/Tasks/AbilityTask.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "AbilitySystem/AbilityTask/InterpolateFOV.h"
@@ -63,6 +64,8 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 			PaintWidget->OnDrawingRuneSuccess.AddDynamic(this,&ThisClass::AddRuneTags);
 			//clear
 			PaintWidget->OnClearSpellSuccess.AddDynamic(this,&ThisClass::ClearRuneTags);
+			//Check if there are rune ability is activated if not refresh Paint Widget
+			CheckAbilityWithTag();
 		}
 	}
 
@@ -130,6 +133,7 @@ void UMainCastingGameplayAbility::ActivateDrawingMode()
 		{
 			const AMainPlayerHUD* MainPlayerHUD=  Cast<AMainPlayerHUD>(GetActorInfo().PlayerController->GetHUD());
 			PaintWidget= MainPlayerHUD->DrawingWidget;
+			
 		}
 		if(PaintWidget)
 		{
@@ -187,6 +191,27 @@ void UMainCastingGameplayAbility::ClearRuneTags()
 {
 	ACharacter* Character = CastChecked<ACharacter>(GetActorInfo().AvatarActor.Get(),ECastCheckedType::NullAllowed);
 	ICastingInterface::Execute_ClearRuneSpell(Character);
+}
+
+void UMainCastingGameplayAbility::CheckAbilityWithTag()
+{
+	TArray<FGameplayAbilitySpec> ActiveAbilities=GetAbilitySystemComponentFromActorInfo()->GetActivatableAbilities();
+	for (const FGameplayAbilitySpec& AbilitySpec : ActiveAbilities)
+	{
+        if (AbilitySpec.Ability->AbilityTags.HasTagExact(FMainGameplayTags::Get().Ability_Rune_NormalSpell))
+		{
+        	if(AbilitySpec.IsActive())
+        	{
+        		UE_LOG(LogTemp, Log, TEXT("Yes"));
+        		return;
+        	}
+        	PaintWidget->OnClearSpellSuccess.Broadcast();		
+		}
+
+	}
+
+	
+
 }
 
 void UMainCastingGameplayAbility::DeactivateDrawingMode()

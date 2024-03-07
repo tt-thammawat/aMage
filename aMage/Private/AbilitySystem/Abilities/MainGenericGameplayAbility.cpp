@@ -61,6 +61,5 @@ void UMainGenericGameplayAbility::RemoveAbilityAfterEnd(const TArray<TSubclassOf
 	if(BaseAbilitySystemComponent)
 	{
 			BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveAbilities);
-
 	}
 }

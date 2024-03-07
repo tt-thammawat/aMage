@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayAbilitySpecHandle.h"
 #include "Character/BaseCharacter.h"
 #include "Interact/CastingInterface.h"
 #include "MainPlayerCharacter.generated.h"
@@ -73,13 +74,15 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerInteractButtonPressed();
 
-	//Interface Request Ability After Get Casting Rune Spell
+	//Request Ability After Get Casting Rune Spell
 	UPROPERTY(Replicated)
-	bool bIsRuneMatched=false;
+	FGameplayAbilitySpecHandle AbilityHandle;
 	virtual void MatchRuneSpellTags(TArray<FGameplayTag> RuneTags) override;
 	UFUNCTION(Server,Reliable)
 	void ServerRequestAbilityActivation(const TArray<FGameplayTag>& RuneTags);
 	void ProcessAbilityRequest(const TArray<FGameplayTag>& RuneTags);
+	
+	//Clear Rune Spell
 	void ClearRuneSpell_Implementation() override;
 	UFUNCTION(Server,Reliable)
 	void ServerRequestClearRuneSpell();

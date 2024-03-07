@@ -58,7 +58,8 @@ private:
 	UFUNCTION()
 	void ClearRuneTags();
 	TObjectPtr<UMainPaintWidget> PaintWidget;
-	
+	//Check if the ability is active if no then reset visual
+	void CheckAbilityWithTag();
 	// Tracks whether the ability is currently active by Input.
 	bool bIsAbilityActive = false;
 	// Prevent double press

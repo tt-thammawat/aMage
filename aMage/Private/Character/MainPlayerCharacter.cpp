@@ -56,7 +56,7 @@ void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,InteractObjectActor,COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,bIsRuneMatched,COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,AbilityHandle,COND_OwnerOnly);
 	DOREPLIFETIME(AMainPlayerCharacter,bIsAiming);
 }
 
@@ -213,7 +213,7 @@ void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& Run
 		{
 			TArray<TSubclassOf<UGameplayAbility>> AddAbilities;
 			AddAbilities.Add(MatchedAbility);
-			BaseAbilitySystemComponent->AddCharacterAbilities(AddAbilities);
+			BaseAbilitySystemComponent->AddCharacterAbilities(AddAbilities,true);
 		}
 	}
 }

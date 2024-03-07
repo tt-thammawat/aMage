@@ -51,12 +51,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetIsStartFocus(bool bStartFocus) { bIsStartFocus = bStartFocus;};
-	
-	//Bind Tag When GameplayAbilities remove
-	UFUNCTION(BlueprintCallable,Category=Rune)
-	void BindIsAbilityIsRemoved(UAbilitySystemComponent* AbilitySystemComponent);
-	UFUNCTION()
-	void AbilityIsRemoved();
 
 private:
 
