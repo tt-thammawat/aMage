@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/Widget/MainPaintWidget.h"
 #include "Net/UnrealNetwork.h"
 
 void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -30,19 +31,20 @@ void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	if(!SpellIndicator)
+	APlayerController* PlayerController = GetActorInfo().PlayerController.Get();
+	if (PlayerController && PlayerController->IsLocalPlayerController())
 	{
-		if(SpellIndicatorClass)
+		if(!SpellIndicator)
 		{
-			SpellIndicator = CreateWidget<UUserWidget>(GetActorInfo().PlayerController->GetWorld(),SpellIndicatorClass);
-			SpellIndicator->AddToViewport();
+			SpellIndicator = CreateWidget<UMainPlayerWidget>(GetActorInfo().PlayerController->GetWorld(),SpellIndicatorClass);
+			if (SpellIndicator)
+			{
+				SpellIndicator->SetWidgetController(this);
+				SpellIndicator->AddToViewport();
+			}
 		}
+
 	}
-	else if(SpellIndicator && !SpellIndicator->IsInViewport())
-	{
-		SpellIndicator->AddToViewport();
-	}
-	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
@@ -87,6 +89,12 @@ void UMainGenericGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	if(SpellIndicator)
+	{
+		SpellIndicator->RemoveFromParent();
+		SpellIndicator = nullptr;
+	}
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 

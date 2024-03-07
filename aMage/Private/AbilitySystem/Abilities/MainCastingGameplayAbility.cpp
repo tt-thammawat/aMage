@@ -203,11 +203,7 @@ void UMainCastingGameplayAbility::CheckAbilityWithTag()
         	}
         	PaintWidget->OnClearSpellSuccess.Broadcast();		
 		}
-
 	}
-
-	
-
 }
 
 void UMainCastingGameplayAbility::DeactivateDrawingMode()

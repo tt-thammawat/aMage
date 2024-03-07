@@ -168,8 +168,8 @@ void AMainPlayerCharacter::AddItemAbilities(const TArray<TSubclassOf<UGameplayAb
 void AMainPlayerCharacter::RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities)
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
-	
 	BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveItemAbilities);
+	BaseAbilitySystemComponent->RemoveNormalRuneSpellAbilities();
 }
 
 void AMainPlayerCharacter::MatchRuneSpellTags(TArray<FGameplayTag> RuneTags)

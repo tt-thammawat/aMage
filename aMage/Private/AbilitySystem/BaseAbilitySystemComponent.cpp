@@ -63,6 +63,25 @@ void UBaseAbilitySystemComponent::RemoveCharacterAbilities(const TArray<TSubclas
 		}
 }
 
+void UBaseAbilitySystemComponent::RemoveNormalRuneSpellAbilities()
+{
+	TArray<FGameplayAbilitySpec> ActiveAbilities = GetActivatableAbilities();
+	for (FGameplayAbilitySpec& AbilitySpec : ActiveAbilities)
+	{
+		if (AbilitySpec.Ability->AbilityTags.HasTagExact(FMainGameplayTags::Get().Ability_Rune_NormalSpell))
+		{
+			if (AbilitySpec.IsActive())
+			{
+				CancelAbilitySpec(AbilitySpec,nullptr);
+			}
+			else
+			{
+				ClearAbility(AbilitySpec.Handle);
+			}
+		}
+	}
+}
+
 void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid()) return;

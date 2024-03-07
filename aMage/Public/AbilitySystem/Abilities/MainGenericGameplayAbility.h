@@ -6,6 +6,7 @@
 #include "AbilitySystem/Abilities/MainGameplayAbility.h"
 #include "MainGenericGameplayAbility.generated.h"
 
+class UMainPlayerWidget;
 class UMainInputAction;
 /**
  * 
@@ -37,9 +38,9 @@ public:
 	
 protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Spell)
-	TSubclassOf<UUserWidget> SpellIndicatorClass;
+	TSubclassOf<UMainPlayerWidget> SpellIndicatorClass;
 
-	TObjectPtr<UUserWidget> SpellIndicator;
+	TObjectPtr<UMainPlayerWidget> SpellIndicator;
 	
 	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)
 	float UsageTimes;
