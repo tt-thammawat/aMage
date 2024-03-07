@@ -40,7 +40,7 @@ void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 			if (SpellIndicator)
 			{
 				SpellIndicator->SetWidgetController(this);
-				SpellIndicator->AddToViewport();
+				SpellIndicator->AddToViewport(2);
 			}
 		}
 

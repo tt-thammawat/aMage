@@ -66,7 +66,7 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 			}
 
 			PaintWidget->SetWidgetController(PlayerController);
-			PaintWidget->AddToViewport();
+			PaintWidget->AddToViewport(12);
 		}
 		
 		PaintWidget->OnDrawingRuneSuccess.AddDynamic(this, &ThisClass::AddRuneTags);

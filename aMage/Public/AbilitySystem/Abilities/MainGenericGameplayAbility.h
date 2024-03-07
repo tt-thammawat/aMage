@@ -11,6 +11,7 @@ class UMainInputAction;
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUsageTimeChangedSignature,float,UsageTimes);
 UCLASS()
 class AMAGE_API UMainGenericGameplayAbility : public UMainGameplayAbility
 {
@@ -19,6 +20,15 @@ class AMAGE_API UMainGenericGameplayAbility : public UMainGameplayAbility
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UPROPERTY(BlueprintAssignable,Category=Spell)
+	FOnUsageTimeChangedSignature OnUsageTimeChanged;
+	
+	UFUNCTION(BlueprintCallable, Category = "Spell")
+	void TriggerUsageTimeChanged(float NewUsageTime)
+	{
+		OnUsageTimeChanged.Broadcast(NewUsageTime);
+	}
+	
 	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
@@ -39,7 +49,8 @@ public:
 protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Spell)
 	TSubclassOf<UMainPlayerWidget> SpellIndicatorClass;
-
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Spell)
 	TObjectPtr<UMainPlayerWidget> SpellIndicator;
 	
 	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)

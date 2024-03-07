@@ -7,7 +7,6 @@
 #include "GameplayTagsSingleton.h"
 #include "Actor/Projectile/ChargeProjectile.h"
 #include "Character/MainPlayerCharacter.h"
-#include "Net/UnrealNetwork.h"
 
 UGA_SpellChargeProjectile::UGA_SpellChargeProjectile()
 {
