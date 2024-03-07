@@ -12,7 +12,6 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interact/CastingInterface.h"
-#include "UI/HUD/MainPlayerHUD.h"
 #include "UI/Widget/MainPaintWidget.h"
 
 UMainCastingGameplayAbility::UMainCastingGameplayAbility()
@@ -24,6 +23,10 @@ UMainCastingGameplayAbility::UMainCastingGameplayAbility()
 void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	CurrentSpecHandle=Handle;
+	CurrentActorInfo=ActorInfo;
+	CurrentActivationInfo=ActivationInfo;
+	
 	if (bIsDebouncing) return;
 	// Toggle the ability activation state.
 	bIsAbilityActive = !bIsAbilityActive;
@@ -50,35 +53,34 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	if (GetActorInfo().PlayerController->IsLocalPlayerController())
+	APlayerController* PlayerController = GetActorInfo().PlayerController.Get();
+	if (PlayerController && PlayerController->IsLocalPlayerController())
 	{
-		if(PaintWidget == nullptr)
+		if (!PaintWidget)
 		{
-			const AMainPlayerHUD* MainPlayerHUD=  Cast<AMainPlayerHUD>(GetActorInfo().PlayerController->GetHUD());
-			PaintWidget= MainPlayerHUD->DrawingWidget;
+			PaintWidget = CreateWidget<UMainPaintWidget>(PlayerController->GetWorld(), PaintWidgetClass);
+			if (!PaintWidget)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("PaintWidget failed to create."));
+				return;
+			}
+
+			PaintWidget->SetWidgetController(PlayerController);
+			PaintWidget->AddToViewport();
 		}
-	
-		if(PaintWidget)
-		{
-			//success in draw rune
-			PaintWidget->OnDrawingRuneSuccess.AddDynamic(this,&ThisClass::AddRuneTags);
-			//clear
-			PaintWidget->OnClearSpellSuccess.AddDynamic(this,&ThisClass::ClearRuneTags);
-			//Check if there are rune ability is activated if not refresh Paint Widget
-			CheckAbilityWithTag();
-		}
+		
+		PaintWidget->OnDrawingRuneSuccess.AddDynamic(this, &ThisClass::AddRuneTags);
+		PaintWidget->OnClearSpellSuccess.AddDynamic(this, &ThisClass::ClearRuneTags);
+
+		CheckAbilityWithTag();
 	}
 
-	//When Successfull get spell;
+	//When Successful get spell;
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
 	if(BaseAbilitySystemComponent)
 	{
 		BaseAbilitySystemComponent->OnAbilityGranted.AddUObject(this,&ThisClass::ClientCancelAbilities);
 	}
-	
-	CurrentSpecHandle=Handle;
-	CurrentActorInfo=ActorInfo;
-	CurrentActivationInfo=ActivationInfo;
 	
 	//TODO : Move This WalkSpeed To Attribute Fix This Cause Client Doesn't Work
 	//Set Character WalkSpeed
@@ -129,12 +131,6 @@ void UMainCastingGameplayAbility::ActivateDrawingMode()
 {
 	if (GetActorInfo().PlayerController->IsLocalPlayerController())
 	{
-		if(PaintWidget == nullptr)
-		{
-			const AMainPlayerHUD* MainPlayerHUD=  Cast<AMainPlayerHUD>(GetActorInfo().PlayerController->GetHUD());
-			PaintWidget= MainPlayerHUD->DrawingWidget;
-			
-		}
 		if(PaintWidget)
 		{
 			PaintWidget->SetVisibility(ESlateVisibility::Visible);

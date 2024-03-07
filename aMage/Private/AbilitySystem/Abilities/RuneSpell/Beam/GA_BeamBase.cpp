@@ -20,15 +20,10 @@ UGA_BeamBase::UGA_BeamBase()
 void UGA_BeamBase::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	//Super::InputPressed(Handle, ActorInfo, ActivationInfo);
-
-	CurrentSpecHandle = Handle;
-	CurrentActorInfo = ActorInfo;
-	CurrentActivationInfo = ActivationInfo;
+	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
 	bIsInputHeld = true;
-	
-	K2_ActivateAbility();
+	ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
 
 	// Set the timer to call the function repeatedly
 	GetWorld()->GetTimerManager().SetTimer(AbilityActivationTimer, this, &UGA_BeamBase::RepeatedlyActivateAbility, 0.1f, true);
@@ -40,7 +35,7 @@ void UGA_BeamBase::RepeatedlyActivateAbility()
 	if (bIsInputHeld)
 	{
 		// Reactivate or continue the ability based on your game logic
-		K2_ActivateAbility();
+		ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
 	}
 	else
 	{
@@ -53,34 +48,11 @@ void UGA_BeamBase::RepeatedlyActivateAbility()
 void UGA_BeamBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                    const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	//Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
 	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-	
 	MainPlayerCharacter->SetIsAiming(true);
-}
-
-void UGA_BeamBase::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo)
-{
-	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
-
-	bIsInputHeld = false;
-	if(BeamREF)
-	{
-		BeamREF->DeactivateBeam();
-	}
-	GetWorld()->GetTimerManager().ClearTimer(AbilityActivationTimer);
-}
-
-void UGA_BeamBase::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
-{
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-
-	MainPlayerCharacter->SetIsAiming(false);
 	
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
 }
 
 FVector UGA_BeamBase::GetSocketLocation()
@@ -149,53 +121,28 @@ void UGA_BeamBase::SpawnBeam(const FVector& BeamEndLocation)
 		BeamREF->DamageEffectSpecHandle=SpecHandle;
 		BeamREF->FinishSpawning(SpawnTransform);
 	}
-	else
-	{
-		RequestServerSpawnBeam(BeamEndLocation);
-	}
 }
 
-void UGA_BeamBase::RequestServerSpawnBeam_Implementation(const FVector& BeamEndLocation)
+void UGA_BeamBase::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	// Get SocketLocation FVector via ICombatInterface
-	const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());		FRotator Rotation = (BeamEndLocation - SocketLocation).Rotation();
-	FRotator SpawnRotation = Rotation;
-	FTransform SpawnTransform;
-	SpawnTransform.SetLocation(SocketLocation);
-	SpawnTransform.SetRotation(SpawnRotation.Quaternion());
+	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
 
-	BeamREF = GetWorld()->SpawnActorDeferred<AMainBeam>(
-						BeamClass,
-						SpawnTransform,
-						GetOwningActorFromActorInfo(),
-						Cast<APawn>(GetOwningActorFromActorInfo()),
-						ESpawnActorCollisionHandlingMethod::AlwaysSpawn
-						);
-
-	//Give The Projectile A Gameplay Effect Spec For Causing Damage
-	//Get AbilitySystemComponent
-	const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
-	FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-	//Set AbilityCDO //Add Those Things to check if information is pass along
-	EffectContextHandle.SetAbility(this);
-	EffectContextHandle.AddSourceObject(BeamREF);
-	TArray<TWeakObjectPtr<AActor>> Actors;
-	Actors.Add(BeamREF);
-	EffectContextHandle.AddActors(Actors);
-	FHitResult HitResult;
-	HitResult.Location = BeamEndLocation;
-	EffectContextHandle.AddHitResult(HitResult);
-		
-	//Make Spec Handle That Contains Effect Information And Send It To Projectile
-	const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),EffectContextHandle);
-	const FMainGameplayTags MainGameplayTags = FMainGameplayTags::Get();
-
-	for (auto& Pair : DamageType)
+	bIsInputHeld = false;
+	if(BeamREF)
 	{
-		const float ScaledDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
-		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle,Pair.Key,ScaledDamage);
+		BeamREF->DeactivateBeam();
 	}
-		
-	BeamREF->DamageEffectSpecHandle=SpecHandle;
-	BeamREF->FinishSpawning(SpawnTransform);
+	GetWorld()->GetTimerManager().ClearTimer(AbilityActivationTimer);
 }
+
+void UGA_BeamBase::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+
+	MainPlayerCharacter->SetIsAiming(false);
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+

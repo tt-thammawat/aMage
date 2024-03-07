@@ -26,8 +26,6 @@ public:
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<UMainPlayerWidget> OverlayWidget;
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	TObjectPtr<UMainPaintWidget> DrawingWidget;
 	
 	void InitOverlay(APlayerController* PC,APlayerState* PS,UAbilitySystemComponent* ASC,UAttributeSet* AS);
 protected:
@@ -35,8 +33,6 @@ protected:
 private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> OverlayWidgetClass;
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UUserWidget> DrawingWidgetClass;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
 	UPROPERTY()

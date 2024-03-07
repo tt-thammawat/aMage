@@ -5,7 +5,6 @@
 
 #include "GameplayTagsSingleton.h"
 #include "MainAssetManager.h"
-#include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Character/MainPlayerController.h"
 #include "DrawMagic/UnistrokeRecognizer.h"
@@ -44,7 +43,20 @@ void UMainPaintWidget::CheckDrawSpell()
 
 void UMainPaintWidget::SetUpMainPlayerController(APlayerController* PlayerController)
 {
-	MainPlayerController = Cast<AMainPlayerController>(PlayerController);
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerController is nullptr in UMainPaintWidget::SetUpMainPlayerController"));
+		return;
+	}
+
+	AMainPlayerController* CastedController = Cast<AMainPlayerController>(PlayerController);
+	if (!CastedController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerController could not be cast to AMainPlayerController in UMainPaintWidget::SetUpMainPlayerController"));
+		return;
+	}
+
+	MainPlayerController = CastedController;
 }
 
 FReply UMainPaintWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

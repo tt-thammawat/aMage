@@ -28,8 +28,7 @@ bool UGA_SpellChargeProjectile::CanActivateAbility(const FGameplayAbilitySpecHan
 void UGA_SpellChargeProjectile::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                              const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(CurrentActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-	MainPlayerCharacter->SetIsAiming(true);
+	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &UGA_SpellChargeProjectile::ActivateAbilityAfterHold, InputHeldDuration);
 }
@@ -38,7 +37,7 @@ void UGA_SpellChargeProjectile::ActivateAbilityAfterHold()
 {
 	if (GetWorld()->GetTimeSeconds() - InputPressTime >= InputHeldDuration)
 	{
-		K2_ActivateAbility();
+		ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
 	}
 }
 
@@ -46,6 +45,9 @@ void UGA_SpellChargeProjectile::ActivateAbility(const FGameplayAbilitySpecHandle
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+	MainPlayerCharacter->SetIsAiming(true);
+	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 

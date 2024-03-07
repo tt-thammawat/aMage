@@ -2,9 +2,9 @@
 
 
 #include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "Net/UnrealNetwork.h"
 
 void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -16,17 +16,39 @@ void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimePro
 
 }
 
-void UMainGenericGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateCancelAbility)
+void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	bIsCancel = true;
-	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
+	
+	CurrentSpecHandle = Handle;
+	CurrentActorInfo = ActorInfo;
+	CurrentActivationInfo = ActivationInfo;
+}
+
+void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	if(!SpellIndicator)
+	{
+		if(SpellIndicatorClass)
+		{
+			SpellIndicator = CreateWidget<UUserWidget>(GetActorInfo().PlayerController->GetWorld(),SpellIndicatorClass);
+			SpellIndicator->AddToViewport();
+		}
+	}
+	else if(SpellIndicator && !SpellIndicator->IsInViewport())
+	{
+		SpellIndicator->AddToViewport();
+	}
+	
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 bool UMainGenericGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
-	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+                                                     const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+                                                     const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if(!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 		return false;
@@ -37,7 +59,6 @@ bool UMainGenericGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecH
 	}
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
-
 
 void UMainGenericGameplayAbility::CauseDamage(AActor* TargetActor)
 {
@@ -54,12 +75,26 @@ void UMainGenericGameplayAbility::CauseDamage(AActor* TargetActor)
 	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(),UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
 }
 
+void UMainGenericGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle Handle,
+												const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+												bool bReplicateCancelAbility)
+{
+	bIsCancel = true;
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+}
+
+void UMainGenericGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
 
 void UMainGenericGameplayAbility::RemoveAbilityAfterEnd(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities)
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
 	if(BaseAbilitySystemComponent)
 	{
-			BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveAbilities);
+		BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveAbilities);
 	}
 }

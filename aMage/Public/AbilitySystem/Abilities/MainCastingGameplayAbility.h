@@ -33,6 +33,7 @@ private:
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float SlowMaxWalkSpeed = 350.f;
 	float OldMaxWalkSpeed = 600.f;
+
 	//Camera
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float DefaultFOV= 90.f;
@@ -57,7 +58,6 @@ private:
 	void AddRuneTags();
 	UFUNCTION()
 	void ClearRuneTags();
-	TObjectPtr<UMainPaintWidget> PaintWidget;
 	//Check if the ability is active if no then reset visual
 	void CheckAbilityWithTag();
 	// Tracks whether the ability is currently active by Input.
@@ -73,5 +73,10 @@ private:
 	void ActivateDrawingMode();
 	UFUNCTION()
 	void DeactivateDrawingMode();
-	
+
+public:
+	//Paint Widget
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Spell)
+	TSubclassOf<UUserWidget> PaintWidgetClass;
+	TObjectPtr<UMainPaintWidget> PaintWidget;
 };
