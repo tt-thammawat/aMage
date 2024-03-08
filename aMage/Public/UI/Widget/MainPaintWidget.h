@@ -40,7 +40,9 @@ public:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-
+	UFUNCTION(BlueprintCallable)
+	bool RemoveLastRuneTagIfNotMatch();
+	
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingRuneSuccessSignature OnDrawingRuneSuccess;
 	UPROPERTY(BlueprintAssignable)
@@ -53,7 +55,7 @@ public:
 	void SetIsStartFocus(bool bStartFocus) { bIsStartFocus = bStartFocus;};
 
 private:
-
+	
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
 	bool bIsDrawToUpgraded = false;
 	
@@ -71,7 +73,7 @@ private:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
 	TArray<FGameplayTag> RuneTags;
 
-	
+
 //Drawing Canvas Line
 	
 protected:

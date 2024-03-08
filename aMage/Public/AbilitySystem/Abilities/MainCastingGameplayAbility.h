@@ -55,7 +55,7 @@ private:
 	
 	//RuneTag
 	UFUNCTION()
-	void AddRuneTags();
+	void CheckRuneTags();
 	UFUNCTION()
 	void ClearRuneTags();
 	//Check if the ability is active if no then reset visual

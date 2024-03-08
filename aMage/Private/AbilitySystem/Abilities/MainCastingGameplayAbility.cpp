@@ -69,7 +69,7 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 			PaintWidget->AddToViewport(12);
 		}
 		
-		PaintWidget->OnDrawingRuneSuccess.AddDynamic(this, &ThisClass::AddRuneTags);
+		PaintWidget->OnDrawingRuneSuccess.AddDynamic(this, &ThisClass::CheckRuneTags);
 		PaintWidget->OnClearSpellSuccess.AddDynamic(this, &ThisClass::ClearRuneTags);
 
 		CheckAbilityWithTag();
@@ -173,8 +173,9 @@ void UMainCastingGameplayAbility::ActivateDrawingMode()
 	}
 }
 
-void UMainCastingGameplayAbility::AddRuneTags()
+void UMainCastingGameplayAbility::CheckRuneTags()
 {
+	
 	ACharacter* Character = CastChecked<ACharacter>(GetActorInfo().AvatarActor.Get(),ECastCheckedType::NullAllowed);
 	ICastingInterface* CastingInterface = CastChecked<ICastingInterface>(Character);
 	if(CastingInterface)
@@ -257,7 +258,7 @@ void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	
 	if(PaintWidget)
 	{
-		PaintWidget->OnDrawingRuneSuccess.RemoveDynamic(this, &ThisClass::AddRuneTags);
+		PaintWidget->OnDrawingRuneSuccess.RemoveDynamic(this, &ThisClass::CheckRuneTags);
 		PaintWidget->OnClearSpellSuccess.RemoveDynamic(this,&ThisClass::ClearRuneTags);
 	}
 
