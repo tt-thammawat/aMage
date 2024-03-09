@@ -23,8 +23,6 @@ void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimePro
 void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	if (bIsDebouncing) return;
-
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
 	CurrentSpecHandle = Handle;
@@ -33,11 +31,6 @@ void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 	
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &ThisClass::ActivateAbilityAfterHeld, InputHeldDuration,bIsHeldLoop);
 	
-	bIsDebouncing = true;
-	FTimerHandle UnusedHandle;
-	GetWorld()->GetTimerManager().SetTimer(UnusedHandle, [this]()
-		{ bIsDebouncing = false; }
-		, 0.3f, false);
 }
 
 void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

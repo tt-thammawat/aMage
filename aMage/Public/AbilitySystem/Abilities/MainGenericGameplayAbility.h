@@ -58,8 +58,6 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=Player)
 	TObjectPtr<AMainPlayerCharacter> MainPlayerCharacter;
-	// Prevent double press
-	bool bIsDebouncing = false;
 	
 	//Ability 
 	UPROPERTY(Replicated,EditAnywhere,BlueprintReadOnly,Category=Spell)
