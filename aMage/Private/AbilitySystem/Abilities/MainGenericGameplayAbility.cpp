@@ -56,9 +56,7 @@ void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 				SpellIndicator->AddToViewport(2);
 			}
 		}
-
 	}
-	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
