@@ -32,11 +32,16 @@ void UGA_SpellChargeProjectile::InputPressed(const FGameplayAbilitySpecHandle Ha
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_UpdateHeldValue, this, &UGA_SpellChargeProjectile::UpdateValueDuringHold, 0.05f,true);
 }
 
+void UGA_SpellChargeProjectile::ActivateAbilityAfterHeld()
+{
+	// Used To Activated Ability Here But Now Move It To InputRelease
+}
+
 void UGA_SpellChargeProjectile::UpdateValueDuringHold()
 {
 	if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_InputHeld))
 	{
-		float RemainingTime = GetWorld()->GetTimerManager().GetTimerRemaining(TimerHandle_InputHeld);
+		RemainingTime = GetWorld()->GetTimerManager().GetTimerRemaining(TimerHandle_InputHeld);
 		GetValueWhenPressed(RemainingTime);
 	}
 	else
@@ -146,8 +151,15 @@ void UGA_SpellChargeProjectile::InputReleased(const FGameplayAbilitySpecHandle H
 	if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_InputHeld))
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_InputHeld);
-
 	}
+
+	// Check if the remaining time is within the threshold
+	if (RemainingTime <= 0.1f)
+	{
+		ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
+	}
+
+	RemainingTime = 1.0f;
 }
 
 

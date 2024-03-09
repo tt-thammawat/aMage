@@ -21,7 +21,9 @@ public:
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
 
 	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
-
+	
+	virtual void ActivateAbilityAfterHeld() override;
+	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
 	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
@@ -35,7 +37,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void GetValueWhenPressed(float PressedTimes);
 protected:
-	
+	float RemainingTime=1.0f;
 	UFUNCTION(BlueprintCallable,Category=Projectile)
 	virtual void SpawnChargeProjectile(const FVector& ProjectileTargetLocation, int32 NumProjectiles);
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
