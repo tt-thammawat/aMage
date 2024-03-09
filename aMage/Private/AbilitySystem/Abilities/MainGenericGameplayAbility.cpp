@@ -26,6 +26,8 @@ void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 	CurrentSpecHandle = Handle;
 	CurrentActorInfo = ActorInfo;
 	CurrentActivationInfo = ActivationInfo;
+	
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &ThisClass::ActivateAbilityAfterHeld, InputHeldDuration,bIsHeldLoop);
 }
 
 void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -89,9 +91,17 @@ void UMainGenericGameplayAbility::CauseDamage(AActor* TargetActor)
 	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(),UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
 }
 
+void UMainGenericGameplayAbility::ActivateAbilityAfterHeld()
+{
+	if (GetWorld()->GetTimeSeconds() >= InputHeldDuration)
+	{
+		ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
+	}
+}
+
 void UMainGenericGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle Handle,
-												const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-												bool bReplicateCancelAbility)
+                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                                bool bReplicateCancelAbility)
 {
 	bIsCancel = true;
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);

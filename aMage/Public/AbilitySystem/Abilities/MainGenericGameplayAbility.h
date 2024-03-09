@@ -63,6 +63,17 @@ protected:
 	UPROPERTY(Replicated,EditAnywhere,BlueprintReadOnly,Category=Spell)
 	bool bIsCancel=false;
 
+	UPROPERTY(Replicated,EditAnywhere,BlueprintReadOnly,Category=Timer)
+	bool bIsHeldLoop=false;
+	
+	UFUNCTION()
+	virtual void ActivateAbilityAfterHeld();
+	
+	UPROPERTY()
+	FTimerHandle TimerHandle_InputHeld;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Timer)
+	float InputHeldDuration = 3.0f; // Hold duration in seconds
+	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	

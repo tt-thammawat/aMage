@@ -26,11 +26,11 @@ void UGA_BeamBase::InputPressed(const FGameplayAbilitySpecHandle Handle, const F
 	ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
 
 	// Set the timer to call the function repeatedly
-	GetWorld()->GetTimerManager().SetTimer(AbilityActivationTimer, this, &UGA_BeamBase::RepeatedlyActivateAbility, 0.1f, true);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &UGA_BeamBase::ActivateAbilityAfterHeld, InputHeldDuration, bIsHeldLoop);
 	
 }
 
-void UGA_BeamBase::RepeatedlyActivateAbility()
+void UGA_BeamBase::ActivateAbilityAfterHeld()
 {
 	if (bIsInputHeld)
 	{
@@ -40,7 +40,7 @@ void UGA_BeamBase::RepeatedlyActivateAbility()
 	else
 	{
 		// Input is no longer held, clear the timer
-		GetWorld()->GetTimerManager().ClearTimer(AbilityActivationTimer);
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_InputHeld);
 		BeamREF->DeactivateBeam();
 	}
 }
@@ -133,7 +133,7 @@ void UGA_BeamBase::InputReleased(const FGameplayAbilitySpecHandle Handle, const 
 	{
 		BeamREF->DeactivateBeam();
 	}
-	GetWorld()->GetTimerManager().ClearTimer(AbilityActivationTimer);
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle_InputHeld);
 }
 
 void UGA_BeamBase::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

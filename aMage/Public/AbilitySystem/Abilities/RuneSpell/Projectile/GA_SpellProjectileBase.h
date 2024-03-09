@@ -34,16 +34,7 @@ public:
 	UFUNCTION(BlueprintCallable,Category=Socket)
 	FVector GetSocketLocation();
 
-	UFUNCTION()
-	virtual void ActivateAbilityAfterHold();
-	
 protected:
-	UPROPERTY()
-	FTimerHandle TimerHandle_InputHeld;
-	float InputPressTime = 0.0f;
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Projectile)
-	float InputHeldDuration = 3.0f; // Hold duration in seconds
-	
 	UFUNCTION(BlueprintCallable,Category=Projectile)
 	virtual void SpawnProjectile(const FVector& ProjectileTargetLocation,const FVector& CharSocketLocation, int32 NumProjectiles);
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)

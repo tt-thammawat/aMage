@@ -20,6 +20,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float InterpolateProgress(float CurrentPercent, float TargetPercent, float DeltaTime, float InterpSpeed);
 	
+	UFUNCTION(BlueprintImplementableEvent,BlueprintCallable)
+	void SetRingScale(float Scale);
+	
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UObject> WidgetController;
 protected:

@@ -29,22 +29,19 @@ public:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
-
+	
 	UFUNCTION()
-	virtual void ActivateAbilityAfterHold();
-
+	virtual void UpdateValueDuringHold();
+	UFUNCTION(BlueprintImplementableEvent)
+	void GetValueWhenPressed(float PressedTimes);
 protected:
 	
 	UFUNCTION(BlueprintCallable,Category=Projectile)
 	virtual void SpawnChargeProjectile(const FVector& ProjectileTargetLocation, int32 NumProjectiles);
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	TSubclassOf<AChargeProjectile> ProjectileClass;
-	
 	UPROPERTY()
-	FTimerHandle TimerHandle_InputHeld;
-	float InputPressTime = 0.0f;
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Charge)
-	float InputHeldDuration = 3.0f; // Hold duration in seconds
+	FTimerHandle TimerHandle_UpdateHeldValue;
 };
 
 

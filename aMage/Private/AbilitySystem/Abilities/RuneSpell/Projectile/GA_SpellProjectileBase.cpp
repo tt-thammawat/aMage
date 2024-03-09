@@ -31,7 +31,6 @@ void UGA_SpellProjectileBase::InputPressed(const FGameplayAbilitySpecHandle Hand
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &ThisClass::ActivateAbilityAfterHold, InputHeldDuration);
 }
 
 void UGA_SpellProjectileBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -52,15 +51,6 @@ void UGA_SpellProjectileBase::InputReleased(const FGameplayAbilitySpecHandle Han
 	if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_InputHeld))
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_InputHeld);
-
-	}
-}
-
-void UGA_SpellProjectileBase::ActivateAbilityAfterHold()
-{
-	if (GetWorld()->GetTimeSeconds() - InputPressTime >= InputHeldDuration)
-	{
-		ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
 	}
 }
 

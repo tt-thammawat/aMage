@@ -29,20 +29,26 @@ void UGA_SpellChargeProjectile::InputPressed(const FGameplayAbilitySpecHandle Ha
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &UGA_SpellChargeProjectile::ActivateAbilityAfterHold, InputHeldDuration);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_UpdateHeldValue, this, &UGA_SpellChargeProjectile::UpdateValueDuringHold, 0.05f,true);
 }
 
-void UGA_SpellChargeProjectile::ActivateAbilityAfterHold()
+void UGA_SpellChargeProjectile::UpdateValueDuringHold()
 {
-	if (GetWorld()->GetTimeSeconds() - InputPressTime >= InputHeldDuration)
+	if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_InputHeld))
 	{
-		ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
+		float RemainingTime = GetWorld()->GetTimerManager().GetTimerRemaining(TimerHandle_InputHeld);
+		GetValueWhenPressed(RemainingTime);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_UpdateHeldValue);
+		GetValueWhenPressed(0.f);
 	}
 }
 
 void UGA_SpellChargeProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
+                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                                const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
