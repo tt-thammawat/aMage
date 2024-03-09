@@ -35,6 +35,9 @@ protected:
 
 private:
 	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USceneComponent> SceneComponent;
+	
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCapsuleComponent> CapsuleComponent;
 
 	UPROPERTY(EditAnyWhere)

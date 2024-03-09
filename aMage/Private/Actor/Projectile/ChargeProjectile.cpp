@@ -16,6 +16,9 @@ AChargeProjectile::AChargeProjectile()
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates=true;
 
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
+	RootComponent = SceneComponent;
+	
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComponent");
 	CapsuleComponent->SetCollisionObjectType(ECC_PROJECTILE);
 	CapsuleComponent->SetupAttachment(RootComponent);
@@ -24,6 +27,7 @@ AChargeProjectile::AChargeProjectile()
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Overlap);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Overlap);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
+	CapsuleComponent->SetupAttachment(RootComponent);
 
 	ProjectileMovementComponent =CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
 	ProjectileMovementComponent->InitialSpeed = 550.f;
