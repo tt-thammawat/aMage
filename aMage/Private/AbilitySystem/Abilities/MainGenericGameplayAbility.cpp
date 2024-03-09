@@ -4,7 +4,9 @@
 #include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
+#include "AbilitySystem/AbilityTask/InterpolateFOV.h"
 #include "Blueprint/UserWidget.h"
+#include "Camera/CameraComponent.h"
 #include "Character/MainPlayerCharacter.h"
 #include "UI/Widget/MainPaintWidget.h"
 #include "Net/UnrealNetwork.h"
@@ -21,6 +23,8 @@ void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimePro
 void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	if (bIsDebouncing) return;
+
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
 	CurrentSpecHandle = Handle;
@@ -28,6 +32,12 @@ void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 	CurrentActivationInfo = ActivationInfo;
 	
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &ThisClass::ActivateAbilityAfterHeld, InputHeldDuration,bIsHeldLoop);
+	
+	bIsDebouncing = true;
+	FTimerHandle UnusedHandle;
+	GetWorld()->GetTimerManager().SetTimer(UnusedHandle, [this]()
+		{ bIsDebouncing = false; }
+		, 0.3f, false);
 }
 
 void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -102,7 +112,7 @@ void UMainGenericGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle
                                                 bool bReplicateCancelAbility)
 {
 	bIsCancel = true;
-	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+	ToggleCameraFOV(false);
 }
 
 void UMainGenericGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -116,6 +126,38 @@ void UMainGenericGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UMainGenericGameplayAbility::ToggleCameraFOV(bool IsActivate)
+{
+	if(IsActivate && InterpFOVTask && InterpFOVTask->IsActive()) return;
+	
+	if(!IsActivate && InterpFOVTask && InterpFOVTask->IsActive())
+	{
+		InterpFOVTask->EndTask();
+	}
+	
+	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	{
+		if (UCameraComponent* Camera = Character->FindComponentByClass<UCameraComponent>())
+		{
+			float CurrentFOV = Camera->FieldOfView;
+			float DesiredFOV = IsActivate ? NewFOV : DefaultFOV; 
+			float InterpSpeed = IsActivate ? Duration:Duration/2;
+			// Create and activate the interpolation task
+			InterpFOVTask = UInterpolateFOV::InterpolateFOV(this, Camera, CurrentFOV, DesiredFOV, InterpSpeed);
+			InterpFOVTask->OnInterpolationCompleted.AddDynamic(this,&ThisClass::ManualEndAbility);
+			InterpFOVTask->ReadyForActivation();
+		}
+	}
+}
+
+void UMainGenericGameplayAbility::ManualEndAbility()
+{
+	if(bIsCancel)
+	{
+		EndAbility(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo,true,true);
+	}
 }
 
 void UMainGenericGameplayAbility::RemoveAbilityAfterEnd(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities)

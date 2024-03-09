@@ -6,6 +6,7 @@
 #include "AbilitySystem/Abilities/MainGameplayAbility.h"
 #include "MainGenericGameplayAbility.generated.h"
 
+class UInterpolateFOV;
 class AMainPlayerCharacter;
 class UMainPlayerWidget;
 class UMainInputAction;
@@ -39,7 +40,13 @@ public:
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
 
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+
+	//Camera
+	virtual void ToggleCameraFOV(bool IsActivate);
+	UFUNCTION()
+	void ManualEndAbility();
 	
+	//Ability
 	UFUNCTION(BlueprintCallable)
 	void RemoveAbilityAfterEnd(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities);
 	
@@ -48,32 +55,45 @@ public:
 	void CauseDamage(AActor* TargetActor);
 	
 protected:
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=Player)
+	TObjectPtr<AMainPlayerCharacter> MainPlayerCharacter;
+	// Prevent double press
+	bool bIsDebouncing = false;
+	
+	//Ability 
+	UPROPERTY(Replicated,EditAnywhere,BlueprintReadOnly,Category=Spell)
+	bool bIsCancel=false;
+	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)
+	float UsageTimes;
+	
+	//Camera
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float DefaultFOV= 90.f;
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float NewFOV= 90.f;
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float Duration = 0.5f;
+	TObjectPtr<UInterpolateFOV> InterpFOVTask;
+	
+	//UI
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=UI)
 	TSubclassOf<UMainPlayerWidget> SpellIndicatorClass;
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=UI)
 	TObjectPtr<UMainPlayerWidget> SpellIndicator;
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=Player)
-	TObjectPtr<AMainPlayerCharacter> MainPlayerCharacter;
-	
-	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)
-	float UsageTimes;
-
-	UPROPERTY(Replicated,EditAnywhere,BlueprintReadOnly,Category=Spell)
-	bool bIsCancel=false;
-
+	// Input
 	UPROPERTY(Replicated,EditAnywhere,BlueprintReadOnly,Category=Timer)
 	bool bIsHeldLoop=false;
-	
 	UFUNCTION()
 	virtual void ActivateAbilityAfterHeld();
-	
 	UPROPERTY()
 	FTimerHandle TimerHandle_InputHeld;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Timer)
 	float InputHeldDuration = 3.0f; // Hold duration in seconds
-	
+
+	//Damage
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	

@@ -28,7 +28,7 @@ void UGA_SpellChargeProjectile::InputPressed(const FGameplayAbilitySpecHandle Ha
                                              const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
-	
+	ToggleCameraFOV(true);
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_UpdateHeldValue, this, &UGA_SpellChargeProjectile::UpdateValueDuringHold, 0.05f,true);
 }
 
@@ -141,6 +141,7 @@ void UGA_SpellChargeProjectile::CancelAbility(const FGameplayAbilitySpecHandle H
 	MainPlayerCharacter->SetIsAiming(false);
 	
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+	
 }
 
 void UGA_SpellChargeProjectile::InputReleased(const FGameplayAbilitySpecHandle Handle,
@@ -158,7 +159,8 @@ void UGA_SpellChargeProjectile::InputReleased(const FGameplayAbilitySpecHandle H
 	{
 		ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
 	}
-
+	
+	ToggleCameraFOV(false);
 	RemainingTime = 1.0f;
 }
 
@@ -169,6 +171,5 @@ void UGA_SpellChargeProjectile::EndAbility(const FGameplayAbilitySpecHandle Hand
 {
 
 	MainPlayerCharacter->SetIsAiming(false);
-	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
