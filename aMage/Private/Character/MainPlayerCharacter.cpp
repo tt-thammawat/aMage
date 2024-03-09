@@ -63,7 +63,7 @@ void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 void AMainPlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
+	CalculateCrossHairSpreadByActor(DeltaSeconds);
 	AimOffset(DeltaSeconds);
 }
 
@@ -110,6 +110,54 @@ void AMainPlayerCharacter::AimOffset(float DeltaTime)
 		}
 	}
 	}
+}
+
+void AMainPlayerCharacter::CalculateCrossHairSpreadByActor(float DeltaTime)
+{
+	//Calculate CrossHair With Velocity
+	FVector2D WalkSpreedRange{ 0.f,600.f };
+	FVector2D VelocityMultiplierRange{ 0.f,1.f };
+	FVector Velocity{ GetVelocity() };
+	Velocity.Z = 0.f;
+	
+	//Calculate CrossHair In Air Factor
+	if (GetCharacterMovement()->IsFalling())
+	{
+		//Spread The CrossHairs Slowly While In Air
+		CrosshairInAirFactor = FMath::FInterpTo(
+			CrosshairInAirFactor, 
+			2.25f, 
+			DeltaTime,
+			2.25f);
+	}
+	else		//Charactor is On The Ground
+
+	{
+		//Shrink The Crosshairs Rapidly While On The Ground
+		CrosshairInAirFactor = FMath::FInterpTo(
+			CrosshairInAirFactor,
+			0.0f,
+			DeltaTime,
+			30.f);
+
+	}
+	
+	//True 0.05 Second After Firing
+	if (bFiringSpell)
+	{
+		CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, .8f, DeltaTime, 15.0f);
+	}
+	else
+	{
+		CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.0f, DeltaTime, 15.0f);
+	}
+
+	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpreedRange, VelocityMultiplierRange, Velocity.Size());
+	CrosshairSpreadMultiplier = 
+		0.5f + 
+		CrosshairVelocityFactor + 
+		CrosshairInAirFactor+
+		CrosshairShootingFactor;
 }
 
 //Get ABS and AS From MainPlayerState

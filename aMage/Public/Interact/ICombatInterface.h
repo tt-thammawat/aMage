@@ -45,4 +45,5 @@ public:
 	// Declare the function as a BlueprintImplementableEvent //FAcing Enemy
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Targeting")
 	void UpdateFacingTarget(const FVector& TargetVector);
+	
 };

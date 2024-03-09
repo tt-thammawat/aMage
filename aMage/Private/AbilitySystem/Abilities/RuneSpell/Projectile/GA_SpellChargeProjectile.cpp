@@ -44,10 +44,9 @@ void UGA_SpellChargeProjectile::ActivateAbility(const FGameplayAbilitySpecHandle
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
-	MainPlayerCharacter->SetIsAiming(true);
-	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	MainPlayerCharacter->SetIsAiming(true);
 }
 
 void UGA_SpellChargeProjectile::SpawnChargeProjectile(const FVector& ProjectileTargetLocation, int32 NumProjectiles)
@@ -127,7 +126,6 @@ void UGA_SpellChargeProjectile::CancelAbility(const FGameplayAbilitySpecHandle H
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateCancelAbility)
 {
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
 
 	MainPlayerCharacter->SetIsAiming(false);
 	
@@ -151,7 +149,6 @@ void UGA_SpellChargeProjectile::EndAbility(const FGameplayAbilitySpecHandle Hand
                                            const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                            bool bReplicateEndAbility, bool bWasCancelled)
 {
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
 
 	MainPlayerCharacter->SetIsAiming(false);
 	

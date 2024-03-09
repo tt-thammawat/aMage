@@ -27,10 +27,12 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 	
-	//CombatInterface
-	FORCEINLINE virtual int32 GetCharacterLevel() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Tick(float DeltaSeconds) override;
+	//CombatInterface
+	FORCEINLINE virtual int32 GetCharacterLevel() override;
+
+
 protected:
 	virtual void BeginPlay() override;
 	//Aiming
@@ -43,6 +45,22 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	float AO_Pitch;
 	FRotator StartingAimRotation;
+	
+	//CrossHairSpread
+	/*Determines The Spread Of The CrossHairs*/
+	UPROPERTY(VisibleAnyWhere, BlueprintReadOnly,Category = CrossHairs , meta = (AllowPrivateAccess = "true"))
+	float CrosshairSpreadMultiplier;
+	/*Velocity Component for CrossHairs Spread*/
+	UPROPERTY(VisibleAnyWhere, BlueprintReadOnly, Category = CrossHairs, meta = (AllowPrivateAccess = "true"))
+	float CrosshairVelocityFactor;
+	/*InAIr Component for CrossHairs Spread*/
+	UPROPERTY(VisibleAnyWhere, BlueprintReadOnly, Category = CrossHairs, meta = (AllowPrivateAccess = "true"))
+	float CrosshairInAirFactor;
+	/*Shooting Component for CrossHairs Spread*/
+	UPROPERTY(VisibleAnyWhere, BlueprintReadOnly, Category = CrossHairs, meta = (AllowPrivateAccess = "true"))
+	float CrosshairShootingFactor;
+	
+	void CalculateCrossHairSpreadByActor(float DeltaTime);
 	
 	//Init GAS
 	virtual void InitAbilityActorInfo() override;
@@ -73,7 +91,7 @@ protected:
 	virtual void InteractItemButtonPress();
 	UFUNCTION(Server, Reliable)
 	void ServerInteractButtonPressed();
-
+	
 	//Request Ability After Get Casting Rune Spell
 	UPROPERTY(Replicated)
 	FGameplayAbilitySpecHandle AbilityHandle;
@@ -88,6 +106,11 @@ protected:
 	void ServerRequestClearRuneSpell();
 	void ProcessClearRuneSpellRequest();
 public:
+	
+	//FireSpell
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite,Category = CrossHairs , meta = (AllowPrivateAccess = "true"))
+	bool bFiringSpell = false;
+	
 	UFUNCTION(BlueprintCallable,Category=Interact)
 	void SetInteractObjectActor(AActor* Actor);
 	UFUNCTION(BlueprintCallable,Category=Interact)
@@ -99,4 +122,6 @@ public:
 	FORCEINLINE float GetAOYaw() const {return AO_Yaw;};
 	FORCEINLINE float GetAOPitch() const {return AO_Pitch;};
 
+	//CrossHair
+	
 };

@@ -6,6 +6,7 @@
 #include "AbilitySystem/Abilities/MainGameplayAbility.h"
 #include "MainGenericGameplayAbility.generated.h"
 
+class AMainPlayerCharacter;
 class UMainPlayerWidget;
 class UMainInputAction;
 /**
@@ -47,19 +48,22 @@ public:
 	void CauseDamage(AActor* TargetActor);
 	
 protected:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Spell)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=UI)
 	TSubclassOf<UMainPlayerWidget> SpellIndicatorClass;
 	
-	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Spell)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=UI)
 	TObjectPtr<UMainPlayerWidget> SpellIndicator;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=Player)
+	TObjectPtr<AMainPlayerCharacter> MainPlayerCharacter;
 	
 	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)
 	float UsageTimes;
 
-	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)
+	UPROPERTY(Replicated,EditAnywhere,BlueprintReadOnly,Category=Spell)
 	bool bIsCancel=false;
 
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 	//For UGameplayEffectExecutionCalculation

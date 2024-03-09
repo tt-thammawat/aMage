@@ -48,10 +48,10 @@ void UGA_BeamBase::RepeatedlyActivateAbility()
 void UGA_BeamBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                    const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
 	MainPlayerCharacter->SetIsAiming(true);
 	
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 }
 
@@ -139,7 +139,6 @@ void UGA_BeamBase::InputReleased(const FGameplayAbilitySpecHandle Handle, const 
 void UGA_BeamBase::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	AMainPlayerCharacter* MainPlayerCharacter = CastChecked<AMainPlayerCharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
 
 	MainPlayerCharacter->SetIsAiming(false);
 	

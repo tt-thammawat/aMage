@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Character/MainPlayerCharacter.h"
 #include "UI/Widget/MainPaintWidget.h"
 #include "Net/UnrealNetwork.h"
 
@@ -31,6 +32,16 @@ void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	
+	if(!MainPlayerCharacter)
+	{
+		AMainPlayerCharacter* Character = Cast<AMainPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+		if (Character)
+		{
+			MainPlayerCharacter = Character;
+		}
+	}
+	
 	APlayerController* PlayerController = GetActorInfo().PlayerController.Get();
 	if (PlayerController && PlayerController->IsLocalPlayerController())
 	{
@@ -45,6 +56,7 @@ void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		}
 
 	}
+	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
