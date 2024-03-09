@@ -47,6 +47,9 @@ public:
 	FOnDrawingRuneSuccessSignature OnDrawingRuneSuccess;
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingClearSpellSuccessSignature OnClearSpellSuccess;
+
+	UFUNCTION(BlueprintCallable)
+	void K2_CallClearSpellFunction();
 	
 	UFUNCTION(BlueprintCallable)
 	TArray<FGameplayTag> GetRuneTags() const {return RuneTags;};

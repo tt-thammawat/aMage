@@ -132,6 +132,11 @@ bool UMainPaintWidget::RemoveLastRuneTagIfNotMatch()
 	return false; // Return false as no tag was removed.
 }
 
+void UMainPaintWidget::K2_CallClearSpellFunction()
+{
+	OnClearSpellSuccess.Broadcast();
+}
+
 //Drawing Canvas Line
 int32 UMainPaintWidget::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry,
                                     const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const

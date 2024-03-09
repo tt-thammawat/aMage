@@ -28,6 +28,13 @@ void UMainCastingGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 	CurrentActivationInfo=ActivationInfo;
 	
 	if (bIsDebouncing) return;
+	
+	// Start hold detection
+	bIsHoldDetected = false;
+
+	GetWorld()->GetTimerManager().SetTimer(HoldDetectionTimerHandle,[this]()
+	{bIsHoldDetected = true;},0.6f,false);
+	
 	// Toggle the ability activation state.
 	bIsAbilityActive = !bIsAbilityActive;
 	
@@ -92,6 +99,18 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 
 }
 
+void UMainCastingGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+	if (GetWorld()->GetTimerManager().IsTimerActive(HoldDetectionTimerHandle))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(HoldDetectionTimerHandle);
+		bIsHoldDetected = false;
+	}
+	
+	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+}
+
 void UMainCastingGameplayAbility::ToggleDrawingMode(bool IsActivate)
 {
 	if(InterpFOVTask && InterpFOVTask->IsActive())
@@ -116,9 +135,12 @@ void UMainCastingGameplayAbility::ToggleDrawingMode(bool IsActivate)
 
 void UMainCastingGameplayAbility::ClientCancelAbilities_Implementation()
 {
-	bIsAbilityActive=false;
-	ToggleDrawingMode(false);
-	DeactivateDrawingMode();
+	if(!bIsHoldDetected)
+	{
+		bIsAbilityActive=false;
+		ToggleDrawingMode(false);
+		DeactivateDrawingMode();
+	}
 }
 
 void UMainCastingGameplayAbility::ManualEndAbility()
