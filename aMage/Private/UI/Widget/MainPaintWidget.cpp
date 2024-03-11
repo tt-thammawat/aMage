@@ -104,17 +104,22 @@ bool UMainPaintWidget::RemoveLastRuneTagIfNotMatch()
 		return false; // Exit if there are no tags to validate, returning false.
 	}
     
-	FGameplayTag LastTag = RuneTags.Last();
+	FGameplayTag LastTag = RuneTags[RuneTags.Num() - 1];
+    FGameplayTag SecondLastTag = (RuneTags.Num() > 1) ? RuneTags[RuneTags.Num() - 2] : FGameplayTag();
+	
 	bool bTagFound = false;
 
 	// Iterate over each tag mapping.
 	for (const FAbilitiesTagList& TagMapping : RuneAbilitiesTagMatchesLists)
 	{
 		// Ensure we don't access an index out of bounds.
-		if (TagMapping.Tags.Num() > RuneTags.Num() - 1)
+        if (TagMapping.Tags.Num() >= RuneTags.Num())
 		{
+        	bool bLastTagMatches = TagMapping.Tags[RuneTags.Num() - 1] == LastTag;
+        	bool bSecondLastTagMatches = SecondLastTag.IsValid() ? TagMapping.Tags[RuneTags.Num() - 2] == SecondLastTag : true;
+
 			// Check if the last tag in RuneTags matches the tag at the corresponding index in TagMapping.Tags.
-			if (TagMapping.Tags[RuneTags.Num() - 1] == LastTag)
+            if (bLastTagMatches && bSecondLastTagMatches)
 			{
 				bTagFound = true;
 				break;  // Exit the loop early since we've found a match.
