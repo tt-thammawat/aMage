@@ -69,7 +69,7 @@ bool UMainGenericGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecH
 {
 	if(!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 		return false;
-
+	
 	if(bIsCancel == true)
 	{
 		return false;
@@ -105,6 +105,7 @@ void UMainGenericGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle
                                                 bool bReplicateCancelAbility)
 {
 	bIsCancel = true;
+	MainPlayerCharacter->SetIsAiming(false);
 	ToggleCameraFOV(false);
 }
 

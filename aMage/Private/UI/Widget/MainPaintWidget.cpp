@@ -35,7 +35,8 @@ void UMainPaintWidget::CheckDrawSpell()
 			else
 			{
 				RuneTags.Add(Result.NameTag);
-				if(!RemoveLastRuneTagIfNotMatch())
+				//true LastTag From RuneTag is remove : false No Tag Is Remove
+				if(!IsRemoveLastRuneTagIfNotMatch())
 				{
 					OnDrawingRuneSuccess.Broadcast();
 				}
@@ -97,7 +98,7 @@ FReply UMainPaintWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, cons
 	return Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
 }
 
-bool UMainPaintWidget::RemoveLastRuneTagIfNotMatch()
+bool UMainPaintWidget::IsRemoveLastRuneTagIfNotMatch()
 {
 	if (RuneTags.IsEmpty())
 	{

@@ -42,13 +42,14 @@ void AMainBeam::OnOverlap(AActor* TargetActor)
 		if(UAbilitySystemComponent* TargetAsc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
 		{
 			//ApplyGameplayEffectSpecToThe OtherActor
-			ActiveDamageEffect=TargetAsc->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
+			FActiveGameplayEffectHandle NewEffectHandle = TargetAsc->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
+			ActiveDamageEffects.Add(TargetActor, NewEffectHandle);
 		}
 }
 
 void AMainBeam::OnEndOverlap(AActor* TargetActor)
 {
-	if(ActiveDamageEffect.IsValid())
+    if (ActiveDamageEffects.Contains(TargetActor))
 	{
 		RemoveSingleEffect(TargetActor);
 	}
@@ -60,10 +61,13 @@ void AMainBeam::RemoveSingleEffect(AActor* RemoveEffectTarget)
 
 	if (!IsValid(TargetASC)) return;
 
-	if (ActiveDamageEffect.IsValid())
+	if (FActiveGameplayEffectHandle* Handle = ActiveDamageEffects.Find(RemoveEffectTarget))
 	{
-		TargetASC->RemoveActiveGameplayEffect(ActiveDamageEffect, INT32_MAX);
-		ActiveDamageEffect.Invalidate(); 
+		if (Handle->IsValid())
+		{
+			TargetASC->RemoveActiveGameplayEffect(*Handle, INT32_MAX);
+			ActiveDamageEffects.Remove(RemoveEffectTarget); // Remove the handle from the map
+		}
 	}
 }
 

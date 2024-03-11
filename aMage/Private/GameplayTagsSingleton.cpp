@@ -59,7 +59,8 @@ void FMainGameplayTags::InitializeNativeGameplayTags()
 	MainGameplayTags.State_Action_Aiming = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Action.Aiming"),FString("State When Aiming"));
 	MainGameplayTags.State_InAir_Jumping = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.InAir.Jumping"),FString("State When Jumping In The Air"));
 	MainGameplayTags.State_Action_Spell_NormalSpell = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Action.Spell.NormalSpell"),FString("State When Activate Normal Spell"));
-
+	MainGameplayTags.State_Movement_Crouch = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Movement.Crouch"),FString("State When Crouching"));
+	
 	//Rune Drawing
 	MainGameplayTags.Rune_Tag_04_Clear = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Rune.Tag.04.Clear"), FString("Rune Tag Clear"));
 

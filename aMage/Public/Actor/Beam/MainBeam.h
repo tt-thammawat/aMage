@@ -37,7 +37,8 @@ public:
 	UPROPERTY(BlueprintReadWrite,meta = (ExposeOnSpawn = true))
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;
 
-	FActiveGameplayEffectHandle ActiveDamageEffect;
+	UPROPERTY()
+	TMap<AActor*, FActiveGameplayEffectHandle> ActiveDamageEffects;
 	
 protected:
 	virtual void BeginPlay() override;

@@ -20,6 +20,11 @@ UGA_BeamBase::UGA_BeamBase()
 void UGA_BeamBase::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	if (ActorInfo->AbilitySystemComponent->HasMatchingGameplayTag(FMainGameplayTags::Get().State_Movement_Crouch))
+	{
+		return;
+	}
+	
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
 	bIsInputHeld = true;

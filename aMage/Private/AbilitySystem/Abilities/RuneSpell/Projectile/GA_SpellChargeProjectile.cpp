@@ -27,6 +27,12 @@ bool UGA_SpellChargeProjectile::CanActivateAbility(const FGameplayAbilitySpecHan
 void UGA_SpellChargeProjectile::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                              const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	
+	if (ActorInfo->AbilitySystemComponent->HasMatchingGameplayTag(FMainGameplayTags::Get().State_Movement_Crouch))
+	{
+		return;
+	}
+	
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	ToggleCameraFOV(true);
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_UpdateHeldValue, this, &UGA_SpellChargeProjectile::UpdateValueDuringHold, 0.05f,true);

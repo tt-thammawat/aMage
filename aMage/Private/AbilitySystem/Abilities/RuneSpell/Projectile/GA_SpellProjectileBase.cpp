@@ -29,6 +29,11 @@ bool UGA_SpellProjectileBase::CanActivateAbility(const FGameplayAbilitySpecHandl
 void UGA_SpellProjectileBase::InputPressed(const FGameplayAbilitySpecHandle Handle,
                                            const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	if (ActorInfo->AbilitySystemComponent->HasMatchingGameplayTag(FMainGameplayTags::Get().State_Movement_Crouch))
+	{
+		return;
+	}
+	
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
 }

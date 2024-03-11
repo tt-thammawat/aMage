@@ -42,6 +42,8 @@ public:
  FGameplayTag State_Action_Casting;
  FGameplayTag State_Action_Aiming;
  FGameplayTag State_InAir_Jumping;
+ FGameplayTag State_Movement_Crouch;
+
  FGameplayTag State_Action_Spell_NormalSpell;
 
  //Resistance

@@ -41,7 +41,7 @@ public:
 	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	UFUNCTION(BlueprintCallable)
-	bool RemoveLastRuneTagIfNotMatch();
+	bool IsRemoveLastRuneTagIfNotMatch();
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingRuneSuccessSignature OnDrawingRuneSuccess;
