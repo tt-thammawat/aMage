@@ -89,11 +89,10 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		BaseAbilitySystemComponent->OnAbilityGranted.AddUObject(this,&ThisClass::ClientCancelAbilities);
 	}
 	
-	//TODO : Move This WalkSpeed To Attribute Fix This Cause Client Doesn't Work
 	//Set Character WalkSpeed
 	const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
 	OldMaxWalkSpeed=Character->GetCharacterMovement()->MaxWalkSpeed;
-	Character->GetCharacterMovement()->MaxWalkSpeed = SlowMaxWalkSpeed;
+	Character->GetCharacterMovement()->MaxWalkSpeed = OldMaxWalkSpeed*0.8f;
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 

@@ -8,6 +8,7 @@
 #include "GameplayTagsSingleton.h"
 #include "AbilitySystem/MainAbilitySystemLibrary.h"
 #include "Character/MainPlayerController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Interact/ICombatInterface.h"
 #include "Net/UnrealNetwork.h"
 
@@ -19,7 +20,8 @@ UBaseAttributeSet::UBaseAttributeSet()
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Primary_Intelligence, GetIntelligenceAttribute);
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Primary_Resilience, GetResilienceAttribute);
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Primary_Vigor, GetVigorAttribute);
-	
+	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_MaxMoveSpeed, GetMaxMoveSpeedAttribute);
+
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Secondary_MaxMana, GetMaxManaAttribute);
 
@@ -31,7 +33,6 @@ UBaseAttributeSet::UBaseAttributeSet()
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Vital_Health, GetHealthAttribute);
 	TagsToAttributes.Add(MainGameplayTags.Attributes_Vital_Mana, GetManaAttribute);
 
-
 }
 
 void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -39,11 +40,14 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+		
 		//Primary Attributes
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Strength,COND_None,REPNOTIFY_Always);
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Intelligence,COND_None,REPNOTIFY_Always);
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Resilience,COND_None,REPNOTIFY_Always);
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,Vigor,COND_None,REPNOTIFY_Always);
+		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxMoveSpeed,COND_None,REPNOTIFY_Always);
+
 		//Secondary Attributes
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxHealth,COND_None,REPNOTIFY_Always);
 		DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet,MaxMana,COND_None,REPNOTIFY_Always);
@@ -106,6 +110,18 @@ void UBaseAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
 	{
 		NewValue = FMath::Clamp(NewValue,0.f,GetMaxMana());
 	}
+
+	//For Durations Effect That Change Movement Speed for the durations
+	if (Attribute == GetMaxMoveSpeedAttribute())
+	{
+		ACharacter* OwningCharacter = Cast<ACharacter>(GetActorInfo()->AvatarActor);
+		UCharacterMovementComponent* CharacterMovement = OwningCharacter ? OwningCharacter->GetCharacterMovement() : nullptr;
+
+		if(CharacterMovement)
+		{
+			CharacterMovement->MaxWalkSpeed = NewValue;
+		}
+	}
 }
 
 void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -121,6 +137,7 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	{
 		SetHealth(FMath::Clamp(GetHealth(),0.f,GetMaxHealth()));
 	}
+	
 	if(Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
 		SetMana(FMath::Clamp(GetMana(),0.f,GetMaxMana()));
@@ -180,9 +197,6 @@ void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props,float Da
 	}
 }
 
-
-
-
 void UBaseAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
 {
 	// Register Change To All Client
@@ -203,6 +217,20 @@ void UBaseAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldMana) const
 void UBaseAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,MaxMana,OldMaxMana);
+}
+
+void UBaseAttributeSet::OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldMaxMoveSpeed) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet,MaxMoveSpeed,OldMaxMoveSpeed);
+
+	ACharacter* OwningCharacter = Cast<ACharacter>(GetActorInfo()->AvatarActor);
+	UCharacterMovementComponent* CharacterMovement = OwningCharacter ? OwningCharacter->GetCharacterMovement() : nullptr;
+	
+	if(CharacterMovement)
+	{
+		const float MaxSpeed = GetMaxMoveSpeed();
+		CharacterMovement->MaxWalkSpeed = MaxSpeed;
+	}
 }
 
 void UBaseAttributeSet::OnRep_ResistanceFire(const FGameplayAttributeData& OldResistanceFire) const

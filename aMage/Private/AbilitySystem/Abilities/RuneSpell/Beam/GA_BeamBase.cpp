@@ -29,9 +29,7 @@ void UGA_BeamBase::InputPressed(const FGameplayAbilitySpecHandle Handle, const F
 	
 	bIsInputHeld = true;
 	ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
-
-	// Set the timer to call the function repeatedly
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &UGA_BeamBase::ActivateAbilityAfterHeld, InputHeldDuration, bIsHeldLoop);
+	
 	
 }
 
@@ -114,10 +112,10 @@ void UGA_BeamBase::SpawnBeam(const FVector& BeamEndLocation)
 		EffectContextHandle.AddHitResult(HitResult);
 		
 		//Make Spec Handle That Contains Effect Information And Send It To Projectile
-		const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),EffectContextHandle);
+		const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(EffectClass,GetAbilityLevel(),EffectContextHandle);
 		const FMainGameplayTags MainGameplayTags = FMainGameplayTags::Get();
 
-		for (auto& Pair : DamageType)
+		for (auto& Pair : DamageTypes)
 		{
 			const float ScaledDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
 			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle,Pair.Key,ScaledDamage);

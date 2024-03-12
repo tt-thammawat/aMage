@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
-#include "MainMeleeAttackAbility.generated.h"
+#include "GA_Potion.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class AMAGE_API UMainMeleeAttackAbility : public UMainGenericGameplayAbility
+class AMAGE_API UGA_Potion : public UMainGenericGameplayAbility
 {
 	GENERATED_BODY()
 	

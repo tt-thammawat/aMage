@@ -3,18 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
+#include "AbilitySystem/MainDamageGameplayAbility.h"
 #include "GA_BeamBase.generated.h"
 
-class UNiagaraComponent;
 class AMainBeam;
-class UNiagaraSystem;
 /**
  * 
  */
 
 UCLASS()
-class AMAGE_API UGA_BeamBase : public UMainGenericGameplayAbility
+class AMAGE_API UGA_BeamBase : public UMainDamageGameplayAbility
 {
 	GENERATED_BODY()
 public:

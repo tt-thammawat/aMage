@@ -33,7 +33,6 @@ protected:
 private:
 	//Speed
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
-	float SlowMaxWalkSpeed = 350.f;
 	float OldMaxWalkSpeed = 600.f;
 
 	//Camera

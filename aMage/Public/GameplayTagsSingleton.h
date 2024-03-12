@@ -24,6 +24,7 @@ public:
  //Declare Gameplay Tags For Secondary Attributes
  FGameplayTag Attributes_Secondary_MaxHealth;
  FGameplayTag Attributes_Secondary_MaxMana;
+ FGameplayTag Attributes_Secondary_MaxMoveSpeed;
  //Vital Attributes
  FGameplayTag Attributes_Vital_Health;
  FGameplayTag Attributes_Vital_Mana;

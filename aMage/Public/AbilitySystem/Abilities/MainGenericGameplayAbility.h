@@ -9,7 +9,6 @@
 class UInterpolateFOV;
 class AMainPlayerCharacter;
 class UMainPlayerWidget;
-class UMainInputAction;
 /**
  * 
  */
@@ -50,10 +49,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemoveAbilityAfterEnd(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities);
 	
-	//Do Damage By Caller
-	UFUNCTION(BlueprintCallable)
-	void CauseDamage(AActor* TargetActor);
-	
 protected:
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=Player)
@@ -91,12 +86,8 @@ protected:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Timer)
 	float InputHeldDuration = 3.0f; // Hold duration in seconds
 
-	//Damage
+	//Effect
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Damage")
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
-	
-	//For UGameplayEffectExecutionCalculation
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Damage")
-	TMap<FGameplayTag,FScalableFloat> DamageType;
+	TSubclassOf<UGameplayEffect> EffectClass;
 
 };

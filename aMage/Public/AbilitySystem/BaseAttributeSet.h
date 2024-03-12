@@ -89,6 +89,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Vigor,Category = "Primary Attributes")
 	FGameplayAttributeData Vigor;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet,Vigor);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxMoveSpeed,Category = "Primary Attributes")
+	FGameplayAttributeData MaxMoveSpeed;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MaxMoveSpeed);
 	
 	// Secondary Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxMana,Category = "Secondary  Attributes")
@@ -128,12 +131,15 @@ public:
 	void OnRep_Resilience(const FGameplayAttributeData& OldResilience) const;
 	UFUNCTION()
 	void OnRep_Vigor(const FGameplayAttributeData& OldVigor) const;
+	UFUNCTION()
+	void OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldMaxMoveSpeed) const;
 	
 	UFUNCTION()
 	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const;
 	UFUNCTION()
 	void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) const;
 
+	
 	UFUNCTION()
 	void OnRep_ResistanceFire(const FGameplayAttributeData& OldResistanceFire) const;
 	UFUNCTION()

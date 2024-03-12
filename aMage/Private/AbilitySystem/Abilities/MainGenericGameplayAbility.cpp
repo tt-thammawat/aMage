@@ -77,21 +77,6 @@ bool UMainGenericGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecH
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
-void UMainGenericGameplayAbility::CauseDamage(AActor* TargetActor)
-{
-	FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass,1);
-	for(TTuple<FGameplayTag, FScalableFloat>& Pair : DamageType)
-	{
-		if(!Pair.Value.Curve.IsNull())
-		{
-			float DamageMagnitude = Pair.Value.GetValueAtLevel(GetAbilityLevel());
-			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle,Pair.Key,DamageMagnitude);
-		}
-		
-	}
-	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(),UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
-}
-
 void UMainGenericGameplayAbility::ActivateAbilityAfterHeld()
 {
 	if (GetWorld()->GetTimeSeconds() >= InputHeldDuration)

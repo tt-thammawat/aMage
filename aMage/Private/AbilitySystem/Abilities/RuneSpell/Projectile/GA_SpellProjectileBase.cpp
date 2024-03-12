@@ -129,10 +129,10 @@ void UGA_SpellProjectileBase::SpawnProjectile(const FVector& ProjectileTargetLoc
 			EffectContextHandle.AddHitResult(HitResult);
 		
 			//Make Spec Handle That Contains Effect Information And Send It To Projectile
-			const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),EffectContextHandle);
+			const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(EffectClass,GetAbilityLevel(),EffectContextHandle);
 			const FMainGameplayTags MainGameplayTags = FMainGameplayTags::Get();
 
-			for (auto& Pair : DamageType)
+			for (auto& Pair : DamageTypes)
 			{
 				const float ScaledDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
 				UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle,Pair.Key,ScaledDamage);
