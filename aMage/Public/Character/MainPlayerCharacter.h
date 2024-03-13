@@ -71,7 +71,7 @@ protected:
 	
 	//Item Inventory+Equipping
 	UFUNCTION(BlueprintCallable,Category = Weapon)
-	void AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities);
+	void AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities,UObject* SourceObject);
 	UFUNCTION(BlueprintCallable,Category = Weapon)
 	void RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities);
 	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)

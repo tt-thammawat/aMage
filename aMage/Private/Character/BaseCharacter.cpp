@@ -127,7 +127,7 @@ void ABaseCharacter::AddCharacterAbilities()
 
 	if(!HasAuthority()) return;
 
-	BaseAbilitySystemComponent->AddCharacterAbilities(StartUpAbilities);
+	BaseAbilitySystemComponent->AddCharacterAbilities(StartUpAbilities,nullptr);
 
 }
 

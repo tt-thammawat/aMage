@@ -26,7 +26,7 @@ public:
 	FOnAbilityGranted OnAbilityGranted;
 	//Add Ability For Character
 	UFUNCTION(BlueprintCallable,Category="Abilities")
-	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddAbilities,bool bIsAddedByDrawing=false);
+	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddAbilities,UObject* SourceObject,bool bHaveAbilityWidget=false);
 	UFUNCTION(BlueprintCallable,Category="Abilities")
 	void RemoveCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities);
 	//Use This When Remove Ability via item etc. that not directly from ability itself

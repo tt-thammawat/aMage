@@ -12,7 +12,7 @@ void UBaseAbilitySystemComponent::AbilityActorInfoSet()
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this,&UBaseAbilitySystemComponent::ClientEffectApplied);
 }
 
-void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddAbilities,bool bIsAddedByDrawing)
+void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddAbilities,UObject* SourceObject,bool bHaveAbilityWidget)
 {
 	for (const TSubclassOf<UGameplayAbility> AbilityClass : AddAbilities)
 	{
@@ -20,7 +20,7 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		if(ExistingSpec == nullptr)
 		{
 			// init FGameplayAbilitySpec Struct
-			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass,1);
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass,1,INDEX_NONE,SourceObject);
 			//if Ability is derived from MainGameplayAbility it will have InputTag Button 1 23 4 LMB RMB
 			if(const UMainGameplayAbility* MainGameplayAbility = Cast<UMainGameplayAbility>(AbilitySpec.Ability))
 			{
@@ -29,7 +29,8 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 				AbilitySpec.DynamicAbilityTags.AddTag(MainGameplayAbility->StartupInputTag);
 				//Add StartUp Abilities if it derives from MainGameplayAbility
 				FGameplayAbilitySpecHandle Handle = GiveAbility(AbilitySpec);
-				if(bIsAddedByDrawing)
+				
+				if(bHaveAbilityWidget)
 				{
 					// Activate the ability once
 					if(Handle.IsValid())

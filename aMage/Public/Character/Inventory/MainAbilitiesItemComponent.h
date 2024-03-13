@@ -25,10 +25,12 @@ public:
 	FText ItemDescription;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base Info")
 	FName ItemSocketName;
+	
 	//Initial Item Special Abilities
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base02 Info")
 	FText AbilitiesDescriptions;
-
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base02 Info")
+	bool bHaveAbilityWidget=false;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base02 Info")
 	TArray<TSubclassOf<UGameplayAbility>> ItemAbilities;
 	

@@ -11,6 +11,7 @@
 #include "UI/HUD/MainPlayerHUD.h"
 #include "Character/MainPlayerState.h"
 #include "Character/Inventory/Amage_EquipmentManager.h"
+#include "Character/Inventory/MainAbilitiesItemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Gamemode/MainGameMode.h"
@@ -205,12 +206,25 @@ FVector AMainPlayerCharacter::GetCombatSocketLocation_Implementation()
 	return FVector(0.f);
 }
 
-void AMainPlayerCharacter::AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities)
+void AMainPlayerCharacter::AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities,UObject* SourceObject)
 {
 	if(!HasAuthority()) return;
 
+	bool bHaveAbilityWidget=false;
+	
+	AActor* SourceActor = Cast<AActor>(SourceObject);
+	if (SourceActor)
+	{
+		UMainAbilitiesItemComponent* AbilityComponent = Cast<UMainAbilitiesItemComponent>(SourceActor->GetComponentByClass(UMainAbilitiesItemComponent::StaticClass()));
+
+		if (AbilityComponent)
+		{
+			bHaveAbilityWidget = AbilityComponent->bHaveAbilityWidget;
+		}
+	}
+	
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
-	BaseAbilitySystemComponent->AddCharacterAbilities(AddItemAbilities);
+	BaseAbilitySystemComponent->AddCharacterAbilities(AddItemAbilities,SourceObject,bHaveAbilityWidget);
 }
 
 void AMainPlayerCharacter::RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities)
@@ -261,7 +275,7 @@ void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& Run
 		{
 			TArray<TSubclassOf<UGameplayAbility>> AddAbilities;
 			AddAbilities.Add(MatchedAbility);
-			BaseAbilitySystemComponent->AddCharacterAbilities(AddAbilities,true);
+			BaseAbilitySystemComponent->AddCharacterAbilities(AddAbilities,nullptr,true);
 		}
 	}
 }
