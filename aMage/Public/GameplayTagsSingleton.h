@@ -64,7 +64,8 @@ public:
  //Abilities
  FGameplayTag Ability_Action_Attack;
  FGameplayTag Ability_Rune_NormalSpell;
- 
+ FGameplayTag Ability_Buff_Potion;
+
  //Rune Drawing
  FGameplayTag Rune_Tag_04_Clear;
  

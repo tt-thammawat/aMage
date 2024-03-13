@@ -73,7 +73,7 @@ protected:
 	UFUNCTION(BlueprintCallable,Category = Weapon)
 	void AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities,UObject* SourceObject);
 	UFUNCTION(BlueprintCallable,Category = Weapon)
-	void RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities);
+	void RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities,const TArray<TSubclassOf<UGameplayAbility>>& PotionGrantedAbilities);
 	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)
 	void OnChangingButtonPressed(int ButtonNumber);
 	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)

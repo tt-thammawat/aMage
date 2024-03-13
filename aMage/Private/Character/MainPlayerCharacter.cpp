@@ -227,11 +227,15 @@ void AMainPlayerCharacter::AddItemAbilities(const TArray<TSubclassOf<UGameplayAb
 	BaseAbilitySystemComponent->AddCharacterAbilities(AddItemAbilities,SourceObject,bHaveAbilityWidget);
 }
 
-void AMainPlayerCharacter::RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities)
+void AMainPlayerCharacter::RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities,const TArray<TSubclassOf<UGameplayAbility>>& PotionGrantedAbilities)
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
+	//Remove Item Abilities
 	BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveItemAbilities);
-	BaseAbilitySystemComponent->RemoveNormalRuneSpellAbilities();
+	//Remove Normal Rune Spell Abilities
+	BaseAbilitySystemComponent->RemoveNormalRuneSpellAbilities(PotionGrantedAbilities);
+	//Remove Potion Abilities
+	BaseAbilitySystemComponent->RemovePotionAbilities();
 }
 
 void AMainPlayerCharacter::MatchRuneSpellTags(TArray<FGameplayTag> RuneTags)

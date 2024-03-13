@@ -13,6 +13,28 @@ UTargetDataUnderLineTrace* UTargetDataUnderLineTrace::TargetDataUnderLineTrace(U
 	return MyTask;
 }
 
+void UTargetDataUnderLineTrace::Activate()
+{
+	const bool bIslocallyControlled = Ability->GetCurrentActorInfo()->IsLocallyControlled();
+	if(bIslocallyControlled)
+	{
+		PerformLineTrace();
+	}
+	else
+	{
+		const FGameplayAbilitySpecHandle SpecHandle=GetAbilitySpecHandle();
+		const FPredictionKey ActivatePredictionKey = GetActivationPredictionKey();
+		AbilitySystemComponent.Get()->AbilityTargetDataSetDelegate(SpecHandle,ActivatePredictionKey).AddUObject(this,&ThisClass::OnTargetDataReplicatedCallback);
+		const bool bCalledDelegate=	AbilitySystemComponent.Get()->CallReplicatedTargetDataDelegatesIfSet(SpecHandle,ActivatePredictionKey);
+		//True TargetData already send To Server / false Server Still not Get TargetDAta :: WAit for Player To Send That Data
+		if(!bCalledDelegate)
+		{
+			//WaitingOnPlayerData
+			SetWaitingOnRemotePlayerData();
+		}
+	}
+}
+
 void UTargetDataUnderLineTrace::PerformLineTrace()
 {
 	if (!Ability) return;
@@ -33,10 +55,10 @@ void UTargetDataUnderLineTrace::PerformLineTrace()
 	FGameplayAbilityTargetData_SingleTargetHit* Data = new FGameplayAbilityTargetData_SingleTargetHit();
 	
 	//set this if homing
-	 if(bHit && bIsHoming)
-	 {
-	 	Data->HitResult = TraceHitResult;
-	 }
+	if(bHit && bIsHoming)
+	{
+		Data->HitResult = TraceHitResult;
+	}
 	else if (!bHit || !bIsHoming)
 	{
 		FVector WorldLocation, WorldDirection;
@@ -72,29 +94,6 @@ void UTargetDataUnderLineTrace::PerformLineTrace()
 		OnLineTraceComplete.Broadcast(DataHandle);
 	}
 }
-
-void UTargetDataUnderLineTrace::Activate()
-{
-	const bool bIslocallyControlled = Ability->GetCurrentActorInfo()->IsLocallyControlled();
-	if(bIslocallyControlled)
-	{
-		PerformLineTrace();
-	}
-	else
-	{
-		const FGameplayAbilitySpecHandle SpecHandle=GetAbilitySpecHandle();
-		const FPredictionKey ActivatePredictionKey = GetActivationPredictionKey();
-		AbilitySystemComponent.Get()->AbilityTargetDataSetDelegate(SpecHandle,ActivatePredictionKey).AddUObject(this,&ThisClass::OnTargetDataReplicatedCallback);
-		const bool bCalledDelegate=	AbilitySystemComponent.Get()->CallReplicatedTargetDataDelegatesIfSet(SpecHandle,ActivatePredictionKey);
-		//True TargetData already send To Server / false Server Still not Get TargetDAta :: WAit for Player To Send That Data
-		if(!bCalledDelegate)
-		{
-			//WaitingOnPlayerData
-			SetWaitingOnRemotePlayerData();
-		}
-	}
-}
-
 
 
 void UTargetDataUnderLineTrace::OnTargetDataReplicatedCallback(const FGameplayAbilityTargetDataHandle& DataHandle,

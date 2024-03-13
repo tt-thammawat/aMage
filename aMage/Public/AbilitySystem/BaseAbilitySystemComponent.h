@@ -31,7 +31,9 @@ public:
 	void RemoveCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities);
 	//Use This When Remove Ability via item etc. that not directly from ability itself
 	UFUNCTION(BlueprintCallable,Category="Abilities")
-	void RemoveNormalRuneSpellAbilities();
+	void RemoveNormalRuneSpellAbilities(const TArray<TSubclassOf<UGameplayAbility>>& PotionGrantedAbilities);
+	UFUNCTION(BlueprintCallable,Category="Abilities")
+	void RemovePotionAbilities();
 	//Input Tags For Abilities
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);

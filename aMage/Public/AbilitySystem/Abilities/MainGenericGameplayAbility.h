@@ -87,7 +87,7 @@ protected:
 	float InputHeldDuration = 3.0f; // Hold duration in seconds
 
 	//Effect
-	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Damage")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<UGameplayEffect> EffectClass;
 
 };

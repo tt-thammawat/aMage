@@ -67,6 +67,7 @@ void FMainGameplayTags::InitializeNativeGameplayTags()
 	//Abilities
 	MainGameplayTags.Ability_Action_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Action.Attack"), FString("Attack Ability Tag"));
 	MainGameplayTags.Ability_Rune_NormalSpell = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Rune.NormalSpell"), FString("Rune NormalSpell Ability Tag"));
+	MainGameplayTags.Ability_Buff_Potion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Buff.Potion"), FString("Buff Potion Ability Tag"));
 
 	//Effects
 	MainGameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects.HitReact"), FString("HitReact"));

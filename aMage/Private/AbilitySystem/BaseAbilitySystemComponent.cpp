@@ -64,21 +64,36 @@ void UBaseAbilitySystemComponent::RemoveCharacterAbilities(const TArray<TSubclas
 		}
 }
 
-void UBaseAbilitySystemComponent::RemoveNormalRuneSpellAbilities()
+void UBaseAbilitySystemComponent::RemoveNormalRuneSpellAbilities(const TArray<TSubclassOf<UGameplayAbility>>& PotionGrantedAbilities)
 {
 	TArray<FGameplayAbilitySpec> ActiveAbilities = GetActivatableAbilities();
 	for (FGameplayAbilitySpec& AbilitySpec : ActiveAbilities)
 	{
 		if (AbilitySpec.Ability->AbilityTags.HasTagExact(FMainGameplayTags::Get().Ability_Rune_NormalSpell))
 		{
-			if (AbilitySpec.IsActive())
+			if (!PotionGrantedAbilities.Contains(AbilitySpec.Ability->GetClass()))
 			{
-				CancelAbilitySpec(AbilitySpec,nullptr);
+				if (AbilitySpec.IsActive())
+				{
+					CancelAbilitySpec(AbilitySpec,nullptr);
+				}
+				else
+				{
+					ClearAbility(AbilitySpec.Handle);
+				}
 			}
-			else
-			{
-				ClearAbility(AbilitySpec.Handle);
-			}
+		}
+	}
+}
+
+void UBaseAbilitySystemComponent::RemovePotionAbilities()
+{
+	TArray<FGameplayAbilitySpec> ActiveAbilities = GetActivatableAbilities();
+	for (FGameplayAbilitySpec& AbilitySpec : ActiveAbilities)
+	{
+		if (AbilitySpec.Ability->AbilityTags.HasTagExact(FMainGameplayTags::Get().Ability_Buff_Potion))
+		{
+			ClearAbility(AbilitySpec.Handle);
 		}
 	}
 }
