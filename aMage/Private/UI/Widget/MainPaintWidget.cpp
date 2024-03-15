@@ -36,9 +36,13 @@ void UMainPaintWidget::CheckDrawSpell()
 			{
 				RuneTags.Add(Result.NameTag);
 				//true LastTag From RuneTag is remove : false No Tag Is Remove
-				if(!IsRemoveLastRuneTagIfNotMatch())
+				if(CheckIfRuneTagMatchTagList() == true)
 				{
 					OnDrawingRuneSuccess.Broadcast();
+				}
+				else if(CheckIfRuneTagMatchTagList() == false)
+				{
+					RuneTags.RemoveAt(RuneTags.Num() - 1);
 				}
 			}
 			RemoveAllPoints();
@@ -98,49 +102,92 @@ FReply UMainPaintWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, cons
 	return Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
 }
 
-bool UMainPaintWidget::IsRemoveLastRuneTagIfNotMatch()
+bool UMainPaintWidget::CheckIfRuneTagMatchTagList()
 {
 	if (RuneTags.IsEmpty())
 	{
-		return false; // Exit if there are no tags to validate, returning false.
+		return true; 
 	}
-    
-	FGameplayTag LastTag = RuneTags[RuneTags.Num() - 1];
-    FGameplayTag SecondLastTag = (RuneTags.Num() > 1) ? RuneTags[RuneTags.Num() - 2] : FGameplayTag();
-	
-	bool bTagFound = false;
 
-	// Iterate over each tag mapping.
 	for (const FAbilitiesTagList& TagMapping : RuneAbilitiesTagMatchesLists)
 	{
-		// Ensure we don't access an index out of bounds.
-        if (TagMapping.Tags.Num() >= RuneTags.Num())
+		if (TagMapping.Tags.Num() < RuneTags.Num())
 		{
-        	bool bLastTagMatches = TagMapping.Tags[RuneTags.Num() - 1] == LastTag;
-        	bool bSecondLastTagMatches = SecondLastTag.IsValid() ? TagMapping.Tags[RuneTags.Num() - 2] == SecondLastTag : true;
-
-			// Check if the last tag in RuneTags matches the tag at the corresponding index in TagMapping.Tags.
-            if (bLastTagMatches && bSecondLastTagMatches)
+			continue; 
+		}
+		bool bAllTagsMatch = true;
+		for (int32 i = 0; i < RuneTags.Num(); ++i)
+		{
+			if (TagMapping.Tags[i] != RuneTags[i])
 			{
-				bTagFound = true;
-				break;  // Exit the loop early since we've found a match.
+				bAllTagsMatch = false; 
+				break; 
 			}
 		}
-	}
-    
-	// If the tag wasn't found at the corresponding index in any of the tag lists, remove it.
-	if (!bTagFound)
-	{
-		RuneTags.RemoveAt(RuneTags.Num() - 1);
-		return true; // Return true because a tag was removed.
-	}
 
-	return false; // Return false as no tag was removed.
+		if (bAllTagsMatch)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void UMainPaintWidget::K2_CallClearSpellFunction()
 {
 	OnClearSpellSuccess.Broadcast();
+}
+
+TArray<FGameplayTag> UMainPaintWidget::GetExtendedUniqueTagMappings()
+{
+	TArray<FGameplayTag> UniqueExtendedTags;
+
+	// Special case when there are no RuneTags: return the first unique tag from each TagMapping's first position.
+	if (RuneTags.IsEmpty())
+	{
+		for (const FAbilitiesTagList& TagMapping : RuneAbilitiesTagMatchesLists)
+		{
+			if (!TagMapping.Tags.IsEmpty())
+			{
+				FGameplayTag FirstTag = TagMapping.Tags[0];
+				UniqueExtendedTags.AddUnique(FirstTag);
+			}
+		}
+	}
+	else
+	{
+		for (const FAbilitiesTagList& TagMapping : RuneAbilitiesTagMatchesLists)
+		{
+			// Check if TagMapping has enough tags to be an extension of RuneTags.
+			if (TagMapping.Tags.Num() > RuneTags.Num())
+			{
+				bool bPrefixMatches = true;
+				// Verify the prefix of TagMapping matches RuneTags.
+				for (int32 i = 0; i < RuneTags.Num(); ++i)
+				{
+					if (TagMapping.Tags[i] != RuneTags[i])
+					{
+						bPrefixMatches = false;
+						break; // Prefix does not match, move to the next TagMapping.
+					}
+				}
+
+				if (bPrefixMatches)
+				{
+					// The next tag after the RuneTags sequence in the TagMapping.
+					FGameplayTag NextTag = TagMapping.Tags[RuneTags.Num()];
+					// Add this tag to the results if it's not already included.
+					if (!UniqueExtendedTags.Contains(NextTag))
+					{
+						UniqueExtendedTags.Add(NextTag);
+					}
+				}
+			}
+		}
+	}
+
+	return UniqueExtendedTags;
+
 }
 
 //Drawing Canvas Line

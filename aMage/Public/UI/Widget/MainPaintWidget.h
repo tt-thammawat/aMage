@@ -40,27 +40,29 @@ public:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	UFUNCTION(BlueprintCallable)
-	bool IsRemoveLastRuneTagIfNotMatch();
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingRuneSuccessSignature OnDrawingRuneSuccess;
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingClearSpellSuccessSignature OnClearSpellSuccess;
 
-	UFUNCTION(BlueprintCallable)
-	void K2_CallClearSpellFunction();
+
 	
 	UFUNCTION(BlueprintCallable)
 	TArray<FGameplayTag> GetRuneTags() const {return RuneTags;};
 	
 	UFUNCTION(BlueprintCallable)
 	void SetIsStartFocus(bool bStartFocus) { bIsStartFocus = bStartFocus;};
+	
+protected:
+	UFUNCTION(BlueprintCallable)
+	bool CheckIfRuneTagMatchTagList();
+	UFUNCTION(BlueprintCallable)
+	void K2_CallClearSpellFunction();
+	UFUNCTION(BlueprintCallable)
+	TArray<FGameplayTag> GetExtendedUniqueTagMappings();
 
 private:
-	
-	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
-	bool bIsDrawToUpgraded = false;
 	
 	void CheckDrawSpell();
 	bool bIsStartFocus=false;

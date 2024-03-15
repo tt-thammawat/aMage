@@ -35,6 +35,11 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	//Start Equip Default Item After Possese
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartEquipDefaultItem();
+	UFUNCTION(Server,Reliable)
+	void ServerStartEquipDefaultItem();
 	//Aiming
 	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadOnly)
 	bool bIsAiming;

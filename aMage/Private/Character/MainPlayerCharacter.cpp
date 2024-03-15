@@ -33,17 +33,30 @@ AMainPlayerCharacter::AMainPlayerCharacter()
 	PlayerEquipmentManager->SetIsReplicated(true);
 }
 
+void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,InteractObjectActor,COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,AbilityHandle,COND_OwnerOnly);
+	DOREPLIFETIME(AMainPlayerCharacter,bIsAiming);
+}
+
 void AMainPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	InitAbilityActorInfo();
 	AddCharacterAbilities();
+	if(HasAuthority())
+	{
+		StartEquipDefaultItem();
+	}
 }
 
 void AMainPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	InitAbilityActorInfo();
+	ServerStartEquipDefaultItem();
 }
 
 int32 AMainPlayerCharacter::GetCharacterLevel()
@@ -51,14 +64,6 @@ int32 AMainPlayerCharacter::GetCharacterLevel()
 	const AMainPlayerState* MainPlayerState = GetPlayerState<AMainPlayerState>();
 	check(MainPlayerState);
 	return MainPlayerState->GetCharacterLevel();
-}
-
-void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,InteractObjectActor,COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AMainPlayerCharacter,AbilityHandle,COND_OwnerOnly);
-	DOREPLIFETIME(AMainPlayerCharacter,bIsAiming);
 }
 
 void AMainPlayerCharacter::Tick(float DeltaSeconds)
@@ -71,6 +76,11 @@ void AMainPlayerCharacter::Tick(float DeltaSeconds)
 void AMainPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AMainPlayerCharacter::ServerStartEquipDefaultItem_Implementation()
+{
+	StartEquipDefaultItem();
 }
 
 void AMainPlayerCharacter::AimOffset(float DeltaTime)
@@ -173,6 +183,7 @@ void AMainPlayerCharacter::InitAbilityActorInfo()
 	
 	TrySetupHUD(MainPlayerState);
 	InitDefaultAttributes();
+
 }
 
 void AMainPlayerCharacter::TrySetupHUD(AMainPlayerState* MainPlayerState)

@@ -9,6 +9,7 @@ void UAmage_EquipmentManager::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ThisClass,CurrentlyEquipIndex);
+	DOREPLIFETIME(ThisClass,PreviousEquipIndex);
 
 }
 

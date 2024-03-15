@@ -6,6 +6,7 @@
 #include "Components/AGR_EquipmentManager.h"
 #include "Amage_EquipmentManager.generated.h"
 
+class AMainItemInteractActor;
 /**
  * 
  */
@@ -18,8 +19,12 @@ class AMAGE_API UAmage_EquipmentManager : public UAGR_EquipmentManager
 
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated, SaveGame, Category="AGR|Game Play")
 	int32 CurrentlyEquipIndex;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated, SaveGame, Category="AGR|Game Play")
+	int32 PreviousEquipIndex;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Game Play")
+	TSubclassOf<AMainItemInteractActor> DefaultStaff; 
 };

@@ -22,6 +22,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base Info")
 	TObjectPtr<UTexture2D> ItemIcon;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base Info")
+	TObjectPtr<UTexture2D> ItemEquipIcon;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base Info")
 	FText ItemDescription;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base Info")
 	FName ItemSocketName;

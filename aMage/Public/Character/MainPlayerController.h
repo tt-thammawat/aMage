@@ -17,6 +17,7 @@ struct FGameplayTag;
  */
 DECLARE_DELEGATE(FOnInteractButtonPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDropButtonPressedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTABButtonPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonPressedSignature,int,ButtonPressedNumber);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRuneAbilitiesListReceived, const TArray<FRuneAbilityMapping>&, Abilities);
 class ITargetInterface;
@@ -36,7 +37,8 @@ public:
 	FOnButtonPressedSignature OnToolbarButtonPressed;
 	UPROPERTY(BlueprintAssignable)
 	FOnDropButtonPressedSignature OnDropButtonPressed;
-	
+	UPROPERTY(BlueprintAssignable)
+	FOnTABButtonPressedSignature OnTABButtonPressed;
 	UFUNCTION(Client,Reliable)
 	void ShowDamageNumber(float DamageAmount,ACharacter* TargetCharacter,bool bIsFireDamage,bool bIsLightningDamage,bool bIsIceDamage,bool bIsPhysicDamage);
 
@@ -60,12 +62,12 @@ protected:
 	void LookUp(const FInputActionValue& Value);
 	void InteractButtonPressed();
 	void DropButtonPressed();
+	void TABButtonPressed();
 	//For Equipping
 	void Button01Pressed();
 	void Button02Pressed();
 	void Button03Pressed();
 	void Button04Pressed();
-	void Button05Pressed();
 	//End For Equipping
 
 	//Activate Abilities By Compare Tag
@@ -97,7 +99,8 @@ private:
 	TObjectPtr<UMainInputAction> InteractButton;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> DropButton;
-	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> TABButton;
 	//For Equipping
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> Button01Action;
@@ -110,9 +113,6 @@ private:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> Button04Action;
-
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> Button05Action;
 	//End For Equipping
 	
 	//For RuneAbilities

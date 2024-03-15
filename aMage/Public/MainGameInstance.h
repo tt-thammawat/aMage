@@ -16,17 +16,17 @@ class AMAGE_API UMainGameInstance : public UGameInstance
 
 public:
 	UFUNCTION(BlueprintCallable, Category="Item Data Management")
-	UTexture2D* GetItemIconTexture(FName IconId);
+	UTexture2D* GetSpellIconTexture(FName RuneName);
 
 	UFUNCTION(BlueprintCallable, Category="Item Data Management")
-	FText GetItemDescription(FName DescriptionId);
+	FText GetSpellDescription(FName DescriptionName);
 protected:
 	
 	UPROPERTY(EditAnywhere, Category="Data")
-	TMap<FName, UTexture2D*> IconTextures;
+	TMap<FName, UTexture2D*> SpellTextures;
 
 	UPROPERTY(EditAnywhere, Category="Data")
-	TMap<FName, FText> Descriptions;
+	TMap<FName, FText> SpellDescriptions;
 private:
 	
 };
