@@ -59,6 +59,11 @@ void AMainPlayerController::ClientReceiveRuneAbilitiesLists_Implementation(const
 	OnRuneAbilitiesListReceived.Broadcast(Abilities);
 }
 
+void AMainPlayerController::ClientTriggerUIUpdate_Implementation(int CurrentlyButtonPressed)
+{
+	UpdatedWidgetUI.Broadcast(CurrentlyButtonPressed);
+}
+
 void AMainPlayerController::BeginPlay()
 {
 	Super::BeginPlay();

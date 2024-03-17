@@ -10,8 +10,7 @@ class AMainItemInteractActor;
 /**
  * 
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquipmentListUpdated, const TArray<FEquipment>&, EquipmentList);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwappedStaffSignature);
 UCLASS()
 class AMAGE_API UAmage_EquipmentManager : public UAGR_EquipmentManager
 {
@@ -19,6 +18,11 @@ class AMAGE_API UAmage_EquipmentManager : public UAGR_EquipmentManager
 
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	UFUNCTION(Client,Reliable,BlueprintCallable)
+	virtual void ClientUpdatedSwappedStaffUI();
+	UPROPERTY(BlueprintAssignable)
+	FOnSwappedStaffSignature OnClientUpdateSwappedStaff;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Replicated, SaveGame, Category="AGR|Game Play")
 	int32 CurrentlyEquipIndex;

@@ -3,9 +3,17 @@
 
 #include "MainGameInstance.h"
 
+#include "GameplayTagContainer.h"
+
 UTexture2D* UMainGameInstance::GetSpellIconTexture(FName SpellName)
 {
 	UTexture2D** Texture = SpellTextures.Find(SpellName);
+	return Texture ? *Texture : nullptr;
+}
+
+UTexture2D* UMainGameInstance::GetEffectIconTexture(FGameplayTag EffectTag)
+{
+	UTexture2D** Texture = EffectTextures.Find(EffectTag);
 	return Texture ? *Texture : nullptr;
 }
 

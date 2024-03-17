@@ -8,8 +8,14 @@
 void UAmage_EquipmentManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ThisClass,CurrentlyEquipIndex);
-	DOREPLIFETIME(ThisClass,PreviousEquipIndex);
+	DOREPLIFETIME_CONDITION(ThisClass,CurrentlyEquipIndex,COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ThisClass,PreviousEquipIndex,COND_OwnerOnly);
 
 }
+
+void UAmage_EquipmentManager::ClientUpdatedSwappedStaffUI_Implementation()
+{
+	OnClientUpdateSwappedStaff.Broadcast();
+}
+
 

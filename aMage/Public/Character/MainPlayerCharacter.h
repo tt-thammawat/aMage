@@ -75,14 +75,17 @@ protected:
 	virtual FVector GetCombatSocketLocation_Implementation() override;
 	
 	//Item Inventory+Equipping
-	UFUNCTION(BlueprintCallable,Category = Weapon)
+	UFUNCTION(BlueprintCallable,Category="Abilities")
 	void AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities,UObject* SourceObject);
-	UFUNCTION(BlueprintCallable,Category = Weapon)
-	void RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities,const TArray<TSubclassOf<UGameplayAbility>>& PotionGrantedAbilities);
+	UFUNCTION(BlueprintCallable,Category="Abilities")
+	void RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities);
+	
+	
 	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)
 	void OnChangingButtonPressed(int ButtonNumber);
 	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)
 	void OnDropButtonPressed();
+
 	//Object Reference
 	UPROPERTY(ReplicatedUsing=OnRep_InteractObjectActor,BlueprintReadOnly,Category=Interact)
 	TObjectPtr<AActor> InteractObjectActor;

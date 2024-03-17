@@ -220,7 +220,7 @@ FVector AMainPlayerCharacter::GetCombatSocketLocation_Implementation()
 void AMainPlayerCharacter::AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities,UObject* SourceObject)
 {
 	if(!HasAuthority()) return;
-
+	
 	bool bHaveAbilityWidget=false;
 	
 	AActor* SourceActor = Cast<AActor>(SourceObject);
@@ -238,13 +238,13 @@ void AMainPlayerCharacter::AddItemAbilities(const TArray<TSubclassOf<UGameplayAb
 	BaseAbilitySystemComponent->AddCharacterAbilities(AddItemAbilities,SourceObject,bHaveAbilityWidget);
 }
 
-void AMainPlayerCharacter::RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities,const TArray<TSubclassOf<UGameplayAbility>>& PotionGrantedAbilities)
+void AMainPlayerCharacter::RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities)
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
 	//Remove Item Abilities
 	BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveItemAbilities);
 	//Remove Normal Rune Spell Abilities
-	BaseAbilitySystemComponent->RemoveNormalRuneSpellAbilities(PotionGrantedAbilities);
+	BaseAbilitySystemComponent->RemoveNormalRuneSpellAbilities();
 	//Remove Potion Abilities
 	BaseAbilitySystemComponent->RemovePotionAbilities();
 }

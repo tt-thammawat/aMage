@@ -53,14 +53,14 @@ void UMainPaintWidget::SetUpMainPlayerController(APlayerController* PlayerContro
 {
 	if (!PlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerController is nullptr in UMainPaintWidget::SetUpMainPlayerController"));
+		UE_LOG(LogTemp, Warning, TEXT("PlayerController is nullptr in SetUpMainPlayerController"));
 		return;
 	}
 
 	AMainPlayerController* CastedController = Cast<AMainPlayerController>(PlayerController);
 	if (!CastedController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerController could not be cast to AMainPlayerController in UMainPaintWidget::SetUpMainPlayerController"));
+		UE_LOG(LogTemp, Warning, TEXT("PlayerController could not be cast to AMainPlayerController in SetUpMainPlayerController"));
 		return;
 	}
 
@@ -187,7 +187,46 @@ TArray<FGameplayTag> UMainPaintWidget::GetExtendedUniqueTagMappings()
 	}
 
 	return UniqueExtendedTags;
+}
 
+TArray<FHintTagMatch> UMainPaintWidget::SetHintTagMatchMapping()
+{
+    TArray<FHintTagMatch> ResultHints;
+
+
+        for (const FAbilitiesTagList& TagMapping : RuneAbilitiesTagMatchesLists)
+        {
+	        if (TagMapping.Tags.Num() > RuneTags.Num())
+	        {
+	        	bool bPrefixMatches = true;
+	        	for (int32 i = 0; i < RuneTags.Num(); ++i)
+	        	{
+	        		if (TagMapping.Tags[i] != RuneTags[i])
+	        		{
+	        			bPrefixMatches = false;
+	        			break;
+	        		}
+	        	}
+
+	        	if (bPrefixMatches)
+	        	{
+	        		FGameplayTag NextTag = TagMapping.Tags[RuneTags.Num()];
+	        		FHintTagMatch NewHint;
+	        		NewHint.Tag = NextTag;
+
+	        		// Determine if the sequence matches exactly with TagMapping.
+	        		NewHint.SpellMatchName = (TagMapping.Tags.Num() == RuneTags.Num() + 1) ? TagMapping.Name : FName();
+
+	        		// Ensure the tag isn't already included.
+	        		if (!ResultHints.ContainsByPredicate([&](const FHintTagMatch& Hint) { return Hint.Tag == NextTag; }))
+	        		{
+	        			ResultHints.Add(NewHint);
+	        		}
+	        	}
+	        }
+        }
+
+    return ResultHints;
 }
 
 //Drawing Canvas Line

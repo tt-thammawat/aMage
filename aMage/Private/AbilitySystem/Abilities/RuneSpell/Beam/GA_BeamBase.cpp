@@ -74,7 +74,7 @@ FVector UGA_BeamBase::GetSocketLocation()
 void UGA_BeamBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(UGA_BeamBase,BeamREF);
+	DOREPLIFETIME_CONDITION(UGA_BeamBase,BeamREF,COND_OwnerOnly);
 }
 
 void UGA_BeamBase::SpawnBeam(const FVector& BeamEndLocation)

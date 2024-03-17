@@ -30,6 +30,8 @@ class UMainPlayerWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributesChangedSignature, float, NewValue);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGameplayEffectAppliedSignature,FGameplayTag,GameplayTag,float,TotalDuration);
+
 //Delegate DataTableRowStruct
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature,FUIWidgetRow,Row);
 
@@ -61,7 +63,8 @@ protected:
 	//Template Function
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
-
+	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
+	FOnGameplayEffectAppliedSignature OnGameplayEffectApplies;
 	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
 	FMessageWidgetRowSignature MessageWidgetRow;
 };

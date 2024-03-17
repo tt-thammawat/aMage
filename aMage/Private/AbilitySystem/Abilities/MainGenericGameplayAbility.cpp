@@ -52,7 +52,7 @@ void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	{
 		if(!SpellIndicator)
 		{
-			SpellIndicator = CreateWidget<UMainPlayerWidget>(GetActorInfo().PlayerController->GetWorld(),SpellIndicatorClass);
+			SpellIndicator = CreateWidget<UMainPlayerWidget>(PlayerController->GetWorld(),SpellIndicatorClass);
 			if (SpellIndicator)
 			{
 				SpellIndicator->SetWidgetController(this);
@@ -70,7 +70,7 @@ bool UMainGenericGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecH
 	if(!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 		return false;
 	
-	if(bIsCancel == true)
+	if(bIsCancel == true || UsageTimes<=0)
 	{
 		return false;
 	}

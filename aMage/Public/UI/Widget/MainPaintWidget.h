@@ -22,6 +22,18 @@ struct FAbilitiesTagList
 	TArray<FGameplayTag> Tags;
 };
 
+USTRUCT(BlueprintType)
+struct FHintTagMatch
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName SpellMatchName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag Tag= FGameplayTag();
+};
+
 class AMainPlayerController;
 /**
  * 
@@ -61,7 +73,8 @@ protected:
 	void K2_CallClearSpellFunction();
 	UFUNCTION(BlueprintCallable)
 	TArray<FGameplayTag> GetExtendedUniqueTagMappings();
-
+	UFUNCTION(BlueprintCallable)
+	TArray<FHintTagMatch> SetHintTagMatchMapping();
 private:
 	
 	void CheckDrawSpell();
@@ -71,13 +84,12 @@ private:
 	TObjectPtr<AMainPlayerController> MainPlayerController;
 
 	//Initial Tag Lists
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
 	TArray<FAbilitiesTagList> RuneAbilitiesTagMatchesLists;
 
 	//Save Tag From Drawing
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
 	TArray<FGameplayTag> RuneTags;
-
 
 //Drawing Canvas Line
 	 

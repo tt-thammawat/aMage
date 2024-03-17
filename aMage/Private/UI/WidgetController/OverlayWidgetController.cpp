@@ -48,6 +48,32 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		OnMaxmanaChange.Broadcast(Data.NewValue);
 	}
 	);
+
+	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->OnActiveGameplayEffectAddedDelegateToSelf.AddLambda([this](UAbilitySystemComponent* ASC, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle Handle)
+	{
+		   // Get the tags from the GameplayEffect
+		   FGameplayTagContainer EffectTags;
+		   Spec.GetAllAssetTags(EffectTags);
+
+		   FGameplayTag FirstTag = EffectTags.First();
+
+		   // Retrieve the active effect to get durations
+		   const FActiveGameplayEffect* ActiveEffect = ASC->GetActiveGameplayEffect(Handle);
+		   if (ActiveEffect)
+		   {
+		   		float TotalDuration = ActiveEffect->GetDuration();
+		   		if (TotalDuration == UGameplayEffect::INFINITE_DURATION)
+		   		{
+		   			
+		   		}
+			    else
+			    {
+				    
+			    }
+		   	OnGameplayEffectApplies.Broadcast(FirstTag,TotalDuration);
+		   }
+	   }
+	   );
 	
 	// Like Delegate but it will called That function instead
 	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda([this

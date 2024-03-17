@@ -18,8 +18,13 @@ struct FGameplayTag;
 DECLARE_DELEGATE(FOnInteractButtonPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDropButtonPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTABButtonPressedSignature);
+//Tool Bar Slot Pressed 1 2 3 4
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonPressedSignature,int,ButtonPressedNumber);
+//Request Rune Ability List For UI
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRuneAbilitiesListReceived, const TArray<FRuneAbilityMapping>&, Abilities);
+//UpDate UI When PickUp Something
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedWidgetUISignature,int,CurrentlyPressedButton);
+
 class ITargetInterface;
 struct FInputActionValue;
 class UInputMappingContext;
@@ -39,9 +44,15 @@ public:
 	FOnDropButtonPressedSignature OnDropButtonPressed;
 	UPROPERTY(BlueprintAssignable)
 	FOnTABButtonPressedSignature OnTABButtonPressed;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnUpdatedWidgetUISignature UpdatedWidgetUI;
+	UFUNCTION(Client,Reliable,BlueprintCallable, Category="YourCategory")
+	void ClientTriggerUIUpdate(int CurrentlyButtonPressed);
+	
 	UFUNCTION(Client,Reliable)
 	void ShowDamageNumber(float DamageAmount,ACharacter* TargetCharacter,bool bIsFireDamage,bool bIsLightningDamage,bool bIsIceDamage,bool bIsPhysicDamage);
-
+	
 	//Get Abilities For Drawing Widget
     UFUNCTION(Server, Reliable,BlueprintCallable)
 	void ServerRequestRuneAbilitiesLists();
