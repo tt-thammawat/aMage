@@ -75,11 +75,13 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 			PaintWidget->SetWidgetController(PlayerController);
 			PaintWidget->AddToViewport(12);
 		}
-		
-		PaintWidget->OnDrawingRuneSuccess.AddDynamic(this, &ThisClass::CheckRuneTags);
-		PaintWidget->OnClearSpellSuccess.AddDynamic(this, &ThisClass::ClearRuneTags);
 
-		CheckAbilityWithTag();
+		if(PaintWidget)
+		{
+			PaintWidget->OnDrawingRuneSuccess.AddDynamic(this, &ThisClass::CheckRuneTags);
+			PaintWidget->OnClearSpellSuccess.AddDynamic(this, &ThisClass::ClearRuneTags);
+			CheckNormalSpellAbilityTag();
+		}
 	}
 
 	//When Successful get spell;
@@ -211,7 +213,7 @@ void UMainCastingGameplayAbility::ClearRuneTags()
 	ICastingInterface::Execute_ClearRuneSpell(Character);
 }
 
-void UMainCastingGameplayAbility::CheckAbilityWithTag()
+void UMainCastingGameplayAbility::CheckNormalSpellAbilityTag()
 {
 	TArray<FGameplayAbilitySpec> ActiveAbilities=GetAbilitySystemComponentFromActorInfo()->GetActivatableAbilities();
 	for (const FGameplayAbilitySpec& AbilitySpec : ActiveAbilities)
@@ -220,12 +222,14 @@ void UMainCastingGameplayAbility::CheckAbilityWithTag()
 		{
         	if(AbilitySpec.IsActive())
         	{
-        		UE_LOG(LogTemp, Log, TEXT("Yes"));
+        		TSubclassOf<UGameplayAbility> ActiveAbilityClass = AbilitySpec.Ability->GetClass();
+        		PaintWidget->CheckCurrentlyActiveSpell(ActiveAbilityClass);
         		return;
         	}
-        	PaintWidget->OnClearSpellSuccess.Broadcast();		
 		}
 	}
+
+	PaintWidget->OnClearSpellSuccess.Broadcast();
 }
 
 void UMainCastingGameplayAbility::DeactivateDrawingMode()

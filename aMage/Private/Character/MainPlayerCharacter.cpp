@@ -46,17 +46,13 @@ void AMainPlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	InitAbilityActorInfo();
 	AddCharacterAbilities();
-	if(HasAuthority())
-	{
-		StartEquipDefaultItem();
-	}
+	StartEquipDefaultItem();
 }
 
 void AMainPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	InitAbilityActorInfo();
-	ServerStartEquipDefaultItem();
 }
 
 int32 AMainPlayerCharacter::GetCharacterLevel()

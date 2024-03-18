@@ -8,6 +8,7 @@
 #include "MainPaintWidget.generated.h"
 
 
+class UGameplayAbility;
 class UAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
@@ -20,6 +21,9 @@ struct FAbilitiesTagList
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FGameplayTag> Tags;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGameplayAbility> AbilityClass;
 };
 
 USTRUCT(BlueprintType)
@@ -57,24 +61,38 @@ public:
 	FOnDrawingRuneSuccessSignature OnDrawingRuneSuccess;
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingClearSpellSuccessSignature OnClearSpellSuccess;
-
-
 	
 	UFUNCTION(BlueprintCallable)
 	TArray<FGameplayTag> GetRuneTags() const {return RuneTags;};
 	
 	UFUNCTION(BlueprintCallable)
 	void SetIsStartFocus(bool bStartFocus) { bIsStartFocus = bStartFocus;};
+
+	//This Case Just For The Granted Spell Abilities
+	//Check If Spell Is Active and Set Rune Tag Accordingly
+	virtual void CheckCurrentlyActiveSpell(TSubclassOf<UGameplayAbility>& AbilityClass);
 	
+	bool AreRuneTagsEqualInOrder(const TArray<FGameplayTag>& MappingTags);
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void ResetTagUI();
+	
+	//END This Case Just For The Granted Spell Abilities
+
 protected:
+	
+	//If Match Add Sign If Not Remove Last RuneTag Index
 	UFUNCTION(BlueprintCallable)
-	bool CheckIfRuneTagMatchTagList();
+	bool CheckIfRuneTagMatchInList();
+
+	//Clear In Blueprint
 	UFUNCTION(BlueprintCallable)
 	void K2_CallClearSpellFunction();
-	UFUNCTION(BlueprintCallable)
-	TArray<FGameplayTag> GetExtendedUniqueTagMappings();
+
+	
 	UFUNCTION(BlueprintCallable)
 	TArray<FHintTagMatch> SetHintTagMatchMapping();
+	
 private:
 	
 	void CheckDrawSpell();

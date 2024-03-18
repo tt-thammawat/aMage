@@ -23,6 +23,8 @@ void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimePro
 void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	if(UsageTimes<=0) return;
+	
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
 	CurrentSpecHandle = Handle;
@@ -69,8 +71,8 @@ bool UMainGenericGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecH
 {
 	if(!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 		return false;
-	
-	if(bIsCancel == true || UsageTimes<=0)
+
+	if(bIsCancel == true)
 	{
 		return false;
 	}
