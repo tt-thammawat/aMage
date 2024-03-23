@@ -32,6 +32,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributesChangedSignature, float
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGameplayEffectAppliedSignature,FGameplayTag,GameplayTag,float,TotalDuration);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameplayEffectRemovedSignature,FGameplayTag,GameplayTag);
+
 //Delegate DataTableRowStruct
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature,FUIWidgetRow,Row);
 
@@ -46,7 +48,8 @@ class AMAGE_API UOverlayWidgetController : public UBaseWidgetController
 public:
 	virtual void BroadcastInitialValue() override;
 	virtual void BindCallbacksToDependencies() override;
-	
+	void GameplayEffectRemoved(const FActiveGameplayEffect& Effect);
+
 	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
 	FOnAttributesChangedSignature OnHealthChanged;
 	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
@@ -63,8 +66,11 @@ protected:
 	//Template Function
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
+	
 	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
 	FOnGameplayEffectAppliedSignature OnGameplayEffectApplies;
+	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
+	FOnGameplayEffectRemovedSignature OnGameplayEffectRemoved;
 	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
 	FMessageWidgetRowSignature MessageWidgetRow;
 };

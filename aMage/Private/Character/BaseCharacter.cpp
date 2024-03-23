@@ -110,7 +110,7 @@ FVector ABaseCharacter::GetCombatSocketLocation_Implementation(const FGameplayTa
 	if (SocketNamePtr)
 	{
 		const FName SocketName = *SocketNamePtr;
-		if (IsValid(Weapon))
+		if (IsValid(Weapon) && MontageTag.MatchesTagExact(FMainGameplayTags::Get().Montage_Attack_Weapon))
 		{
 			return Weapon->GetSocketLocation(SocketName);
 		}

@@ -29,5 +29,8 @@ protected:
 
 	//Effect
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Damage")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<UGameplayEffect> EffectClass;
 };

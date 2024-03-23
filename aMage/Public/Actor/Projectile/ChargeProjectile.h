@@ -11,6 +11,19 @@ class UCapsuleComponent;
 class UNiagaraSystem;
 class UProjectileMovementComponent;
 
+
+USTRUCT()
+struct FEffectInActor
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TObjectPtr<AActor> Actor;
+	
+	UPROPERTY()
+	TArray<FActiveGameplayEffectHandle> ActiveGameplayEffectHandles;
+};
+
 UCLASS()
 class AMAGE_API AChargeProjectile : public AActor
 {
@@ -19,12 +32,16 @@ class AMAGE_API AChargeProjectile : public AActor
 public:	
 	AChargeProjectile();
 	virtual void Destroyed() override;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
 	//Handle UGameplayEffect
 	UPROPERTY(BlueprintReadWrite,meta = (ExposeOnSpawn = true))
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;
+	UPROPERTY(BlueprintReadWrite,meta = (ExposeOnSpawn = true))
+	FGameplayEffectSpecHandle EffectSpecHandle;
+	UPROPERTY()
+	TArray<FEffectInActor> ActiveEffectActors;
 	
 protected:
 
@@ -33,7 +50,20 @@ protected:
 	UFUNCTION()
 	void OnSphereOverlap(UPrimitiveComponent* OverlapComponent,AActor* OtherActor , UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult);
 
+	UFUNCTION(BlueprintCallable)
+	virtual void OnEndOverlap(AActor* ActorToRemove);
+
+	virtual void RemoveEffectsForActor(AActor* RemoveEffectTarget);
+	
 private:
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true))
+	TObjectPtr<AActor> TargetActor;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true))
+	bool bRemoveEffectOnEnd=false;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USceneComponent> CustomRootComponent;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCapsuleComponent> CapsuleComponent;
@@ -51,5 +81,8 @@ private:
 	float LifeSpan;
 	
 	bool bHit=false;
+
+public:
+	void SetTargetActor(AActor* Actor) {TargetActor=Actor;};
 
 };

@@ -25,6 +25,7 @@ public:
 	//Handle UGameplayEffect Like BigBrother
 	UPROPERTY(BlueprintReadWrite,meta = (ExposeOnSpawn = true))
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;
+
 protected:
 	virtual void BeginPlay() override;
 

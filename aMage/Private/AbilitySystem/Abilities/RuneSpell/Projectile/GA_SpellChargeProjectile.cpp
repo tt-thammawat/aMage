@@ -100,14 +100,18 @@ void UGA_SpellChargeProjectile::SpawnChargeProjectile(const FVector& ProjectileT
 			FTransform SpawnTransform;
 			SpawnTransform.SetLocation(SocketLocation);
 			SpawnTransform.SetRotation(SpawnRotation.Quaternion());
+
+			AActor* sad=  GetOwningActorFromActorInfo();
+			APawn* Pawd =Cast<APawn>(GetOwningActorFromActorInfo());
 			
 			AChargeProjectile* Projectile = GetWorld()->SpawnActorDeferred<AChargeProjectile>(
 					ProjectileClass,
 					SpawnTransform,
-					GetOwningActorFromActorInfo(),
-					Cast<APawn>(GetOwningActorFromActorInfo()),
+					GetAvatarActorFromActorInfo(),
+					Cast<APawn>(GetAvatarActorFromActorInfo()),
 					ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 					);
+
 
 			//Give The Projectile A Gameplay Effect Spec For Causing Damage
 			//Get AbilitySystemComponent
@@ -124,7 +128,7 @@ void UGA_SpellChargeProjectile::SpawnChargeProjectile(const FVector& ProjectileT
 			EffectContextHandle.AddHitResult(HitResult);
 		
 			//Make Spec Handle That Contains Effect Information And Send It To Projectile
-			const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(EffectClass,GetAbilityLevel(),EffectContextHandle);
+			const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),EffectContextHandle);
 			const FMainGameplayTags MainGameplayTags = FMainGameplayTags::Get();
 
 			for (auto& Pair : DamageTypes)

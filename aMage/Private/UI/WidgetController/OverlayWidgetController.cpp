@@ -64,16 +64,28 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		   		float TotalDuration = ActiveEffect->GetDuration();
 		   		if (TotalDuration == UGameplayEffect::INFINITE_DURATION)
 		   		{
-		   			
+		   			TotalDuration = 999.f;
 		   		}
-			    else
-			    {
-				    
-			    }
+		   	
 		   	OnGameplayEffectApplies.Broadcast(FirstTag,TotalDuration);
 		   }
 	   }
 	   );
+
+	
+	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->OnAnyGameplayEffectRemovedDelegate().AddLambda(
+	[this](const FActiveGameplayEffect& RemovedEffect)
+	{
+		FGameplayTagContainer RemovedEffectTags;
+		RemovedEffect.Spec.GetAllAssetTags(RemovedEffectTags);
+
+		FGameplayTag FirstTag = RemovedEffectTags.First();
+
+		// Broadcast the tag here
+		OnGameplayEffectRemoved.Broadcast(FirstTag);
+	}
+);
+
 	
 	// Like Delegate but it will called That function instead
 	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda([this

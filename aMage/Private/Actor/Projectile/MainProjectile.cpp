@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "NiagaraFunctionLibrary.h"
+#include "AbilitySystem/MainAbilitySystemLibrary.h"
 #include "aMage/aMage.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -47,6 +48,16 @@ void AMainProjectile::Destroyed()
 void AMainProjectile::OnSphereOverlap(UPrimitiveComponent* OverlapComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if(!DamageEffectSpecHandle.Data.IsValid() || DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
+	{
+		return;
+	}
+	
+	if(!UMainAbilitySystemLibrary::IsNotFriend(DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser(),OtherActor))
+	{
+		return;
+	}
+	
 	UGameplayStatics::PlaySoundAtLocation(this,ImpactSound,GetActorLocation(),FRotator::ZeroRotator);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,ImpactEffect,GetActorLocation());
 	
@@ -66,7 +77,6 @@ void AMainProjectile::OnSphereOverlap(UPrimitiveComponent* OverlapComponent, AAc
 		bHit = true;
 	}
 }
-
 
 void AMainProjectile::BeginPlay()
 {

@@ -25,8 +25,8 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	
 	// Enemy Interface
-	virtual void HighlightActor() override;
-	virtual void UnHighlightActor() override;
+	void HighlightActor_Implementation() override;
+	void UnHighlightActor_Implementation() override;
 	// End Enemy Interface
 
 	//CombatInterface

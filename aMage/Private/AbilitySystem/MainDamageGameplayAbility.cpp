@@ -8,7 +8,7 @@
 
 void UMainDamageGameplayAbility::CauseDamages(AActor* TargetActor)
 {
-	FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass,1);
+	FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass,1);
 	for(TTuple<FGameplayTag, FScalableFloat>& Pair : DamageTypes)
 	{
 		if(!Pair.Value.Curve.IsNull())

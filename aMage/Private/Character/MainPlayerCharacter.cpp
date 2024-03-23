@@ -216,7 +216,6 @@ FVector AMainPlayerCharacter::GetCombatSocketLocation_Implementation(const FGame
 	{
 		return GetMesh()->GetSocketLocation(*SocketNamePtr);
 	}
-	return FVector(0.f);
 }
 
 void AMainPlayerCharacter::AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities,UObject* SourceObject)

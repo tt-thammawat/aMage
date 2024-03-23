@@ -109,8 +109,8 @@ void UGA_SpellProjectileBase::SpawnProjectile(const FVector& ProjectileTargetLoc
 			AMainProjectile* Projectile = GetWorld()->SpawnActorDeferred<AMainProjectile>(
 					ProjectileClass,
 					SpawnTransform,
-					GetOwningActorFromActorInfo(),
-					Cast<APawn>(GetOwningActorFromActorInfo()),
+					GetAvatarActorFromActorInfo(),
+					Cast<APawn>(GetAvatarActorFromActorInfo()),
 					ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 					);
 
@@ -129,7 +129,7 @@ void UGA_SpellProjectileBase::SpawnProjectile(const FVector& ProjectileTargetLoc
 			EffectContextHandle.AddHitResult(HitResult);
 		
 			//Make Spec Handle That Contains Effect Information And Send It To Projectile
-			const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(EffectClass,GetAbilityLevel(),EffectContextHandle);
+			const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),EffectContextHandle);
 			const FMainGameplayTags MainGameplayTags = FMainGameplayTags::Get();
 
 			for (auto& Pair : DamageTypes)

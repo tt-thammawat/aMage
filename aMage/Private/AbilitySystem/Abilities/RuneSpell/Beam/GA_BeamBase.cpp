@@ -113,7 +113,7 @@ void UGA_BeamBase::SpawnBeam(const FVector& BeamEndLocation)
 		EffectContextHandle.AddHitResult(HitResult);
 		
 		//Make Spec Handle That Contains Effect Information And Send It To Projectile
-		const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(EffectClass,GetAbilityLevel(),EffectContextHandle);
+		const FGameplayEffectSpecHandle SpecHandle= SourceASC->MakeOutgoingSpec(DamageEffectClass,GetAbilityLevel(),EffectContextHandle);
 		const FMainGameplayTags MainGameplayTags = FMainGameplayTags::Get();
 
 		for (auto& Pair : DamageTypes)

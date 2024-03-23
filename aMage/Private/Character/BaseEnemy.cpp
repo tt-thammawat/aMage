@@ -50,8 +50,21 @@ void ABaseEnemy::PossessedBy(AController* NewController)
 	MainAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
 	MainAIController->RunBehaviorTree(BehaviorTree);
 	MainAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"),false);
-	
+
 	MainAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),CharacterClass != ECharacterClass::Warrior);
+}
+
+void ABaseEnemy::HighlightActor_Implementation()
+{
+	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+	Weapon->SetRenderCustomDepth(true);
+	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);}
+
+void ABaseEnemy::UnHighlightActor_Implementation()
+{
+	GetMesh()->SetRenderCustomDepth(false);
+	Weapon->SetRenderCustomDepth(false);
 }
 
 void ABaseEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
@@ -62,22 +75,6 @@ void ABaseEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
 AActor* ABaseEnemy::GetCombatTarget_Implementation() const
 {
 	return CombatTarget;
-}
-
-void ABaseEnemy::HighlightActor()
-{
-	GetMesh()->SetRenderCustomDepth(true);
-	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
-	Weapon->SetRenderCustomDepth(true);
-	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
-}
-
-
-void ABaseEnemy::UnHighlightActor()
-{
-	GetMesh()->SetRenderCustomDepth(false);
-	Weapon->SetRenderCustomDepth(false);
-
 }
 
 int32 ABaseEnemy::GetCharacterLevel()
