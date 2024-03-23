@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/MainDamageGameplayAbility.h"
-#include "AbilitySystem/Abilities/RuneSpell/Projectile/GA_SpellProjectileBase.h"
+#include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
 #include "GA_SpellChargeProjectile.generated.h"
 
 class AChargeProjectile;
@@ -12,7 +11,7 @@ class AChargeProjectile;
  * 
  */
 UCLASS()
-class AMAGE_API UGA_SpellChargeProjectile : public UMainDamageGameplayAbility
+class AMAGE_API UGA_SpellChargeProjectile : public UMainGenericGameplayAbility
 {
 	GENERATED_BODY()
 

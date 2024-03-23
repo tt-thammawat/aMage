@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/MainDamageGameplayAbility.h"
+#include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
 #include "GA_BeamBase.generated.h"
 
 class AMainBeam;
@@ -12,7 +12,7 @@ class AMainBeam;
  */
 
 UCLASS()
-class AMAGE_API UGA_BeamBase : public UMainDamageGameplayAbility
+class AMAGE_API UGA_BeamBase : public UMainGenericGameplayAbility
 {
 	GENERATED_BODY()
 public:

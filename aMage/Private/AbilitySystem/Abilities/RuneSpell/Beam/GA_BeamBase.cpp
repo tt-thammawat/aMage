@@ -65,7 +65,7 @@ FVector UGA_BeamBase::GetSocketLocation()
 	if(CombatInterface)
 	{
 		// Get SocketLocation FVector via ICombatInterface
-		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
+		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(),FMainGameplayTags::Get().Montage_Attack_Weapon);
 		return SocketLocation;
 	}
 	return FVector();
@@ -83,7 +83,8 @@ void UGA_BeamBase::SpawnBeam(const FVector& BeamEndLocation)
 	if(bIsServer)
 	{
 		// Get SocketLocation FVector via ICombatInterface
-		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());		FRotator Rotation = (BeamEndLocation - SocketLocation).Rotation();
+		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(),FMainGameplayTags::Get().Montage_Attack_Weapon);
+		FRotator Rotation = (BeamEndLocation - SocketLocation).Rotation();
 		FRotator SpawnRotation = Rotation;
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);

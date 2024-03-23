@@ -201,14 +201,20 @@ void AMainPlayerCharacter::BindButtonToCharacter(AMainPlayerController* PlayerCo
 	PlayerController->OnDropButtonPressed.AddDynamic(this,&ThisClass::OnDropButtonPressed);
 }
 
-FVector AMainPlayerCharacter::GetCombatSocketLocation_Implementation()
+FVector AMainPlayerCharacter::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
 {
+	FName* SocketNamePtr = MappedSocketName.Find(MontageTag);
+	
 	FEquipment EquippedActor = PlayerEquipmentManager->EquipmentList[PlayerEquipmentManager->CurrentlyEquipIndex];
 	if(EquippedActor.ItemActor)
 	{
 		const AMainItemInteractActor* EquipmentInteractActor = Cast<AMainItemInteractActor>(EquippedActor.ItemActor);
 		FVector CombatSocketLocation = EquipmentInteractActor->GetSkeletalMeshComponent()->GetSocketLocation(EquipmentInteractActor->GetWeaponTipSocketName());
 		return  CombatSocketLocation;
+	}
+	else
+	{
+		return GetMesh()->GetSocketLocation(*SocketNamePtr);
 	}
 	return FVector(0.f);
 }

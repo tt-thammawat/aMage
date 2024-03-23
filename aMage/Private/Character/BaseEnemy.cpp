@@ -154,5 +154,9 @@ void ABaseEnemy::HitReactTagChanged(const FGameplayTag CallBackTag, int32 NewCou
 void ABaseEnemy::Die()
 {
 	SetLifeSpan(LifeSpan);
+	if(MainAIController)
+	{
+		MainAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"),true);
+	}
 	Super::Die();
 }

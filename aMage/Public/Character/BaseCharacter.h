@@ -32,9 +32,13 @@ public:
 	virtual void Die() override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
+	virtual TArray<FTaggedMontage> GetAttackMontage_Implementation() override;
 	//GetWeaponTipSocketName And Make FVector out of it
-	virtual FVector GetCombatSocketLocation_Implementation() override;
+	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	//EndCombatInterface
+	
+	UPROPERTY(EditAnywhere,Category="Combat")
+	TArray<FTaggedMontage> AttackMontage;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -44,7 +48,7 @@ protected:
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 	//Socket For Firing
 	UPROPERTY(EditAnywhere,Category="Combat")
-	FName WeaponTipSocketName;
+	TMap<FGameplayTag,FName> MappedSocketName;
 	
 	bool bDead = false;
 	/*Dissolve Effects*/

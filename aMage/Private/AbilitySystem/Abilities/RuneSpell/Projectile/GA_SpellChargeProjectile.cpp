@@ -72,7 +72,7 @@ void UGA_SpellChargeProjectile::SpawnChargeProjectile(const FVector& ProjectileT
 	if(!bIsServer) return;
 	
 		// Get SocketLocation FVector via ICombatInterface
-		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
+		const FVector SocketLocation = 	IICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(),FMainGameplayTags::Get().Montage_Attack_Weapon);
 		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 
 		// Adjust the angle based on the number of projectiles

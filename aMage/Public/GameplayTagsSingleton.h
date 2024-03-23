@@ -60,12 +60,17 @@ public:
  FGameplayTag Damage_Ice;
  FGameplayTag Damage_Physical;
  TMap<FGameplayTag,FGameplayTag> DamageTypesToResistances;
-
+ 
  //Abilities
  FGameplayTag Ability_Action_Attack;
  FGameplayTag Ability_Rune_NormalSpell;
  FGameplayTag Ability_Buff_Potion;
 
+ //Socket For Enemies
+ FGameplayTag Montage_Attack_Weapon;
+ FGameplayTag Montage_Attack_RightHand;
+ FGameplayTag Montage_Attack_LeftHand;
+ 
  //Rune Drawing
  FGameplayTag Rune_Tag_04_Clear;
  

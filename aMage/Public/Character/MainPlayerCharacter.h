@@ -72,7 +72,7 @@ protected:
 	void TrySetupHUD(AMainPlayerState* MainPlayerState);
 	void BindButtonToCharacter(AMainPlayerController* PlayerController);
 	UFUNCTION(BlueprintCallable,Category = Weapon)
-	virtual FVector GetCombatSocketLocation_Implementation() override;
+	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	
 	//Item Inventory+Equipping
 	UFUNCTION(BlueprintCallable,Category="Abilities")

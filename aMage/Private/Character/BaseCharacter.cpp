@@ -2,6 +2,8 @@
 
 
 #include "Character/BaseCharacter.h"
+
+#include "GameplayTagsSingleton.h"
 #include "aMage/aMage.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -91,16 +93,34 @@ AActor* ABaseCharacter::GetAvatar_Implementation()
 	return this;
 }
 
+TArray<FTaggedMontage> ABaseCharacter::GetAttackMontage_Implementation()
+{
+	return AttackMontage;
+}
+
 //Override by derived
 void ABaseCharacter::InitAbilityActorInfo()
 {
 	
 }
 
-FVector ABaseCharacter::GetCombatSocketLocation_Implementation()
+FVector ABaseCharacter::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
 {
-	check(Weapon);
-	return Weapon->GetSocketLocation(WeaponTipSocketName);
+	FName* SocketNamePtr = MappedSocketName.Find(MontageTag);
+	if (SocketNamePtr)
+	{
+		const FName SocketName = *SocketNamePtr;
+		if (IsValid(Weapon))
+		{
+			return Weapon->GetSocketLocation(SocketName);
+		}
+		else
+		{
+			return GetMesh()->GetSocketLocation(SocketName);
+		}
+	}
+
+	return FVector();
 }
 
 void ABaseCharacter::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const
