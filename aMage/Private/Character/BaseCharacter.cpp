@@ -59,6 +59,8 @@ void ABaseCharacter::Die()
 	FDetachmentTransformRules TransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld,true);
 	Weapon->DetachFromComponent(TransformRules);
 	
+	OnDeath.Broadcast();
+	
 	MulticastHandleDeath();
 }
 

@@ -141,6 +141,12 @@ void ABaseEnemy::BindCallBackHealthValue()
 void ABaseEnemy::HitReactTagChanged(const FGameplayTag CallBackTag, int32 NewCount)
 {
 	bHitReacting = NewCount > 0;
+	
+	if(NewCount >0)
+	{
+		bGotHit = true;
+	}
+	
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
 	if(MainAIController && MainAIController->GetBlackboardComponent())
 	{

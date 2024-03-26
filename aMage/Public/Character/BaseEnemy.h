@@ -41,8 +41,13 @@ public:
 
 	void HitReactTagChanged(const FGameplayTag CallBackTag , int32 NewCount);
 
+	//boolean Check for Behavior Tree
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Combat")
 	bool bHitReacting=false;
+
+	//boolean Check for spell Activation
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category="Combat")
+	bool bGotHit=false;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Combat")
 	float BaseWalkSpeed = 250.f;

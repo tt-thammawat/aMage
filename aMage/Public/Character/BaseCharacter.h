@@ -12,6 +12,9 @@ class UGameplayEffect;
 class UGameplayAbility;
 class UAbilitySystemComponent;
 class UAttributeSet;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
+
 UCLASS()
 class AMAGE_API ABaseCharacter : public ACharacter,public IAbilitySystemInterface,public  IICombatInterface
 {
@@ -25,6 +28,9 @@ public:
 	//Client Get This Info
 	UFUNCTION(NetMulticast,Reliable)
 	virtual void MulticastHandleDeath();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDeathSignature OnDeath;
 	
 	//CombatInterface
 	//Call From Server
