@@ -21,14 +21,13 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-
-	
 	
 	//InteractInterface
 	virtual void InteractWithItem(AActor* Actor) override;
 	virtual void ShowInteractDetail() override;
 	virtual void HideInteractDetail() override;
-	
+	void HighlightActor_Implementation() override;
+	void UnHighlightActor_Implementation() override;
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent,Category=Interact)

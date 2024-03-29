@@ -47,7 +47,16 @@ void AMainInteractActor::ShowInteractDetail()
 void AMainInteractActor::HideInteractDetail()
 {
 	InteractWidget->SetVisibility(false);
+}
 
+void AMainInteractActor::HighlightActor_Implementation()
+{
+	IInteractInterface::HighlightActor_Implementation();
+}
+
+void AMainInteractActor::UnHighlightActor_Implementation()
+{
+	IInteractInterface::UnHighlightActor_Implementation();
 }
 
 void AMainInteractActor::ServerGetInteractActor_Implementation(AActor* Actor)

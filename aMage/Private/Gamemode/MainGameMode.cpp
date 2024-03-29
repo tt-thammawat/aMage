@@ -3,6 +3,141 @@
 
 #include "Gamemode/MainGameMode.h"
 
+#include "GameFramework/PlayerState.h"
+#include "GameState/MainGameState.h"
+#include "Service/ServiceLocator.h"
+#include "Service/SpawnService.h"
+
+void AMainGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	FServiceLocator::Get().OnServiceRegistered.BindUObject(this,&AMainGameMode::OnServiceRegistered);
+	
+	if(!GS)
+	{
+		GS = GetGameState<AMainGameState>();
+	}
+}
+
+AMainGameMode::AMainGameMode()
+{
+}
+
+void AMainGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	if(const APlayerState* PlayerState = NewPlayer->GetPlayerState<APlayerState>())
+	{
+		FString PlayerName = PlayerState->GetPlayerName();
+		int32 UniqueID = PlayerState->GetUniqueID();
+		if(!GS)
+		{
+			GS = GetGameState<AMainGameState>();
+			GS->InitPlayerInfo(UniqueID,PlayerName);
+		}
+		else
+		{
+			GS->InitPlayerInfo(UniqueID,PlayerName);
+		}
+	}
+}
+
+void AMainGameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+}
+
+void AMainGameMode::OnServiceRegistered(FName ServiceName)
+{
+	AActor* ServiceActor = FServiceLocator::Get().GetService("SpawnManager");
+	ServiceActors.Add(ServiceName,ServiceActor);
+}
+
+int32 AMainGameMode::GetCurrentPlayerCount() const
+{
+	return GS->PlayerArray.Num();
+}
+
+void AMainGameMode::StartNewWave()
+{
+	CurrentWave++;
+
+	if (GS)
+	{
+		GS->SetCurrentWave(CurrentWave);
+		GS->SetTimeBeforeSpawnWaves(0);
+	}
+	
+	AActor* SpawnManager = ServiceActors.FindRef("SpawnManager");
+	if (SpawnManager && SpawnManager->GetClass()->ImplementsInterface(USpawnService::StaticClass()))
+	{
+		ISpawnService::Execute_DeleteAllChest(SpawnManager);
+		
+		const int32 Difficulty =BaseDifficulty + GetCurrentPlayerCount();;
+		
+		WaveIncrement = CurrentWave*Difficulty;
+    
+		int32 EnemiesPerWaves = BaseEnemiesPerWave + WaveIncrement;
+		
+		CurrentEnemies = EnemiesPerWaves;
+		
+		if (GS)
+		{
+			GS->SetEnemiesThisWave(CurrentEnemies);
+		}
+		
+		EnemiesPerWaves = FMath::Clamp(EnemiesPerWaves, BaseEnemiesPerWave, 64);
+		
+		ISpawnService::Execute_SpawnEnemies(SpawnManager,GetCurrentWave(), EnemiesPerWaves);
+	}
+}
+
+void AMainGameMode::WaitBeforeStartNewWaves(bool bIsFirstTime)
+{
+	if(bIsFirstTime == false)
+	{
+		//Spawn Chest
+		SpawnChest();
+	}
+	
+	if(GS)
+	{
+		GS->SetTimeBeforeSpawnWaves(TimeBeforeSpawnWaves);
+	}
+	
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_WaitBeforeStartWaves, this, &AMainGameMode::StartNewWave, TimeBeforeSpawnWaves, false);
+}
+
+void AMainGameMode::SpawnChest()
+{
+	AActor* SpawnManager = ServiceActors.FindRef("SpawnManager");
+	if (SpawnManager && SpawnManager->GetClass()->ImplementsInterface(USpawnService::StaticClass()))
+	{
+		const int32 PlayerCount = GetCurrentPlayerCount();
+    
+		ISpawnService::Execute_SpawnChests(SpawnManager,CurrentWave, BaseDifficulty + PlayerCount);
+	}
+}
+
+void AMainGameMode::EnemyKilled(AActor* InstigatorActor)
+{
+	CurrentEnemies--;
+
+	if (GS)
+	{
+		GS->SetEnemiesThisWave(CurrentEnemies);
+		GS->SetWhoKilled(InstigatorActor);
+	}
+	
+	if (CurrentEnemies <= 0)
+	{
+		WaitBeforeStartNewWaves();
+	}
+}
+
+
 EItemRarity AMainGameMode::GenerateItemRarity()
 {
 	// Simplified example of generating a rarity based on weighted randomization

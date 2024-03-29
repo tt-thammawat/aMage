@@ -80,7 +80,6 @@ void AMainPlayerController::BeginPlay()
 		Subsystem->AddMappingContext(MainInputContext,0);
 		Subsystem->AddMappingContext(GenericInputContext,0);
 		Subsystem->AddMappingContext(AbilitiesInputContext,0);
-
 	}
 
 }
@@ -105,7 +104,8 @@ void AMainPlayerController::SetupInputComponent()
 	
 	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
 	MainEnhancedInputComponent->BindAction(DropButton,ETriggerEvent::Completed,this,&ThisClass::DropButtonPressed);
-	MainEnhancedInputComponent->BindAction(TABButton,ETriggerEvent::Completed,this,&ThisClass::TABButtonPressed);
+	MainEnhancedInputComponent->BindAction(ScoreBoardButton,ETriggerEvent::Completed,this,&ThisClass::ScoreBoardButtonPressed);
+	MainEnhancedInputComponent->BindAction(InventoryButton,ETriggerEvent::Completed,this,&ThisClass::InventoryButtonPressed);
 
 	//Abilities
 	MainEnhancedInputComponent->BindAbilityActions(GenericInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
@@ -232,9 +232,14 @@ void AMainPlayerController::DropButtonPressed()
 	OnDropButtonPressed.Broadcast();
 }
 
-void AMainPlayerController::TABButtonPressed()
+void AMainPlayerController::ScoreBoardButtonPressed()
 {
-	OnTABButtonPressed.Broadcast();
+	OnScoreBoardButtonPressed.Broadcast();
+}
+
+void AMainPlayerController::InventoryButtonPressed()
+{
+	OnInventoryButtonPressed.Broadcast();
 }
 
 void AMainPlayerController::Button01Pressed()

@@ -13,6 +13,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Gamemode/MainGameMode.h"
 
 ABaseEnemy::ABaseEnemy()
 {
@@ -59,7 +60,8 @@ void ABaseEnemy::HighlightActor_Implementation()
 	GetMesh()->SetRenderCustomDepth(true);
 	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 	Weapon->SetRenderCustomDepth(true);
-	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);}
+	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+}
 
 void ABaseEnemy::UnHighlightActor_Implementation()
 {
@@ -154,12 +156,19 @@ void ABaseEnemy::HitReactTagChanged(const FGameplayTag CallBackTag, int32 NewCou
 	}
 }
 
-void ABaseEnemy::Die()
+void ABaseEnemy::Die(AActor* InstigatorActor)
 {
 	SetLifeSpan(LifeSpan);
+
+	AMainGameMode* GM = GetWorld()->GetAuthGameMode<AMainGameMode>();
+	if (GM)
+	{
+		GM->EnemyKilled(InstigatorActor);
+	}
 	if(MainAIController)
 	{
 		MainAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"),true);
 	}
-	Super::Die();
+	
+	Super::Die(InstigatorActor);
 }

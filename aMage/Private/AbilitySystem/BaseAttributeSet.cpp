@@ -145,6 +145,14 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	
 	if(Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
+		UAbilitySystemComponent* SourceASC = Data.EffectSpec.GetContext().GetOriginalInstigatorAbilitySystemComponent();
+		AActor* InstigatorActor = nullptr;
+
+		if (SourceASC)
+		{
+			InstigatorActor = SourceASC->GetAvatarActor();
+		}
+		
 		const float LocalIncomingDamage = GetIncomingDamage();
 		SetIncomingDamage(0.f);
 		if(LocalIncomingDamage > 0.f)
@@ -157,7 +165,7 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				IICombatInterface* CombatInterface = Cast<IICombatInterface>(Props.TargetAvatarActor);
 				if(CombatInterface && !IICombatInterface::Execute_IsDead(Props.TargetAvatarActor))
 				{
-					CombatInterface->Die();
+					CombatInterface->Die(InstigatorActor);
 				}
 			}
 			else

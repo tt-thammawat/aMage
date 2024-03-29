@@ -17,7 +17,9 @@ struct FGameplayTag;
  */
 DECLARE_DELEGATE(FOnInteractButtonPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDropButtonPressedSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTABButtonPressedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnScoreBoardButtonPressedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryButtonPressedSignature);
+
 //Tool Bar Slot Pressed 1 2 3 4
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonPressedSignature,int,ButtonPressedNumber);
 //Request Rune Ability List For UI
@@ -43,7 +45,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnDropButtonPressedSignature OnDropButtonPressed;
 	UPROPERTY(BlueprintAssignable)
-	FOnTABButtonPressedSignature OnTABButtonPressed;
+	FOnScoreBoardButtonPressedSignature OnScoreBoardButtonPressed;
+	UPROPERTY(BlueprintAssignable)
+	FOnInventoryButtonPressedSignature OnInventoryButtonPressed;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnUpdatedWidgetUISignature UpdatedWidgetUI;
@@ -73,7 +77,9 @@ protected:
 	void LookUp(const FInputActionValue& Value);
 	void InteractButtonPressed();
 	void DropButtonPressed();
-	void TABButtonPressed();
+	void ScoreBoardButtonPressed();
+	void InventoryButtonPressed();
+
 	//For Equipping
 	void Button01Pressed();
 	void Button02Pressed();
@@ -111,7 +117,9 @@ private:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> DropButton;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> TABButton;
+	TObjectPtr<UMainInputAction> ScoreBoardButton;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMainInputAction> InventoryButton;
 	//For Equipping
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainInputAction> Button01Action;

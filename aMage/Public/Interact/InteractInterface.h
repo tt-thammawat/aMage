@@ -23,6 +23,10 @@ class AMAGE_API IInteractInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	// Pure Virtual Function Need Other class Need To override
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
+	void HighlightActor();
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
+	void UnHighlightActor();
 	virtual void InteractWithItem(AActor* Actor) =0;
 	virtual void ShowInteractDetail() = 0;
 	virtual void HideInteractDetail() = 0;

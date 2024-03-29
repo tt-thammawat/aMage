@@ -73,7 +73,8 @@ public:
  
  //Rune Drawing
  FGameplayTag Rune_Tag_04_Clear;
- 
+
+ FGameplayTag Effects_Buff_Death;
  FGameplayTag Effects_HitReact;
  
 private:

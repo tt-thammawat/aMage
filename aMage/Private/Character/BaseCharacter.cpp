@@ -54,7 +54,7 @@ UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
 
 }
 
-void ABaseCharacter::Die()
+void ABaseCharacter::Die(AActor* InstigatorActor)
 {
 	FDetachmentTransformRules TransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld,true);
 	Weapon->DetachFromComponent(TransformRules);

@@ -12,6 +12,8 @@ class UAbilitySystemComponent;
 /**
  * 
  */
+
+
 UCLASS()
 class AMAGE_API AMainPlayerState : public APlayerState,public IAbilitySystemInterface
 {
@@ -35,6 +37,7 @@ private:
 	void OnRep_Level(int32 OldLevel);
 	
 public:
+	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetPlayerStateAttributeSet() const {return AttributeSet;};
 

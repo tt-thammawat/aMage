@@ -31,6 +31,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	//CombatInterface
 	FORCEINLINE virtual int32 GetCharacterLevel() override;
+	virtual void Die(AActor* InstigatorActor) override;
 
 
 protected:
@@ -50,6 +51,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	float AO_Pitch;
 	FRotator StartingAimRotation;
+
+	//Death
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Effect ,meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayAbility> DeathGameplayClass;
 	
 	//CrossHairSpread
 	/*Determines The Spread Of The CrossHairs*/
@@ -79,7 +84,6 @@ protected:
 	void AddItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AddItemAbilities,UObject* SourceObject);
 	UFUNCTION(BlueprintCallable,Category="Abilities")
 	void RemoveItemAbilities(const TArray<TSubclassOf<UGameplayAbility>>& RemoveItemAbilities);
-	
 	
 	UFUNCTION(BlueprintImplementableEvent,Category = Weapon)
 	void OnChangingButtonPressed(int ButtonNumber);

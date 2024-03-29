@@ -62,6 +62,16 @@ int32 AMainPlayerCharacter::GetCharacterLevel()
 	return MainPlayerState->GetCharacterLevel();
 }
 
+void AMainPlayerCharacter::Die(AActor* InstigatorActor)
+{
+	FGameplayEffectContextHandle EffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(InstigatorActor);
+	FGameplayAbilitySpec GameplayAbilitySpec(DeathGameplayClass, 1, INDEX_NONE, this);
+	GetAbilitySystemComponent()->GiveAbilityAndActivateOnce(GameplayAbilitySpec);
+
+	Super::Die(InstigatorActor);
+}
+
 void AMainPlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

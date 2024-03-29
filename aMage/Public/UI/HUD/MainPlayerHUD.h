@@ -27,16 +27,19 @@ public:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<UMainPlayerWidget> OverlayWidget;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	TObjectPtr<UMainPlayerWidget> ESCWidget;
+	TObjectPtr<UMainPlayerWidget> InventoryWidget;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TObjectPtr<UMainPlayerWidget> ScoreBoardWidget;
 	
 	void InitOverlay(APlayerController* PC,APlayerState* PS,UAbilitySystemComponent* ASC,UAttributeSet* AS);
-protected:
-	
+
 private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> OverlayWidgetClass;
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UUserWidget> ESCWidgetClass;
+	TSubclassOf<UUserWidget> InventoryWidgetClass;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> ScoreBoardWidgetClass;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
 	UPROPERTY()

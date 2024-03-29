@@ -3,6 +3,7 @@
 
 #include "UI/WidgetController/OverlayWidgetController.h"
 
+#include "GameplayTagsSingleton.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "AbilitySystem/BaseAttributeSet.h"
 
@@ -84,26 +85,38 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		// Broadcast the tag here
 		OnGameplayEffectRemoved.Broadcast(FirstTag);
 	}
-);
+	);
 
-	
-	// Like Delegate but it will called That function instead
-	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda([this
-		](const FGameplayTagContainer& AssetTags)
+	//Check State Tag
+	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->RegisterGenericGameplayTagEvent().AddLambda(
+		[this](const FGameplayTag Tag, int32 NewCount)
 	{
-		for (const auto& Tag : AssetTags)
-		{
-			//"Message.HealthPotion".MatchesTag("Message") will return True, "Message".MatchesTag("Message.HealthPotion") will return False
-
-			FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
-			if(Tag.MatchesTag(MessageTag))
+			FGameplayTag StateTag = FGameplayTag::RequestGameplayTag(FName("State.Action"));
+			
+			if(Tag.MatchesTag(StateTag))
 			{
-				// Row Data
-				const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable,Tag);
-				MessageWidgetRow.Broadcast(*Row);
+				OnStateTagAdded.Broadcast(Tag,NewCount);
 			}
-		}
 	}
 	);
+	
+	// // Like Delegate but it will called That function instead
+	// Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda([this
+	// 	](const FGameplayTagContainer& AssetTags)
+	// {
+	// 	for (const auto& Tag : AssetTags)
+	// 	{
+	// 		
+	// 		//"Message.HealthPotion".MatchesTag("Message") will return True, "Message".MatchesTag("Message.HealthPotion") will return False
+	// 		FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+	// 		if(Tag.MatchesTag(MessageTag))
+	// 		{
+	// 			// Row Data
+	// 			const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable,Tag);
+	// 			MessageWidgetRow.Broadcast(*Row);
+	// 		}
+	// 	}
+	// }
+	// );
 	
 }

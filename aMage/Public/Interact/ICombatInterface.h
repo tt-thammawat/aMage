@@ -48,7 +48,7 @@ public:
 	TArray<FTaggedMontage> GetAttackMontage();
 	
 	// Dead Do
-	virtual void Die()=0;
+	virtual void Die(AActor* InstigatorActor)=0;
 
 	//Check if actor Dead
 	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)

@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "CharacterClassInfo.generated.h"
 
+class UGameplayAbility;
 /**
  * 
  */

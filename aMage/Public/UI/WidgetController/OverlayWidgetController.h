@@ -37,6 +37,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameplayEffectRemovedSignature,FG
 //Delegate DataTableRowStruct
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature,FUIWidgetRow,Row);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStateTagAddedSignature,FGameplayTag,GameplayTag,int,NewCount);
 /**
  * 
  */
@@ -73,6 +74,9 @@ protected:
 	FOnGameplayEffectRemovedSignature OnGameplayEffectRemoved;
 	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
 	FMessageWidgetRowSignature MessageWidgetRow;
+	
+	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
+	FOnStateTagAddedSignature OnStateTagAdded;
 };
 
 template <typename T>

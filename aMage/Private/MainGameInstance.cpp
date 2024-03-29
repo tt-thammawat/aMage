@@ -2,7 +2,6 @@
 
 
 #include "MainGameInstance.h"
-
 #include "GameplayTagContainer.h"
 
 UTexture2D* UMainGameInstance::GetSpellIconTexture(FName SpellName)

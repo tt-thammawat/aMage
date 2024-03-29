@@ -70,6 +70,7 @@ void FMainGameplayTags::InitializeNativeGameplayTags()
 	MainGameplayTags.Ability_Buff_Potion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Buff.Potion"), FString("Buff Potion Ability Tag"));
 
 	//Effects
+	MainGameplayTags.Effects_Buff_Death = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects.Buff.Death"), FString("Death"));
 	MainGameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects.HitReact"), FString("HitReact"));
 
 	//Montage

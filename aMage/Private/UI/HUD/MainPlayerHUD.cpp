@@ -16,18 +16,22 @@ void AMainPlayerHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbili
 	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(),OverlayWidgetClass);
 	OverlayWidget = Cast<UMainPlayerWidget>(Widget);
 	
-	UUserWidget* ESCWidgetRef = CreateWidget<UUserWidget>(GetWorld(),ESCWidgetClass);
-	ESCWidget  = Cast<UMainPlayerWidget>(ESCWidgetRef);
+	UUserWidget* InventoryWidgetRef = CreateWidget<UUserWidget>(GetWorld(),InventoryWidgetClass);
+	InventoryWidget  = Cast<UMainPlayerWidget>(InventoryWidgetRef);
+	
+	UUserWidget* ScoreBoardWidgetRef = CreateWidget<UUserWidget>(GetWorld(),ScoreBoardWidgetClass);
+	ScoreBoardWidget  = Cast<UMainPlayerWidget>(ScoreBoardWidgetRef);
 	
 	const FWidgetControllerParams WidgetControllerParams(PC,PS,ASC,AS);
 	UOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams);
 	
-	ESCWidget->SetWidgetController(WidgetController);
-	
+	InventoryWidget->SetWidgetController(WidgetController);
+	ScoreBoardWidget->SetWidgetController(WidgetController);
 	OverlayWidget->SetWidgetController(WidgetController);
 	
 	WidgetController->BroadcastInitialValue();
-	ESCWidgetRef->AddToViewport(24);
+	InventoryWidgetRef->AddToViewport(24);
+	ScoreBoardWidgetRef->AddToViewport(25);
 	
 	Widget->AddToViewport(0);
 

@@ -3,48 +3,68 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Actor/InteractActor/MainInteractActor.h"
+#include "Service/SpawnService.h"
 #include "ASpawnManager.generated.h"
 
+class ABaseEnemy;
+
+
 UCLASS()
-class AMAGE_API AASpawnManager : public AMainInteractActor
+class AMAGE_API AASpawnManager : public AMainInteractActor,public ISpawnService
 {
 	GENERATED_BODY()
+
 	
 public:	
 	AASpawnManager();
+	~AASpawnManager();
 
-protected:
-	virtual void BeginPlay() override;
+	void BeginPlay() override;
+	
+	UFUNCTION(BlueprintCallable)
+	bool EnoughPlayerPressedStart(AActor* PressingActor);
 
-public:	
-	// Function to start spawning waves of goblins
-	UFUNCTION(BlueprintCallable, Category="Goblin Spawning")
-	void StartSpawningWaves();
+	UFUNCTION()
+	void DelayedSpawnEnemy(ECharacterClass EnemyType, FVector SpawnLocation, FRotator SpawnRotation);
 
-	// Template class for the goblin to spawn
-	UPROPERTY(EditAnywhere, Category="Goblin Spawning")
-	TSubclassOf<AActor> GoblinClass;
+	
+	//Start ISpawnService Interface
+	void SpawnEnemies_Implementation(int32 CurrentWaves,int32 BatchEnemiesSpawn) override;
+	void SpawnChests_Implementation(int32 CurrentWaves,int32 Difficulty) override;
+	void DeleteAllChest_Implementation() override;
 
-	// Points where goblins will be spawned
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Goblin Spawning",meta=(MakeEditWidget="true"))
-	TArray<FVector> SpawnPoints;
+	int32 GetCurrentEnemyCount_Implementation() const override;
+	//End ISpawnService
 
-	// Number of goblins per wave
-	UPROPERTY(EditAnywhere, Category="Goblin Spawning")
-	int32 GoblinsPerWave = 5;
-
-	// Delay between waves
-	UPROPERTY(EditAnywhere, Category="Goblin Spawning")
-	float TimeBetweenWaves = 5.0f;
 
 private:
-	// Handles the spawning of a single wave
-	void SpawnWave();
+	TSet<uint32> PlayersPressedStart;
 
-	// Timer handle for wave spawning
-	FTimerHandle WaveTimerHandle;
+protected:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Management",meta=(MakeEditWidget="true"))
+	TArray<FVector> EnemySpawnPoints;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Management")
+	TMap<ECharacterClass,TSubclassOf<ABaseEnemy>> EnemyToSpawnClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Management")
+	float TimeBeforeSpawnWaves = 0.f;
 
-	// Keeps track of the current wave number
-	int32 CurrentWave = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Management")
+	TSubclassOf<AMainInteractActor> ChestClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Management",meta=(MakeEditWidget="true"))
+	TArray<FVector> ChestsSpawnPoints;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Wave Management")
+	int32 ChestsToSpawn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Wave Management")
+	TArray<TObjectPtr<AActor>> SpawnChestArray;
+	
+	FTimerHandle TimerHandle_WaitBeforeStartWaves;
+	
 };

@@ -88,7 +88,10 @@ void UGA_Jump::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepl
 	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(), ECastCheckedType::NullAllowed);
-	Character->LandedDelegate.RemoveDynamic(this,&ThisClass::OnCharacterLand);
+	if(Character)
+	{
+		Character->LandedDelegate.RemoveDynamic(this,&ThisClass::OnCharacterLand);
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

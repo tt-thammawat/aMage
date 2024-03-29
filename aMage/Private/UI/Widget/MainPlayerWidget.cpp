@@ -6,7 +6,7 @@
 void UMainPlayerWidget::SetWidgetController(UObject* InWidgetController)
 {
 	WidgetController = InWidgetController;
-	//Run in BLueprint
+	//Run in Blueprint
 	WidgetControllerSet();
 }
 
