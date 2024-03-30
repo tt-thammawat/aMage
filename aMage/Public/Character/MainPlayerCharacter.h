@@ -112,6 +112,7 @@ protected:
 	void ServerRequestAbilityActivation(const TArray<FGameplayTag>& RuneTags);
 	void ProcessAbilityRequest(const TArray<FGameplayTag>& RuneTags);
 	
+	
 	//Clear Rune Spell
 	void ClearRuneSpell_Implementation() override;
 	UFUNCTION(Server,Reliable)

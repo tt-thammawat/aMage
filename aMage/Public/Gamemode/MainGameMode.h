@@ -7,6 +7,7 @@
 #include "GameFramework/GameMode.h"
 #include "MainGameMode.generated.h"
 
+class AASpawnManager;
 class AMainGameState;
 class AMainInteractActor;
 class ABaseEnemy;
@@ -14,6 +15,24 @@ class URuneSpellClassInfo;
 class UCharacterClassInfo;
 
 
+
+USTRUCT(BlueprintType)
+struct FPlayerInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Info")
+	int32 PlayerUniqueID=0;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Info")
+	FName PlayerName=FName();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Info")
+	int32 EnemyKills = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Info")
+	int32 Deaths = 0;
+};
 
 /**
  * 
@@ -24,15 +43,9 @@ class AMAGE_API AMainGameMode : public AGameMode
 	GENERATED_BODY()
 public:
 	AMainGameMode();
-	
+
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
-	
-	UFUNCTION()
-	void OnServiceRegistered(FName ServiceName);
-	
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=Service)
-	TMap<FName,TObjectPtr<AActor>> ServiceActors;
 	
 	int32 GetCurrentPlayerCount() const;
 	
@@ -54,9 +67,13 @@ public:
 	
 	//End Wave Logic
 	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TArray<FPlayerInfo> PlayerInfoArray;
+	
 protected:
 	virtual void BeginPlay() override;
 private:
+	TObjectPtr<AASpawnManager> SpawnManager;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
 	TObjectPtr<AMainGameState> GS;

@@ -19,7 +19,7 @@ class AMAGE_API AMainProjectile : public AActor
 public:	
 	AMainProjectile();
 	virtual void Destroyed() override;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
 	//Handle UGameplayEffect Like BigBrother

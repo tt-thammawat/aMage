@@ -202,6 +202,33 @@ void UMainAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldC
 	}
 }
 
+void UMainAbilitySystemLibrary::GetLiveActorsInBeam(const UObject* WorldContextObject,
+													 TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, 
+													 const FVector& BeamStart, const FVector& BeamEnd, const FVector& BeamSize)
+{
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActors(ActorsToIgnore);
+
+	FVector BeamDirection = (BeamEnd - BeamStart).GetSafeNormal();
+	FRotator BeamRotator = BeamDirection.Rotation();
+	FQuat BeamRotation = FQuat(BeamRotator);
+	TArray<FHitResult> HitResults;
+	
+	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		World->SweepMultiByObjectType(HitResults, BeamStart, BeamEnd, BeamRotation, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), FCollisionShape::MakeBox(BeamSize), QueryParams);
+		
+		for (const FHitResult& HitResult : HitResults)
+		{
+			AActor* HitActor = HitResult.GetActor();
+			if (HitActor && HitActor->Implements<UICombatInterface>() && !IICombatInterface::Execute_IsDead(HitActor))
+			{
+				OutOverlappingActors.AddUnique(IICombatInterface::Execute_GetAvatar(HitActor));
+			}
+		}
+	}
+}
+
 bool UMainAbilitySystemLibrary::IsNotFriend(AActor* FirstActor, AActor* SecondActor)
 {
 	if (!FirstActor || !SecondActor)

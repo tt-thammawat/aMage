@@ -4,6 +4,7 @@
 #include "GameState/MainGameState.h"
 
 #include "GameFramework/PlayerState.h"
+#include "Gamemode/MainGameMode.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -15,6 +16,8 @@ void AMainGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AMainGameState,CurrentWave);
 	DOREPLIFETIME(AMainGameState,CurrentEnemies);
 	DOREPLIFETIME(AMainGameState,TimeBeforeSpawnWaves);
+	DOREPLIFETIME(AMainGameState,PlayerInfoArray);
+
 }
 
 void AMainGameState::OnRep_CurrentWave()

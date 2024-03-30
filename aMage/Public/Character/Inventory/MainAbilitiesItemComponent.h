@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Actor/Data/BaseRuneDataAsset.h"
 #include "Components/AGR_ItemComponent.h"
+#include "AbilitySystem/Data/RuneSpellClassInfo.h"
 #include "MainAbilitiesItemComponent.generated.h"
 
 class UMainInputAction;
@@ -29,11 +29,9 @@ public:
 	FName ItemSocketName;
 	
 	//Initial Item Special Abilities
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base02 Info")
-	FText AbilitiesDescriptions;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="AGR|Base02 Info")
+	TArray<FRuneAbilityMapping> ItemAbilities;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base02 Info")
 	bool bHaveAbilityWidget=false;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base02 Info")
-	TArray<TSubclassOf<UGameplayAbility>> ItemAbilities;
 	
 };

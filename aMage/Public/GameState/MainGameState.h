@@ -9,25 +9,10 @@
 /**
  * 
  */
-USTRUCT(BlueprintType)
-struct FPlayerInfo
-{
-	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Info")
-	int32 PlayerUniqueID=0;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Info")
-	FName PlayerName=FName();
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Info")
-	int32 EnemyKills = 0;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Info")
-	int32 Deaths = 0;
-};
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedCurrentWaveSignature,int32,CurrentWave);
+struct FPlayerInfo;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedCurrentWaveSignature, int32, CurrentWave);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedEnemiesThisWaveSignature,int32,CurrentEnemies);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSetTimeBeforeSpawnWavesSignature,float,TimeBeforeSpawnWaves);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerInfoUpdatedSignature,const TArray<FPlayerInfo>&,PlayerInfoArray);
@@ -64,7 +49,7 @@ public:
 	UFUNCTION()
 	void OnRep_PlayerInfoArray();
 private:
-	UPROPERTY(ReplicatedUsing=OnRep_PlayerInfoArray)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, ReplicatedUsing=OnRep_PlayerInfoArray,meta=(AllowPrivateAccess=true))
 	TArray<FPlayerInfo> PlayerInfoArray;
 	
 	UPROPERTY(ReplicatedUsing=OnRep_CurrentWave)

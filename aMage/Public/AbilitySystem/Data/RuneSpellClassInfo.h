@@ -38,7 +38,13 @@ class AMAGE_API URuneSpellClassInfo : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Rune Spell")
 	TArray<FRuneAbilityMapping> AllRuneAbilities;
-
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Staff Spell")
+	TArray<FRuneAbilityMapping> StaffAbilities;
+	
 	UFUNCTION(BlueprintCallable,Category = "Rune Spell")
 	TSubclassOf<UGameplayAbility> GetRuneSpellMatchingAbility(const TArray<FGameplayTag>& ReceivedRuneSpellTags);
+
+	UFUNCTION(BlueprintCallable,Category = "Staff Spell")
+	TSubclassOf<UGameplayAbility> GetStaffSpellMatchingAbility(const TArray<FGameplayTag>& ReceivedRuneSpellTags);
 };

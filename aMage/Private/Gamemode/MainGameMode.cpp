@@ -2,44 +2,60 @@
 
 
 #include "Gamemode/MainGameMode.h"
-
+#include "EngineUtils.h"
+#include "Actor/Spawn/ASpawnManager.h"
 #include "GameFramework/PlayerState.h"
 #include "GameState/MainGameState.h"
-#include "Service/ServiceLocator.h"
 #include "Service/SpawnService.h"
 
 void AMainGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	FServiceLocator::Get().OnServiceRegistered.BindUObject(this,&AMainGameMode::OnServiceRegistered);
-	
+
 	if(!GS)
 	{
 		GS = GetGameState<AMainGameState>();
 	}
+	
+	for (TActorIterator<AASpawnManager> It(GetWorld()); It; ++It)
+	{
+		AASpawnManager* FoundSpawnManager = *It;
+		if (FoundSpawnManager)
+		{
+			SpawnManager = FoundSpawnManager;
+			break;
+		}
+	}
+
 }
 
 AMainGameMode::AMainGameMode()
 {
+	GameStateClass = AMainGameState::StaticClass();
+
 }
 
 void AMainGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	if(const APlayerState* PlayerState = NewPlayer->GetPlayerState<APlayerState>())
+	if(APlayerState* PlayerState = NewPlayer->GetPlayerState<APlayerState>())
 	{
 		FString PlayerName = PlayerState->GetPlayerName();
 		int32 UniqueID = PlayerState->GetUniqueID();
+		
 		if(!GS)
 		{
 			GS = GetGameState<AMainGameState>();
-			GS->InitPlayerInfo(UniqueID,PlayerName);
 		}
-		else
+		
+		GS->InitPlayerInfo(UniqueID,PlayerName);
+		
+		if (GEngine)
 		{
-			GS->InitPlayerInfo(UniqueID,PlayerName);
+			FString DebugMessage = FString::Printf(TEXT("Initializing Player Info for %s, ID: %d"), *PlayerName, UniqueID);
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, DebugMessage);
+			
 		}
 	}
 }
@@ -47,12 +63,6 @@ void AMainGameMode::PostLogin(APlayerController* NewPlayer)
 void AMainGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
-}
-
-void AMainGameMode::OnServiceRegistered(FName ServiceName)
-{
-	AActor* ServiceActor = FServiceLocator::Get().GetService("SpawnManager");
-	ServiceActors.Add(ServiceName,ServiceActor);
 }
 
 int32 AMainGameMode::GetCurrentPlayerCount() const
@@ -70,7 +80,6 @@ void AMainGameMode::StartNewWave()
 		GS->SetTimeBeforeSpawnWaves(0);
 	}
 	
-	AActor* SpawnManager = ServiceActors.FindRef("SpawnManager");
 	if (SpawnManager && SpawnManager->GetClass()->ImplementsInterface(USpawnService::StaticClass()))
 	{
 		ISpawnService::Execute_DeleteAllChest(SpawnManager);
@@ -112,7 +121,6 @@ void AMainGameMode::WaitBeforeStartNewWaves(bool bIsFirstTime)
 
 void AMainGameMode::SpawnChest()
 {
-	AActor* SpawnManager = ServiceActors.FindRef("SpawnManager");
 	if (SpawnManager && SpawnManager->GetClass()->ImplementsInterface(USpawnService::StaticClass()))
 	{
 		const int32 PlayerCount = GetCurrentPlayerCount();

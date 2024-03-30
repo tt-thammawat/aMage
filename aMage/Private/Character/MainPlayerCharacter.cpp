@@ -262,7 +262,6 @@ void AMainPlayerCharacter::RemoveItemAbilities(const TArray<TSubclassOf<UGamepla
 
 void AMainPlayerCharacter::MatchRuneSpellTags(TArray<FGameplayTag> RuneTags)
 {
-	
 	if (HasAuthority())
 	{
 		ProcessAbilityRequest(RuneTags);
@@ -293,10 +292,38 @@ void AMainPlayerCharacter::ProcessAbilityRequest(const TArray<FGameplayTag>& Run
 		{
 			ServerRequestClearRuneSpell();
 		}
-		
+
 		UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent());
+		
+		AActor* StaffActor;
+		PlayerEquipmentManager->GetItemInSlot("0",StaffActor);
+		
+		TSubclassOf<UGameplayAbility> MatchedAbility;
+		
+		if(StaffActor)
+		{
+			UMainAbilitiesItemComponent* AbilitiesItemComponent = Cast<UMainAbilitiesItemComponent>(StaffActor->GetComponentByClass(UMainAbilitiesItemComponent::StaticClass()));
+			if(AbilitiesItemComponent)
+			{
+				for(auto& Abilities : AbilitiesItemComponent->ItemAbilities)
+				{
+					if(RuneTags == Abilities.RuneSpellTags)
+					{
+						MatchedAbility = MainGameMode->RuneSpellClassInfos->GetStaffSpellMatchingAbility(RuneTags);
+						if(MatchedAbility)
+						{
+							TArray<TSubclassOf<UGameplayAbility>> AddAbilities;
+							AddAbilities.Add(MatchedAbility);
+							BaseAbilitySystemComponent->AddCharacterAbilities(AddAbilities,nullptr,true);
+							return;
+						}
+					}
+				}
+			}
+		}
+		
 		//Get Abilities From Server
-		TSubclassOf<UGameplayAbility> MatchedAbility = MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTags);
+		MatchedAbility = MainGameMode->RuneSpellClassInfos->GetRuneSpellMatchingAbility(RuneTags);
 		if(MatchedAbility)
 		{
 			TArray<TSubclassOf<UGameplayAbility>> AddAbilities;

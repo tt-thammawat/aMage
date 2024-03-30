@@ -2,11 +2,9 @@
 
 
 #include "Actor/Spawn/ASpawnManager.h"
-
 #include "Character/BaseEnemy.h"
 #include "Gamemode/MainGameMode.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Service/ServiceLocator.h"
 
 // Sets default values
 AASpawnManager::AASpawnManager()
@@ -17,13 +15,11 @@ AASpawnManager::AASpawnManager()
 
 AASpawnManager::~AASpawnManager()
 {
-	FServiceLocator::Get().DeregisterService("SpawnManager");
 }
 
 void AASpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
-	FServiceLocator::Get().RegisterService("SpawnManager",this);
 }
 
 bool AASpawnManager::EnoughPlayerPressedStart(AActor* PressingActor)

@@ -64,6 +64,29 @@ void AMainPlayerController::ClientTriggerUIUpdate_Implementation(int CurrentlyBu
 	UpdatedWidgetUI.Broadcast(CurrentlyButtonPressed);
 }
 
+void AMainPlayerController::ServerRequestStaffAbilitiesLists_Implementation(const FString& AbilitiesName)
+{
+	AMainGameMode* GM = Cast<AMainGameMode>(GetWorld()->GetAuthGameMode());
+	if (GM)
+	{
+		TArray<FRuneAbilityMapping> StaffAbilitiesLists = GM->RuneSpellClassInfos->StaffAbilities;
+			TArray<FRuneAbilityMapping> AbilityMapping;
+		for (FRuneAbilityMapping& Ability : StaffAbilitiesLists )
+		{
+			if(Ability.RuneSpellName == AbilitiesName)
+			{
+				AbilityMapping.Add(Ability);
+			}
+		}
+		ClientReceiveStaffAbilitiesLists(AbilityMapping);
+	}
+}
+
+void AMainPlayerController::ClientReceiveStaffAbilitiesLists_Implementation(const TArray<FRuneAbilityMapping>& Abilities)
+{
+	OnStaffAbilitiesListReceived.Broadcast(Abilities);
+}
+
 void AMainPlayerController::BeginPlay()
 {
 	Super::BeginPlay();

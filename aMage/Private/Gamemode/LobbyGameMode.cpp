@@ -21,22 +21,6 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 				World->ServerTravel(FString("/Game/TestingMap?listen"));
 			}
 		}
-					
-		if(GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(1,60.f,FColor::Red,FString::Printf(TEXT("Player In Game : %d"),NumberOfPlayers));
-			APlayerState* PlayerState = NewPlayer->GetPlayerState<APlayerState>();
-			if(PlayerState)
-			{
-				FString PlayerName = PlayerState->GetPlayerName();
-				GEngine->AddOnScreenDebugMessage(-1,60.f,FColor::Cyan,FString::Printf(TEXT("%s Has Join"),*PlayerName));
-
-			}
-		}
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1,60.f,FColor::Cyan,FString::Printf(TEXT("Tear")));
 	}
 
 }

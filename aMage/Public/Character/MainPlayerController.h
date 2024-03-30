@@ -24,6 +24,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryButtonPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonPressedSignature,int,ButtonPressedNumber);
 //Request Rune Ability List For UI
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRuneAbilitiesListReceived, const TArray<FRuneAbilityMapping>&, Abilities);
+//Request Staff ability List
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStaffAbilitiesListReceived, const TArray<FRuneAbilityMapping>&, Abilities);
 //UpDate UI When PickUp Something
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedWidgetUISignature,int,CurrentlyPressedButton);
 
@@ -48,6 +50,8 @@ public:
 	FOnScoreBoardButtonPressedSignature OnScoreBoardButtonPressed;
 	UPROPERTY(BlueprintAssignable)
 	FOnInventoryButtonPressedSignature OnInventoryButtonPressed;
+	UPROPERTY(BlueprintAssignable)
+	FOnStaffAbilitiesListReceived OnStaffAbilitiesListReceived;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnUpdatedWidgetUISignature UpdatedWidgetUI;
@@ -64,6 +68,13 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientReceiveRuneAbilitiesLists(const TArray<FRuneAbilityMapping>& Abilities);
 
+	//Get StaffAbilities If Exists
+	UFUNCTION(Server, Reliable,BlueprintCallable)
+	void ServerRequestStaffAbilitiesLists(const FString& AbilitiesName);
+
+	UFUNCTION(Client, Reliable)
+	void ClientReceiveStaffAbilitiesLists(const TArray<FRuneAbilityMapping>& Abilities);
+	
 	UPROPERTY(BlueprintAssignable)
 	FOnRuneAbilitiesListReceived OnRuneAbilitiesListReceived;
 protected:

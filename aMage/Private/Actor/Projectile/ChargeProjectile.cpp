@@ -22,10 +22,10 @@ AChargeProjectile::AChargeProjectile()
 	
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComponent");
 	CapsuleComponent->SetCollisionObjectType(ECC_PROJECTILE);
-	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Overlap);
-	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Overlap);
+	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
 	CapsuleComponent->SetupAttachment(CustomRootComponent);
 	
@@ -34,7 +34,7 @@ AChargeProjectile::AChargeProjectile()
 	ProjectileMovementComponent->MaxSpeed = 550.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 	// Ensure the projectile movement component updates its position based on the root component
-	ProjectileMovementComponent->UpdatedComponent = CustomRootComponent;
+	ProjectileMovementComponent->UpdatedComponent = CapsuleComponent;
 }
 
 void AChargeProjectile::Destroyed()
