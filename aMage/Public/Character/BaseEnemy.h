@@ -31,7 +31,7 @@ public:
 
 	//CombatInterface
 	virtual int32 GetCharacterLevel() override;
-	virtual void Die(AActor* InstigatorActor) override;
+	virtual void Die(const AActor* InstigatorActor) override;
 	//EndCombatInterface
 
 	//ITargetInterface

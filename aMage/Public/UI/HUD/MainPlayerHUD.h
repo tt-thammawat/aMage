@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "MainPlayerHUD.generated.h"
 
+class AMainPlayerController;
 class UMainPaintWidget;
 /**
  * 

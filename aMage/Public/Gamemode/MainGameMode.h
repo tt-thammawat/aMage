@@ -59,7 +59,7 @@ public:
 	void SpawnChest();
 	
 	UFUNCTION(BlueprintCallable)
-	void EnemyKilled(AActor* InstigatorActor);
+	void EnemyKilled(const AActor* InstigatorActor);
 
 public:
 	int32 GetCurrentWave() const { return CurrentWave; }

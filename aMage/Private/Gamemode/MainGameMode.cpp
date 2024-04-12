@@ -129,7 +129,7 @@ void AMainGameMode::SpawnChest()
 	}
 }
 
-void AMainGameMode::EnemyKilled(AActor* InstigatorActor)
+void AMainGameMode::EnemyKilled(const AActor* InstigatorActor)
 {
 	CurrentEnemies--;
 

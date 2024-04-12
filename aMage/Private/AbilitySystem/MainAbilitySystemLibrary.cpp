@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/MainAbilitySystemLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayTagsSingleton.h"
 #include "MainAbilityTypes.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/MainPlayerState.h"
@@ -198,6 +199,40 @@ void UMainAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldC
 				//Prevent Duplication
 				OutOverlappingActors.AddUnique(IICombatInterface::Execute_GetAvatar(OverlapResult.GetActor()));
 			}
+		}
+	}
+}
+
+void UMainAbilitySystemLibrary::GetDeadPlayersWithinRadius(const UObject* WorldContextObject,
+															TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius,
+															const FVector& SphereOrigin)
+{
+	const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (!World) return;
+
+	FCollisionQueryParams SphereParams(FName(TEXT("DeadPlayersQuery")), true);
+	SphereParams.AddIgnoredActors(ActorsToIgnore);
+
+	TArray<FOverlapResult> Overlaps;
+	World->OverlapMultiByObjectType(Overlaps, SphereOrigin, FQuat::Identity, 
+									 FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), 
+									 FCollisionShape::MakeSphere(Radius), SphereParams);
+
+	FGameplayTag DeathTag = FMainGameplayTags::Get().Effects_Buff_Death;
+
+	for (const FOverlapResult& OverlapResult : Overlaps)
+	{
+		AActor* OverlappedActor = OverlapResult.GetActor();
+		if (!OverlappedActor || ActorsToIgnore.Contains(OverlappedActor) || !OverlappedActor->ActorHasTag("Player"))
+		{
+			continue;
+		}
+
+		IAbilitySystemInterface* AbilitySystemInterface = Cast<IAbilitySystemInterface>(OverlappedActor);
+		UAbilitySystemComponent* AbilitySystemComponent = AbilitySystemInterface ? AbilitySystemInterface->GetAbilitySystemComponent() : nullptr;
+		if (AbilitySystemComponent && AbilitySystemComponent->HasMatchingGameplayTag(DeathTag))
+		{
+			OutOverlappingActors.AddUnique(OverlappedActor);
 		}
 	}
 }

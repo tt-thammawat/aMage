@@ -66,6 +66,10 @@ public:
 	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GameplayMechanics")
 	static void GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors,const TArray<AActor*>& ActorsToIgnore,float Radius,const FVector& SphereOrigin);
 
+	//Revive Radius
+	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GameplayMechanics")
+	static void GetDeadPlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors,const TArray<AActor*>& ActorsToIgnore,float Radius,const FVector& SphereOrigin);
+
 	UFUNCTION(BlueprintCallable,Category = "MainAbilitySystemLibrary|GameplayMechanics")
 	static void GetLiveActorsInBeam(const UObject* WorldContextObject,TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore,const FVector& BeamStart, const FVector& BeamEnd, const FVector& BeamSize);
 	

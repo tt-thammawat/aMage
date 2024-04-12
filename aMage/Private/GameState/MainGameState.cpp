@@ -57,10 +57,7 @@ void AMainGameState::InitPlayerInfo(const int32& UniqueID,const FString& PlayerN
 	NewPlayerInfo.PlayerName = PlayerFName;
 	PlayerInfoArray.Add(NewPlayerInfo);
 	
-	if(HasAuthority())
-	{
-		OnPlayerInfoUpdated.Broadcast(PlayerInfoArray);
-	}
+	OnPlayerInfoUpdated.Broadcast(PlayerInfoArray);
 }
 
 void AMainGameState::SetTimeBeforeSpawnWaves(float Time)
@@ -90,7 +87,7 @@ void AMainGameState::SetEnemiesThisWave(int32 Enemies)
 	}
 }
 
-void AMainGameState::SetWhoKilled(AActor* InstigatorActor)
+void AMainGameState::SetWhoKilled(const AActor* InstigatorActor)
 {
 	if(!InstigatorActor) return;
 	

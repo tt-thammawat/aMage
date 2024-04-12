@@ -35,7 +35,7 @@ public:
 	//CombatInterface
 	//Call From Server
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
-	virtual void Die(AActor* InstigatorActor) override;
+	virtual void Die(const AActor* InstigatorActor) override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
 	virtual TArray<FTaggedMontage> GetAttackMontage_Implementation() override;

@@ -54,7 +54,7 @@ UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
 
 }
 
-void ABaseCharacter::Die(AActor* InstigatorActor)
+void ABaseCharacter::Die(const AActor* InstigatorActor)
 {
 	FDetachmentTransformRules TransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld,true);
 	Weapon->DetachFromComponent(TransformRules);
@@ -75,7 +75,7 @@ void ABaseCharacter::MulticastHandleDeath_Implementation()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
 	
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Dissolve();
 	bDead = true;
 }

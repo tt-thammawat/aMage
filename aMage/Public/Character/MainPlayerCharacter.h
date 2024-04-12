@@ -31,9 +31,15 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	//CombatInterface
 	FORCEINLINE virtual int32 GetCharacterLevel() override;
-	virtual void Die(AActor* InstigatorActor) override;
+	virtual void Die(const AActor* InstigatorActor) override;
+	void Revive_Implementation(const AActor* InstigatorActor) override;
+	//End CombatInterface
 
+	UFUNCTION(NetMulticast,Reliable)
+	void MulticastRevive();
 
+	void OnReviveMontageEnded(UAnimMontage* Montage, bool bInterrupted = false);
+	
 protected:
 	virtual void BeginPlay() override;
 	//Start Equip Default Item After Possese
@@ -55,6 +61,10 @@ protected:
 	//Death
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Effect ,meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UGameplayAbility> DeathGameplayClass;
+	FGameplayAbilitySpecHandle DeathSpecHandle;
+	//Revive
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Effect ,meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> ReviveAnimMontage;
 	
 	//CrossHairSpread
 	/*Determines The Spread Of The CrossHairs*/

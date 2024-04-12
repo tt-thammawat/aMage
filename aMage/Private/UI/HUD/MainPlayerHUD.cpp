@@ -13,8 +13,8 @@ void AMainPlayerHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbili
 	checkf(OverlayWidgetClass,TEXT("OverlayClass Uninitialized,MainHUD"))
 	checkf(OverlayWidgetControllerClass,TEXT("OOverlayWidgetControllerClassd,MainHUD"))
 	
-	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(),OverlayWidgetClass);
-	OverlayWidget = Cast<UMainPlayerWidget>(Widget);
+	UUserWidget* OverlayWidgetRef = CreateWidget<UUserWidget>(GetWorld(),OverlayWidgetClass);
+	OverlayWidget = Cast<UMainPlayerWidget>(OverlayWidgetRef);
 	
 	UUserWidget* InventoryWidgetRef = CreateWidget<UUserWidget>(GetWorld(),InventoryWidgetClass);
 	InventoryWidget  = Cast<UMainPlayerWidget>(InventoryWidgetRef);
@@ -32,8 +32,7 @@ void AMainPlayerHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbili
 	WidgetController->BroadcastInitialValue();
 	InventoryWidgetRef->AddToViewport(24);
 	ScoreBoardWidgetRef->AddToViewport(25);
-	
-	Widget->AddToViewport(0);
+	OverlayWidgetRef->AddToViewport(0);
 
 }
 

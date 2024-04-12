@@ -12,6 +12,7 @@
 #include "Character/MainPlayerState.h"
 #include "Character/Inventory/Amage_EquipmentManager.h"
 #include "Character/Inventory/MainAbilitiesItemComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Gamemode/MainGameMode.h"
@@ -62,14 +63,73 @@ int32 AMainPlayerCharacter::GetCharacterLevel()
 	return MainPlayerState->GetCharacterLevel();
 }
 
-void AMainPlayerCharacter::Die(AActor* InstigatorActor)
+void AMainPlayerCharacter::Die(const AActor* InstigatorActor)
 {
-	FGameplayEffectContextHandle EffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
-	EffectContextHandle.AddSourceObject(InstigatorActor);
-	FGameplayAbilitySpec GameplayAbilitySpec(DeathGameplayClass, 1, INDEX_NONE, this);
-	GetAbilitySystemComponent()->GiveAbilityAndActivateOnce(GameplayAbilitySpec);
+	if (HasAuthority())
+	{
+		FGameplayEffectContextHandle EffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
+		EffectContextHandle.AddSourceObject(InstigatorActor);
+		FGameplayAbilitySpec GameplayAbilitySpec(DeathGameplayClass, 1, INDEX_NONE, this);
+		DeathSpecHandle = GetAbilitySystemComponent()->GiveAbilityAndActivateOnce(GameplayAbilitySpec);
+	}
+	OnDeath.Broadcast();
+	
+	MulticastHandleDeath();
+}
 
-	Super::Die(InstigatorActor);
+void AMainPlayerCharacter::Revive_Implementation(const AActor* InstigatorActor)
+{
+	if (Weapon)
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("WeaponSocket"));
+	}
+
+	MulticastRevive();
+}
+
+void AMainPlayerCharacter::MulticastRevive_Implementation()
+{
+	
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetSimulatePhysics(false);
+	GetMesh()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+	
+	float MontageDuration = PlayAnimMontage(ReviveAnimMontage, 1);
+	
+	if (MontageDuration > 0.0f)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			// Bind the delegate to the OnMontageEnded event
+			FOnMontageEnded MontageEndedDelegate;
+			MontageEndedDelegate.BindUObject(this, &AMainPlayerCharacter::OnReviveMontageEnded);
+			AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, ReviveAnimMontage);
+		}
+	}
+}
+
+void AMainPlayerCharacter::OnReviveMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (!bInterrupted)
+	{
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+		GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+		if(HasAuthority())
+		{
+			if (GetAbilitySystemComponent() && DeathSpecHandle.IsValid())
+			{
+				GetAbilitySystemComponent()->ClearAbility(DeathSpecHandle);
+			}
+		}
+		
+		bDead = false;
+	}
 }
 
 void AMainPlayerCharacter::Tick(float DeltaSeconds)

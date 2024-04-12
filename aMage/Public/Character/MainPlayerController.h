@@ -8,14 +8,16 @@
 #include "GameFramework/PlayerController.h"
 #include "MainPlayerController.generated.h"
 
+class UMainInputConfig;
 class UDamageTextComponent;
-class UMainInputAction;
+class UInputAction;
 class UBaseAbilitySystemComponent;
 struct FGameplayTag;
 /**
  * 
  */
 DECLARE_DELEGATE(FOnInteractButtonPressedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOptionButtonPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDropButtonPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnScoreBoardButtonPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryButtonPressedSignature);
@@ -52,7 +54,8 @@ public:
 	FOnInventoryButtonPressedSignature OnInventoryButtonPressed;
 	UPROPERTY(BlueprintAssignable)
 	FOnStaffAbilitiesListReceived OnStaffAbilitiesListReceived;
-	
+	UPROPERTY(BlueprintAssignable)
+	FOnOptionButtonPressedSignature OnOptionButtonPressed;
 	UPROPERTY(BlueprintAssignable)
 	FOnUpdatedWidgetUISignature UpdatedWidgetUI;
 	UFUNCTION(Client,Reliable,BlueprintCallable, Category="YourCategory")
@@ -90,7 +93,8 @@ protected:
 	void DropButtonPressed();
 	void ScoreBoardButtonPressed();
 	void InventoryButtonPressed();
-
+	void OptionButtonPressed();
+	
 	//For Equipping
 	void Button01Pressed();
 	void Button02Pressed();
@@ -103,57 +107,52 @@ protected:
 	void AbilityInputTagReleased(const FGameplayTag InputTag);
 	void AbilityInputTagHeld(const FGameplayTag InputTag);
 
+	UPROPERTY(EditDefaultsOnly,Category = "Input")
+	TObjectPtr<UMainInputConfig> InputConfig;
+	
 private:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> MainInputContext;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> MoveInput;
+	TObjectPtr<UInputAction> MoveInput;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> LookXAction;
+	TObjectPtr<UInputAction> LookXAction;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> LookYAction;
+	TObjectPtr<UInputAction> LookYAction;
 	
 	//For Generic Abilities
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> GenericInputContext;
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> JumpAction;
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> CrouchAction;
 	//End Generic Abilities
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> InteractButton;
+	TObjectPtr<UInputAction> InteractButton;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> DropButton;
+	TObjectPtr<UInputAction> DropButton;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> ScoreBoardButton;
+	TObjectPtr<UInputAction> ScoreBoardButton;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> InventoryButton;
+	TObjectPtr<UInputAction> InventoryButton;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> OptionButton;
 	//For Equipping
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> Button01Action;
+	TObjectPtr<UInputAction> Button01Action;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> Button02Action;
+	TObjectPtr<UInputAction> Button02Action;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> Button03Action;
+	TObjectPtr<UInputAction> Button03Action;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> Button04Action;
+	TObjectPtr<UInputAction> Button04Action;
 	//End For Equipping
 	
 	//For RuneAbilities
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> AbilitiesInputContext;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> StarterLMBAction;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMainInputAction> StarterRMBAction;
 	//End RuneAbilities
 	
 

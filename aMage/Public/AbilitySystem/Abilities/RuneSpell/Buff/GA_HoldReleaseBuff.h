@@ -1,22 +1,21 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
-#include "GA_SpellChargeProjectile.generated.h"
+#include "GA_HoldReleaseBuff.generated.h"
 
-class AChargeProjectile;
 /**
  * 
  */
 UCLASS()
-class AMAGE_API UGA_SpellChargeProjectile : public UMainGenericGameplayAbility
+class AMAGE_API UGA_HoldReleaseBuff : public UMainGenericGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UGA_SpellChargeProjectile();
+	UGA_HoldReleaseBuff();
 	
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
 
@@ -40,11 +39,6 @@ protected:
 	float RemainingTime=1.0f;
 	UPROPERTY()
 	FTimerHandle TimerHandle_UpdateHeldValue;
-	UFUNCTION(BlueprintCallable,Category=Projectile)
-	virtual void SpawnChargeProjectile(const FVector& ProjectileTargetLocation, int32 NumProjectiles);
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	TSubclassOf<AChargeProjectile> ProjectileClass;
-
 };
 
 

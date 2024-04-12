@@ -156,10 +156,9 @@ void ABaseEnemy::HitReactTagChanged(const FGameplayTag CallBackTag, int32 NewCou
 	}
 }
 
-void ABaseEnemy::Die(AActor* InstigatorActor)
+void ABaseEnemy::Die(const AActor* InstigatorActor)
 {
 	SetLifeSpan(LifeSpan);
-
 	AMainGameMode* GM = GetWorld()->GetAuthGameMode<AMainGameMode>();
 	if (GM)
 	{

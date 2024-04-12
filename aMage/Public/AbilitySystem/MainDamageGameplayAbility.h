@@ -27,10 +27,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Damage")
 	TMap<FGameplayTag,FScalableFloat> DamageTypes;
 
-	//Effect
+	//Effect That Send To Projectile
+	//Effect Damage Reduce Health
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
-	
+
+	//Effect That Can be remove when damage is done
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<UGameplayEffect> EffectClass;
 };

@@ -75,7 +75,7 @@ public:
 	void SetEnemiesThisWave(int32 Enemies);
 
 	UFUNCTION()
-	void SetWhoKilled(AActor* InstigatorActor);
+	void SetWhoKilled(const AActor* InstigatorActor);
 	
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurrentWave() const { return CurrentWave; }

@@ -115,7 +115,6 @@ void AMainPlayerController::PlayerTick(float DeltaTime)
 void AMainPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-
 	UMainEnhancedInputComponent* MainEnhancedInputComponent = CastChecked<UMainEnhancedInputComponent>(InputComponent);
 	MainEnhancedInputComponent->BindAction(MoveInput,ETriggerEvent::Triggered,this,&ThisClass::MoveAction);
 	MainEnhancedInputComponent->BindAction(LookXAction,ETriggerEvent::Triggered,this,&ThisClass::Turn);
@@ -124,6 +123,7 @@ void AMainPlayerController::SetupInputComponent()
 	MainEnhancedInputComponent->BindAction(Button02Action,ETriggerEvent::Completed,this,&ThisClass::Button02Pressed);
 	MainEnhancedInputComponent->BindAction(Button03Action,ETriggerEvent::Completed,this,&ThisClass::Button03Pressed);
 	MainEnhancedInputComponent->BindAction(Button04Action,ETriggerEvent::Completed,this,&ThisClass::Button04Pressed);
+	MainEnhancedInputComponent->BindAction(OptionButton,ETriggerEvent::Completed,this,&ThisClass::OptionButtonPressed);
 	
 	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
 	MainEnhancedInputComponent->BindAction(DropButton,ETriggerEvent::Completed,this,&ThisClass::DropButtonPressed);
@@ -131,8 +131,7 @@ void AMainPlayerController::SetupInputComponent()
 	MainEnhancedInputComponent->BindAction(InventoryButton,ETriggerEvent::Completed,this,&ThisClass::InventoryButtonPressed);
 
 	//Abilities
-	MainEnhancedInputComponent->BindAbilityActions(GenericInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
-	MainEnhancedInputComponent->BindAbilityActions(AbilitiesInputContext,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
+	MainEnhancedInputComponent->BindAbilityActions(InputConfig,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
 }
 
 // Check with the FMainGameplayTags Singleton if the InputTag = InputTag.LMB,RMB
@@ -263,6 +262,11 @@ void AMainPlayerController::ScoreBoardButtonPressed()
 void AMainPlayerController::InventoryButtonPressed()
 {
 	OnInventoryButtonPressed.Broadcast();
+}
+
+void AMainPlayerController::OptionButtonPressed()
+{
+	OnOptionButtonPressed.Broadcast();
 }
 
 void AMainPlayerController::Button01Pressed()
