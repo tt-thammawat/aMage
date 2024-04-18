@@ -21,26 +21,26 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		{
 			// init FGameplayAbilitySpec Struct
 			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass,1,INDEX_NONE,SourceObject);
+			
 			//if Ability is derived from MainGameplayAbility it will have InputTag Button 1 23 4 LMB RMB
 			if(const UMainGameplayAbility* MainGameplayAbility = Cast<UMainGameplayAbility>(AbilitySpec.Ability))
 			{
-	
 				//Add InputTag from StartupInputTag from MainGameplayAbility To DynamicAbilityTags ( FGameplayContainer )
 				AbilitySpec.DynamicAbilityTags.AddTag(MainGameplayAbility->StartupInputTag);
-				//Add StartUp Abilities if it derives from MainGameplayAbility
-				FGameplayAbilitySpecHandle Handle = GiveAbility(AbilitySpec);
-				
-				if(bHaveAbilityWidget)
-				{
-					// Activate the ability once
-					if(Handle.IsValid())
-					{
-						TryActivateAbility(Handle);
-					}
-				}
-				//broadcast this if ability was granted
-				OnAbilityGranted.Broadcast();
 			}
+			//Add StartUp Abilities if it derives from MainGameplayAbility
+			FGameplayAbilitySpecHandle Handle = GiveAbility(AbilitySpec);
+				
+			if(bHaveAbilityWidget)
+			{
+				// Activate the ability once
+				if(Handle.IsValid())
+				{
+					TryActivateAbility(Handle);
+				}
+			}
+			//broadcast this if ability was granted
+			OnAbilityGranted.Broadcast();
 		}
 	}
 }

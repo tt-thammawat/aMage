@@ -14,6 +14,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Gamemode/MainGameMode.h"
+#include "Navigation/PathFollowingComponent.h"
 
 ABaseEnemy::ABaseEnemy()
 {
@@ -156,6 +157,7 @@ void ABaseEnemy::HitReactTagChanged(const FGameplayTag CallBackTag, int32 NewCou
 	}
 }
 
+
 void ABaseEnemy::Die(const AActor* InstigatorActor)
 {
 	SetLifeSpan(LifeSpan);
@@ -170,4 +172,20 @@ void ABaseEnemy::Die(const AActor* InstigatorActor)
 	}
 	
 	Super::Die(InstigatorActor);
+}
+
+void ABaseEnemy::MulticastHandleUpdateCapsuleAndRecoverLocation_Implementation()
+{
+	Super::MulticastHandleUpdateCapsuleAndRecoverLocation_Implementation();
+
+	if(GetController())
+	{
+		AAIController* AIController = Cast<AAIController>(GetController());
+		if (AIController)
+		{
+			AIController->GetBrainComponent()->RestartLogic();
+			AIController->GetPathFollowingComponent()->ResumeMove();
+
+		}
+	}
 }

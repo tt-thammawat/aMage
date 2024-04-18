@@ -70,16 +70,12 @@ void AASpawnManager::SpawnEnemies_Implementation(int32 CurrentWaves,int32 BatchE
 	
 	TArray<ECharacterClass> SpawnableTypes;
 	
-	if (CurrentWaves >= 1 && CurrentWaves <= 2)
-	{
-		SpawnableTypes.Add(ECharacterClass::Warrior);
-	}
-	else if (CurrentWaves >= 3 && CurrentWaves <= 4)
+	if (CurrentWaves >= 1 && CurrentWaves < 2)
 	{
 		SpawnableTypes.Add(ECharacterClass::Warrior);
 		SpawnableTypes.Add(ECharacterClass::Ranger);
 	}
-	else if (CurrentWaves >= 5)
+	else if (CurrentWaves >= 2)
 	{
 		SpawnableTypes.Append({ECharacterClass::Wizard, ECharacterClass::Warrior, ECharacterClass::Ranger});
 	}

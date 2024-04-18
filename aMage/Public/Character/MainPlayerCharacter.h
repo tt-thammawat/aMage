@@ -8,6 +8,7 @@
 #include "Interact/CastingInterface.h"
 #include "MainPlayerCharacter.generated.h"
 
+class UWidgetComponent;
 class UAmage_EquipmentManager;
 class AProjectile;
 class AMainPlayerController;
@@ -29,26 +30,26 @@ public:
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Tick(float DeltaSeconds) override;
+
+	
 	//CombatInterface
 	FORCEINLINE virtual int32 GetCharacterLevel() override;
 	virtual void Die(const AActor* InstigatorActor) override;
+	virtual void MulticastHandleDeath_Implementation() override;
 	void Revive_Implementation(const AActor* InstigatorActor) override;
 	//End CombatInterface
-
-	UFUNCTION(NetMulticast,Reliable)
-	void MulticastRevive();
-
-	void OnReviveMontageEnded(UAnimMontage* Montage, bool bInterrupted = false);
+	UFUNCTION(BlueprintCallable)
+	void FinishedDead();
 	
 protected:
 	virtual void BeginPlay() override;
-	//Start Equip Default Item After Possese
+	//Start Equip Default Item After Posses
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartEquipDefaultItem();
 	UFUNCTION(Server,Reliable)
 	void ServerStartEquipDefaultItem();
 	//Aiming
-	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadOnly)
+	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadOnly,Category = Combat)
 	bool bIsAiming;
 	void AimOffset(float DeltaTime);
 	UPROPERTY(BlueprintReadOnly)
@@ -59,12 +60,17 @@ protected:
 	FRotator StartingAimRotation;
 
 	//Death
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Effect ,meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Combat ,meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UGameplayAbility> DeathGameplayClass;
 	FGameplayAbilitySpecHandle DeathSpecHandle;
+	
 	//Revive
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Effect ,meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Combat ,meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> ReviveAnimMontage;
+	
+	UFUNCTION(NetMulticast,Reliable)
+	void MulticastRevive();
+	void OnReviveMontageEnded(UAnimMontage* Montage, bool bInterrupted = false);
 	
 	//CrossHairSpread
 	/*Determines The Spread Of The CrossHairs*/
@@ -79,6 +85,9 @@ protected:
 	/*Shooting Component for CrossHairs Spread*/
 	UPROPERTY(VisibleAnyWhere, BlueprintReadOnly, Category = CrossHairs, meta = (AllowPrivateAccess = "true"))
 	float CrosshairShootingFactor;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true), Category = UI)
+	TObjectPtr<UWidgetComponent> OverheaderWidgetName;
 	
 	void CalculateCrossHairSpreadByActor(float DeltaTime);
 	
@@ -123,15 +132,22 @@ protected:
 	void ProcessAbilityRequest(const TArray<FGameplayTag>& RuneTags);
 	
 	
-	//Clear Rune Spell
+	//Start ICastingInterface
 	void ClearRuneSpell_Implementation() override;
+	void ReloadRuneSpell_Implementation() override;
+	//End CastingInterface
+	
 	UFUNCTION(Server,Reliable)
 	void ServerRequestClearRuneSpell();
 	void ProcessClearRuneSpellRequest();
+
+	UFUNCTION(Server,Reliable)
+	void ServerRequestReloadRuneSpell();
+	void ProcessReloadRuneSpellRequest();
 public:
 	
 	//FireSpell
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite,Category = CrossHairs , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite,Category = Combat , meta = (AllowPrivateAccess = "true"))
 	bool bFiringSpell = false;
 	
 	UFUNCTION(BlueprintCallable,Category=Interact)

@@ -6,7 +6,6 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayTagsSingleton.h"
 #include "Character/MainPlayerCharacter.h"
-#include "Kismet/GameplayStatics.h"
 
 
 UGA_HoldReleaseBuff::UGA_HoldReleaseBuff()
@@ -35,9 +34,12 @@ void UGA_HoldReleaseBuff::InputPressed(const FGameplayAbilitySpecHandle Handle,
 	}
 	
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
+	
 	ToggleCameraFOV(true);
+	bIsPressed=true;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_UpdateHeldValue, this, &UGA_HoldReleaseBuff::UpdateValueDuringHold, 0.05f,true);
 }
+
 void UGA_HoldReleaseBuff::ActivateAbilityAfterHeld()
 {
 	// Used To Activated Ability Here But Now Move It To InputRelease
@@ -61,12 +63,11 @@ void UGA_HoldReleaseBuff::InputReleased(const FGameplayAbilitySpecHandle Handle,
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_InputHeld);
 	}
 
-	// Check if the remaining time is within the threshold
 	if (RemainingTime <= 0.1f)
 	{
 		ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
 	}
-	
+	bIsPressed = false;
 	ToggleCameraFOV(false);
 	RemainingTime = 1.0f;
 }
@@ -76,6 +77,8 @@ void UGA_HoldReleaseBuff::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
 	MainPlayerCharacter->SetIsAiming(false);
+	bIsPressed = false;
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -83,8 +86,8 @@ void UGA_HoldReleaseBuff::CancelAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateCancelAbility)
 {
-	MainPlayerCharacter->SetIsAiming(false);
-	
+	bIsPressed = false;
+
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
@@ -93,11 +96,11 @@ void UGA_HoldReleaseBuff::UpdateValueDuringHold()
 	if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_InputHeld))
 	{
 		RemainingTime = GetWorld()->GetTimerManager().GetTimerRemaining(TimerHandle_InputHeld);
-		GetValueWhenPressed(RemainingTime);
+		GetValueWhenPressed(RemainingTime,bIsPressed);
 	}
 	else
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_UpdateHeldValue);
-		GetValueWhenPressed(0.f);
+		GetValueWhenPressed(0.f,bIsPressed);
 	}
 }

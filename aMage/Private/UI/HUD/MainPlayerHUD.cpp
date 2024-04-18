@@ -32,7 +32,7 @@ void AMainPlayerHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbili
 	WidgetController->BroadcastInitialValue();
 	InventoryWidgetRef->AddToViewport(24);
 	ScoreBoardWidgetRef->AddToViewport(25);
-	OverlayWidgetRef->AddToViewport(0);
+	OverlayWidgetRef->AddToViewport(20);
 
 }
 

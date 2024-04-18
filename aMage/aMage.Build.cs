@@ -27,7 +27,7 @@ public class aMage : ModuleRules
 			"Slate",
 			"SlateCore", 
 			"Niagara",
-			"AIModule"
+			"AIModule", "WebRTC"
 		});
 
 		// Uncomment if you are using Slate UI

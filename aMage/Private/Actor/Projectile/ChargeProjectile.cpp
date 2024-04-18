@@ -34,7 +34,7 @@ AChargeProjectile::AChargeProjectile()
 	ProjectileMovementComponent->MaxSpeed = 550.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 	// Ensure the projectile movement component updates its position based on the root component
-	ProjectileMovementComponent->UpdatedComponent = CapsuleComponent;
+	ProjectileMovementComponent->UpdatedComponent = CustomRootComponent;
 }
 
 void AChargeProjectile::Destroyed()
@@ -56,7 +56,7 @@ void AChargeProjectile::BeginPlay()
 	
 	CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this,&ThisClass::OnSphereOverlap);
 	//Attached Sound For Looping
-	UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent(),NAME_None,FVector(ForceInit),FRotator::ZeroRotator,EAttachLocation::KeepRelativeOffset,true);
+	UGameplayStatics::SpawnSoundAttached(LoopingSound, CapsuleComponent,NAME_None,FVector(ForceInit),FRotator::ZeroRotator,EAttachLocation::KeepRelativeOffset,true);
 }
 
 void AChargeProjectile::OnSphereOverlap(UPrimitiveComponent* OverlapComponent, AActor* OtherActor,

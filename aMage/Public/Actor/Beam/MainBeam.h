@@ -58,7 +58,5 @@ private:
 	TObjectPtr<USphereComponent> SphereComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UNiagaraComponent> BeamNiagara;
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USoundBase> LoopingSound;
 	
 };

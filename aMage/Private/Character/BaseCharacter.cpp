@@ -6,7 +6,9 @@
 #include "GameplayTagsSingleton.h"
 #include "aMage/aMage.h"
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
+#include "ActorComponents/FootStepsComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -22,41 +24,90 @@ ABaseCharacter::ABaseCharacter()
 	Weapon->SetupAttachment(GetMesh(),FName("WeaponHandSocket"));
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	FootStepsComponent = CreateDefaultSubobject<UFootStepsComponent>("FootStepComp");
 }
-
 
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	GetWorldTimerManager().SetTimer(CapsuleTimerHandle, this, &ABaseCharacter::UpdateCapsuleAndRecoverLocation, 0.5f, true);
 }
 
-void ABaseCharacter::Dissolve()
+void ABaseCharacter::Tick(float DeltaSeconds)
 {
-	if(IsValid(DissolveMaterialInstance))
-	{
-		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(DissolveMaterialInstance,this);
-		GetMesh()->SetMaterial(0,DynamicMatInst);
+	Super::Tick(DeltaSeconds);
+}
 
-		StartDissolveTimeline(DynamicMatInst);
-	}
-	if(IsValid(WeaponDissolveMaterialInstance))
+void ABaseCharacter::UpdateCapsuleAndRecoverLocation()
+{
+	if(bDead) return;
+	if(!GetMesh()->IsSimulatingPhysics()) return;
+
+	if(HasAuthority())
 	{
-		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance,this);
-		Weapon->SetMaterial(0,DynamicMatInst);
-		StartWeaponDissolveTimeline(DynamicMatInst);
+		if (GetMesh() && GetMesh()->IsSimulatingPhysics())
+		{
+			if (GetMesh()->GetComponentVelocity().IsNearlyZero(10.f))
+			{
+				MulticastHandleUpdateCapsuleAndRecoverLocation();
+			}
+		}
 	}
 }
 
-//return this ASC
-UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
+void ABaseCharacter::MulticastHandleUpdateCapsuleAndRecoverLocation_Implementation()
 {
-	return AbilitySystemComponent;
+	FHitResult HitResult;
+	FVector Start = GetMesh()->GetSocketLocation(TEXT("root"));
+	FVector End = Start - FVector(0,0,-100.f);
+	FVector TargetGroundLocation = Start;
+	if(GetWorld()->LineTraceSingleByChannel(HitResult,Start,End,ECC_Visibility))
+	{
+		TargetGroundLocation = HitResult.Location;
+	}
+	
+	GetCapsuleComponent()->SetWorldLocation(TargetGroundLocation + FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+	
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetSimulatePhysics(false);
+	GetMesh()->PutAllRigidBodiesToSleep();
+	GetMesh()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+	if(RecoverAnimMontage)
+	{
+		float MontageDuration = PlayAnimMontage(RecoverAnimMontage, 1);
+	
+		if (MontageDuration > 0.0f)
+		{
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				// Bind the delegate to the OnMontageEnded event
+				FOnMontageEnded MontageEndedDelegate;
+				MontageEndedDelegate.BindUObject(this, &ABaseCharacter::OnRecoverMontageEnded);
+				AnimInstance->Montage_SetEndDelegate( MontageEndedDelegate, RecoverAnimMontage);
+			}
+		}
+	}
+}
+
+void ABaseCharacter::OnRecoverMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle,ECR_Block);
+	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
 }
 
 void ABaseCharacter::Die(const AActor* InstigatorActor)
 {
-	FDetachmentTransformRules TransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld,true);
+	const FDetachmentTransformRules TransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld,true);
 	Weapon->DetachFromComponent(TransformRules);
 	
 	OnDeath.Broadcast();
@@ -75,9 +126,26 @@ void ABaseCharacter::MulticastHandleDeath_Implementation()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
 	
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Dissolve();
 	bDead = true;
+}
+
+void ABaseCharacter::Dissolve()
+{
+	if(IsValid(DissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(DissolveMaterialInstance,this);
+		GetMesh()->SetMaterial(0,DynamicMatInst);
+
+		StartDissolveTimeline(DynamicMatInst);
+	}
+	if(IsValid(WeaponDissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance,this);
+		Weapon->SetMaterial(0,DynamicMatInst);
+		StartWeaponDissolveTimeline(DynamicMatInst);
+	}
 }
 
 UAnimMontage* ABaseCharacter::GetHitReactMontage_Implementation()
@@ -153,6 +221,13 @@ void ABaseCharacter::AddCharacterAbilities()
 
 }
 
+
+//return this ASC
+UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+
+}
 
 
 

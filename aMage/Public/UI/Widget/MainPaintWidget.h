@@ -44,6 +44,7 @@ class AMainPlayerController;
  */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawingRuneSuccessSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawingClearSpellSuccessSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDrawingReloadSpellSuccessSignature);
 
 UCLASS()
 class AMAGE_API UMainPaintWidget : public UMainPlayerWidget
@@ -61,6 +62,8 @@ public:
 	FOnDrawingRuneSuccessSignature OnDrawingRuneSuccess;
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingClearSpellSuccessSignature OnClearSpellSuccess;
+	UPROPERTY(BlueprintAssignable)
+	FOnDrawingReloadSpellSuccessSignature OnDrawingReloadSpellSuccess;
 	
 	UFUNCTION(BlueprintCallable)
 	TArray<FGameplayTag> GetRuneTags() const {return RuneTags;};
@@ -109,6 +112,15 @@ private:
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
 	TArray<FGameplayTag> RuneTags;
 
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=Sound,meta=(AllowPrivateAccess=true))
+	TObjectPtr<USoundBase> SuccessSound;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=Sound,meta=(AllowPrivateAccess=true))
+	TObjectPtr<USoundBase> ReloadSound;
+	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=Sound,meta=(AllowPrivateAccess=true))
+	TObjectPtr<USoundBase> FailSound;
+	
 //Drawing Canvas Line
 	 
 protected:

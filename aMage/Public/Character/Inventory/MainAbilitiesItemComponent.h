@@ -19,19 +19,22 @@ class AMAGE_API UMainAbilitiesItemComponent : public UAGR_ItemComponent
 	
 public:
 	//Initial Item Base
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base Info")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="AGR|Base Info")
 	TObjectPtr<UTexture2D> ItemIcon;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base Info")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="AGR|Base Info")
 	TObjectPtr<UTexture2D> ItemEquipIcon;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base Info")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="AGR|Base Info")
 	FText ItemDescription;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base Info")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="AGR|Base Info")
 	FName ItemSocketName;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="AGR|Base Info")
+	TObjectPtr<USoundBase> PickUp_Sound;
+
 	
 	//Initial Item Special Abilities
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="AGR|Base02 Info")
 	TArray<FRuneAbilityMapping> ItemAbilities;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category="AGR|Base02 Info")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="AGR|Base02 Info")
 	bool bHaveAbilityWidget=false;
 	
 };

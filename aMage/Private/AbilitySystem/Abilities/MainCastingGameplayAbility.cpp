@@ -73,13 +73,14 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 			}
 
 			PaintWidget->SetWidgetController(PlayerController);
-			PaintWidget->AddToViewport(12);
+			PaintWidget->AddToViewport(30);
 		}
 
 		if(PaintWidget)
 		{
 			PaintWidget->OnDrawingRuneSuccess.AddDynamic(this, &ThisClass::CheckRuneTags);
 			PaintWidget->OnClearSpellSuccess.AddDynamic(this, &ThisClass::ClearRuneTags);
+			PaintWidget->OnDrawingReloadSpellSuccess.AddDynamic(this,&ThisClass::ReloadRuneTags);
 			CheckNormalSpellAbilityTag();
 		}
 	}
@@ -94,7 +95,7 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	//Set Character WalkSpeed
 	const ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get(),ECastCheckedType::NullAllowed);
 	OldMaxWalkSpeed=Character->GetCharacterMovement()->MaxWalkSpeed;
-	Character->GetCharacterMovement()->MaxWalkSpeed = OldMaxWalkSpeed*0.8f;
+	Character->GetCharacterMovement()->MaxWalkSpeed = OldMaxWalkSpeed*MaxWalkSpeedMultiplier;
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
@@ -213,6 +214,12 @@ void UMainCastingGameplayAbility::ClearRuneTags()
 	ICastingInterface::Execute_ClearRuneSpell(Character);
 }
 
+void UMainCastingGameplayAbility::ReloadRuneTags()
+{
+	ACharacter* Character = CastChecked<ACharacter>(GetActorInfo().AvatarActor.Get(),ECastCheckedType::NullAllowed);
+	ICastingInterface::Execute_ReloadRuneSpell(Character);
+}
+
 void UMainCastingGameplayAbility::CheckNormalSpellAbilityTag()
 {
 	TArray<FGameplayAbilitySpec> ActiveAbilities=GetAbilitySystemComponentFromActorInfo()->GetActivatableAbilities();
@@ -285,6 +292,7 @@ void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	{
 		PaintWidget->OnDrawingRuneSuccess.RemoveDynamic(this, &ThisClass::CheckRuneTags);
 		PaintWidget->OnClearSpellSuccess.RemoveDynamic(this,&ThisClass::ClearRuneTags);
+		PaintWidget->OnDrawingRuneSuccess.RemoveDynamic(this,&ThisClass::ReloadRuneTags);
 	}
 
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());

@@ -34,7 +34,8 @@ private:
 	//Speed
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float OldMaxWalkSpeed = 600.f;
-
+	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	float MaxWalkSpeedMultiplier = 0.8f;
 	//Camera
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float DefaultFOV= 90.f;
@@ -59,6 +60,8 @@ private:
 	void CheckRuneTags();
 	UFUNCTION()
 	void ClearRuneTags();
+	UFUNCTION()
+	void ReloadRuneTags();
 	//Check if the ability is active if no then reset visual
 	void CheckNormalSpellAbilityTag();
 	// Tracks whether the ability is currently active by Input.

@@ -23,15 +23,22 @@ void UMainPaintWidget::CheckDrawSpell()
 	const TArray<FVector2D>CurrentPoints = Points;
 	const FUnistrokeResult Result = UMainAssetManager::Get().GetRecognizer()->Recognize(CurrentPoints, false);
 	
-	if (Result.Score < 0.8f)
+	if (Result.Score < 0.7f)
 		{
 			RemoveAllPoints();
+			PlaySound(FailSound);
 		}
 	else
 		{
-			if (Result.NameTag.MatchesTagExact(FMainGameplayTags::Get().Rune_Tag_04_Clear))
+			if (Result.NameTag.MatchesTagExact(FMainGameplayTags::Get().Rune_Tag_99_Clear))
 			{
 				OnClearSpellSuccess.Broadcast();
+				PlaySound(FailSound);
+			}
+			else if (Result.NameTag.MatchesTagExact(FMainGameplayTags::Get().Rune_Tag_99_Reload))
+			{
+				OnDrawingReloadSpellSuccess.Broadcast();
+				PlaySound(ReloadSound);
 			}
 			else
 			{
@@ -40,10 +47,17 @@ void UMainPaintWidget::CheckDrawSpell()
 				if(CheckIfRuneTagMatchInList() == true)
 				{
 					OnDrawingRuneSuccess.Broadcast();
+					PlaySound(SuccessSound);
+
 				}
 				else if(CheckIfRuneTagMatchInList() == false)
 				{
 					RuneTags.RemoveAt(RuneTags.Num() - 1);
+					PlaySound(FailSound);
+				}
+				else
+				{
+					PlaySound(FailSound);
 				}
 			}
 			RemoveAllPoints();
@@ -169,6 +183,7 @@ bool UMainPaintWidget::CheckIfRuneTagMatchInList()
 
 void UMainPaintWidget::K2_CallClearSpellFunction()
 {
+	PlaySound(FailSound);
 	OnClearSpellSuccess.Broadcast();
 }
 

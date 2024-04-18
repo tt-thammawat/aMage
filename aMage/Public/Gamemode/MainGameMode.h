@@ -34,6 +34,7 @@ struct FPlayerInfo
 	int32 Deaths = 0;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStartWaveSignature,bool, bIsWaveStart);
 /**
  * 
  */
@@ -67,6 +68,9 @@ public:
 	
 	//End Wave Logic
 	
+	UPROPERTY(BlueprintAssignable)
+	FOnStartWaveSignature OnStartWave;
+	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TArray<FPlayerInfo> PlayerInfoArray;
 	
@@ -85,14 +89,18 @@ private:
 	int32 BaseDifficulty = 1;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
-	int32 BaseEnemiesPerWave = 2;
+	int32 BaseEnemiesPerWave = 8;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
 	int32 CurrentEnemies = 0;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
-	int32 WaveIncrement = 1;
 
+	//1.33 means that the number of additional enemies increases by 33% per wave
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
+	float GrowthFactor = 1.33f;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
+	int32 WaveIncrement = 0;
+	
 	FTimerHandle TimerHandle_WaitBeforeStartWaves;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")

@@ -34,8 +34,11 @@ public:
 	UFUNCTION()
 	virtual void UpdateValueDuringHold();
 	UFUNCTION(BlueprintImplementableEvent)
-	void GetValueWhenPressed(float PressedTimes);
+	void GetValueWhenPressed(float PressedTimes,bool bPressed=false);
+	
 protected:
+	UPROPERTY()
+	bool bIsPressed = false;
 	float RemainingTime=1.0f;
 	UPROPERTY()
 	FTimerHandle TimerHandle_UpdateHeldValue;

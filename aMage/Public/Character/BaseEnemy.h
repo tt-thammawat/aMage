@@ -34,6 +34,8 @@ public:
 	virtual void Die(const AActor* InstigatorActor) override;
 	//EndCombatInterface
 
+	void MulticastHandleUpdateCapsuleAndRecoverLocation_Implementation() override;
+	
 	//ITargetInterface
 	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
 	virtual AActor* GetCombatTarget_Implementation() const override;

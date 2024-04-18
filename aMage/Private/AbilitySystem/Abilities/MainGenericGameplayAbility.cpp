@@ -11,11 +11,16 @@
 #include "UI/Widget/MainPaintWidget.h"
 #include "Net/UnrealNetwork.h"
 
+UMainGenericGameplayAbility::UMainGenericGameplayAbility()
+{
+	UsageTimes = MaxUsageTimes;
+}
+
 void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UMainGenericGameplayAbility,UsageTimes,COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMainGenericGameplayAbility,UsageTimes,COND_OwnerOnly,REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION(UMainGenericGameplayAbility,bIsCancel,COND_OwnerOnly);
 
 }
@@ -148,4 +153,10 @@ void UMainGenericGameplayAbility::RemoveAbilityAfterEnd(const TArray<TSubclassOf
 	{
 		BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveAbilities);
 	}
+}
+
+void UMainGenericGameplayAbility::OnRep_UsageTimes()
+{
+	OnUsageTimeChanged.Broadcast(UsageTimes);
+
 }

@@ -26,4 +26,6 @@ public:
 	virtual void MatchRuneSpellTags(TArray<FGameplayTag> RuneTags)=0;
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
     void ClearRuneSpell();
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void ReloadRuneSpell();
 };

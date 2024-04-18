@@ -72,7 +72,8 @@ public:
  FGameplayTag Montage_Attack_LeftHand;
  
  //Rune Drawing
- FGameplayTag Rune_Tag_04_Clear;
+ FGameplayTag Rune_Tag_99_Clear;
+ FGameplayTag Rune_Tag_99_Reload;
 
  FGameplayTag Effects_Buff_Death;
  FGameplayTag Effects_HitReact;

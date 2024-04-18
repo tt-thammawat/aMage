@@ -8,6 +8,7 @@
 #include "Interact/ICombatInterface.h"
 #include "BaseCharacter.generated.h"
 
+class UFootStepsComponent;
 class UGameplayEffect;
 class UGameplayAbility;
 class UAbilitySystemComponent;
@@ -22,15 +23,6 @@ class AMAGE_API ABaseCharacter : public ACharacter,public IAbilitySystemInterfac
 
 public:
 	ABaseCharacter();
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	UAttributeSet* GetAttributeSet() const {return AttributeSet;};
-
-	//Client Get This Info
-	UFUNCTION(NetMulticast,Reliable)
-	virtual void MulticastHandleDeath();
-
-	UPROPERTY(BlueprintAssignable)
-	FOnDeathSignature OnDeath;
 	
 	//CombatInterface
 	//Call From Server
@@ -42,20 +34,42 @@ public:
 	//GetWeaponTipSocketName And Make FVector out of it
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	//EndCombatInterface
+
+	//Client Get This Info
+	UFUNCTION(NetMulticast,Reliable)
+	virtual void MulticastHandleDeath();
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnDeathSignature OnDeath;
 	
 	UPROPERTY(EditAnywhere,Category="Combat")
 	TArray<FTaggedMontage> AttackMontage;
+	UFootStepsComponent* GetFootStepsComponent() const {return FootStepsComponent;};
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TObjectPtr<UFootStepsComponent> FootStepsComponent;
+
+	UPROPERTY()
+	FTimerHandle CapsuleTimerHandle;
+	void UpdateCapsuleAndRecoverLocation();
+	UFUNCTION(NetMulticast,Reliable)
+	virtual void MulticastHandleUpdateCapsuleAndRecoverLocation();
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> RecoverAnimMontage;
+	void OnRecoverMontageEnded(UAnimMontage* Montage, bool bInterrupted = false);
+
 	//Weapon
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 	//Socket For Firing
 	UPROPERTY(EditAnywhere,Category="Combat")
 	TMap<FGameplayTag,FName> MappedSocketName;
-	
+
 	bool bDead = false;
 	/*Dissolve Effects*/
 	void Dissolve();
@@ -93,8 +107,9 @@ protected:
 
 	//Give Character Abilities
 	void AddCharacterAbilities();
-public:	
-
+	
+public:
+	
 	UPROPERTY(EditAnywhere,Category="Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
 	
@@ -102,4 +117,7 @@ public:
 	TArray<TSubclassOf<UGameplayAbility>> StartUpAbilities;
 	
 	bool GetIsDead() const {return bDead;};
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	UAttributeSet* GetAttributeSet() const {return AttributeSet;};
 };

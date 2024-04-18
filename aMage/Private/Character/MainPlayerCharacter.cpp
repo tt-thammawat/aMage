@@ -13,6 +13,7 @@
 #include "Character/Inventory/Amage_EquipmentManager.h"
 #include "Character/Inventory/MainAbilitiesItemComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Gamemode/MainGameMode.h"
@@ -32,6 +33,9 @@ AMainPlayerCharacter::AMainPlayerCharacter()
 
 	PlayerEquipmentManager = CreateDefaultSubobject<UAmage_EquipmentManager>("PlayerEquipmentManager");
 	PlayerEquipmentManager->SetIsReplicated(true);
+
+	OverheaderWidgetName=CreateDefaultSubobject<UWidgetComponent>("OverHeaderWidget");
+	OverheaderWidgetName->SetupAttachment(RootComponent);
 }
 
 void AMainPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -77,6 +81,26 @@ void AMainPlayerCharacter::Die(const AActor* InstigatorActor)
 	MulticastHandleDeath();
 }
 
+void AMainPlayerCharacter::MulticastHandleDeath_Implementation()
+{
+	GetCharacterMovement()->DisableMovement();
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+
+	GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+
+	if (OverheaderWidgetName)
+	{
+		OverheaderWidgetName->SetVisibility(false);
+	}
+	bDead = true;
+}
+
+
+void AMainPlayerCharacter::FinishedDead()
+{
+	GetMesh()->bPauseAnims = true;
+}
+
 void AMainPlayerCharacter::Revive_Implementation(const AActor* InstigatorActor)
 {
 	if (Weapon)
@@ -87,6 +111,7 @@ void AMainPlayerCharacter::Revive_Implementation(const AActor* InstigatorActor)
 	MulticastRevive();
 }
 
+
 void AMainPlayerCharacter::MulticastRevive_Implementation()
 {
 	
@@ -94,8 +119,9 @@ void AMainPlayerCharacter::MulticastRevive_Implementation()
 	GetMesh()->SetSimulatePhysics(false);
 	GetMesh()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
-	
-	float MontageDuration = PlayAnimMontage(ReviveAnimMontage, 1);
+	GetMesh()->bPauseAnims = false;
+
+	const float MontageDuration = PlayAnimMontage(ReviveAnimMontage, 1);
 	
 	if (MontageDuration > 0.0f)
 	{
@@ -114,11 +140,18 @@ void AMainPlayerCharacter::OnReviveMontageEnded(UAnimMontage* Montage, bool bInt
 {
 	if (!bInterrupted)
 	{
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		if (OverheaderWidgetName)
+		{
+			OverheaderWidgetName->SetVisibility(true);
+		}
+
+		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+		
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 		GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 		if(HasAuthority())
 		{
@@ -207,10 +240,10 @@ void AMainPlayerCharacter::CalculateCrossHairSpreadByActor(float DeltaTime)
 			DeltaTime,
 			2.25f);
 	}
-	else		//Charactor is On The Ground
+	else		//Character is On The Ground
 
 	{
-		//Shrink The Crosshairs Rapidly While On The Ground
+		//Shrink The Cross hairs Rapidly While On The Ground
 		CrosshairInAirFactor = FMath::FInterpTo(
 			CrosshairInAirFactor,
 			0.0f,
@@ -430,6 +463,39 @@ void AMainPlayerCharacter::ProcessClearRuneSpellRequest()
 	for (const FGameplayAbilitySpecHandle& Handle : AbilitiesToRemove)
 	{
 		BaseAbilitySystemComponent->ClearAbility(Handle);
+	}
+}
+
+void AMainPlayerCharacter::ReloadRuneSpell_Implementation()
+{
+	if (HasAuthority())
+	{
+		ProcessReloadRuneSpellRequest();
+	}
+	else
+	{
+		ServerRequestReloadRuneSpell();
+	}
+}
+
+
+void AMainPlayerCharacter::ServerRequestReloadRuneSpell_Implementation()
+{
+	ReloadRuneSpell_Implementation();
+}
+
+void AMainPlayerCharacter::ProcessReloadRuneSpellRequest()
+{
+	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent());
+	
+	for (const FGameplayAbilitySpec& Spec : BaseAbilitySystemComponent->GetActivatableAbilities())
+	{
+		
+		if (Spec.Ability && Spec.Ability->AbilityTags.HasTagExact(FMainGameplayTags::Get().Ability_Rune_NormalSpell))
+		{
+			UMainGenericGameplayAbility* MainGenericGameplayAbility = CastChecked<UMainGenericGameplayAbility>(Spec.Ability);
+			MainGenericGameplayAbility->SetUsageTimeToMax();
+		}
 	}
 }
 

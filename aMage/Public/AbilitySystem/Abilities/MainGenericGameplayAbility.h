@@ -19,6 +19,8 @@ class AMAGE_API UMainGenericGameplayAbility : public UMainDamageGameplayAbility
 	GENERATED_BODY()
 
 public:
+	UMainGenericGameplayAbility();
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	UPROPERTY(BlueprintAssignable,Category=Spell)
@@ -57,9 +59,12 @@ protected:
 	//Ability 
 	UPROPERTY(Replicated,EditAnywhere,BlueprintReadOnly,Category=Spell)
 	bool bIsCancel=false;
-	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)
-	float UsageTimes;
-	
+	UPROPERTY(ReplicatedUsing=OnRep_UsageTimes,EditAnywhere,BlueprintReadWrite,Category=Spell)
+	float UsageTimes = 0;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Spell)
+	float MaxUsageTimes = 0;
+	UFUNCTION()
+	void OnRep_UsageTimes();
 	//Camera
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float DefaultFOV= 90.f;
@@ -86,5 +91,6 @@ protected:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category=Timer)
 	float InputHeldDuration = 3.0f; // Hold duration in seconds
 	
-
+public:
+	void SetUsageTimeToMax() {UsageTimes = MaxUsageTimes;}
 };

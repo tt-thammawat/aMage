@@ -53,9 +53,9 @@ void AMainGameMode::PostLogin(APlayerController* NewPlayer)
 		
 		if (GEngine)
 		{
-			FString DebugMessage = FString::Printf(TEXT("Initializing Player Info for %s, ID: %d"), *PlayerName, UniqueID);
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, DebugMessage);
-			
+			// FString DebugMessage = FString::Printf(TEXT("Initializing Player Info for %s, ID: %d"), *PlayerName, UniqueID);
+			// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, DebugMessage);
+			//
 		}
 	}
 }
@@ -80,13 +80,15 @@ void AMainGameMode::StartNewWave()
 		GS->SetTimeBeforeSpawnWaves(0);
 	}
 	
+	OnStartWave.Broadcast(true);
+	
 	if (SpawnManager && SpawnManager->GetClass()->ImplementsInterface(USpawnService::StaticClass()))
 	{
 		ISpawnService::Execute_DeleteAllChest(SpawnManager);
 		
-		const int32 Difficulty =BaseDifficulty + GetCurrentPlayerCount();;
+		const int32 Difficulty =BaseDifficulty * GetCurrentPlayerCount();;
 		
-		WaveIncrement = CurrentWave*Difficulty;
+		WaveIncrement = Difficulty * FMath::Pow(GrowthFactor, CurrentWave);
     
 		int32 EnemiesPerWaves = BaseEnemiesPerWave + WaveIncrement;
 		
@@ -141,6 +143,7 @@ void AMainGameMode::EnemyKilled(const AActor* InstigatorActor)
 	
 	if (CurrentEnemies <= 0)
 	{
+		OnStartWave.Broadcast(false);
 		WaitBeforeStartNewWaves();
 	}
 }
