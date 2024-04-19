@@ -63,7 +63,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnDrawingClearSpellSuccessSignature OnClearSpellSuccess;
 	UPROPERTY(BlueprintAssignable)
-	FOnDrawingReloadSpellSuccessSignature OnDrawingReloadSpellSuccess;
+	FOnDrawingReloadSpellSuccessSignature OnReloadSpellSuccess;
 	
 	UFUNCTION(BlueprintCallable)
 	TArray<FGameplayTag> GetRuneTags() const {return RuneTags;};

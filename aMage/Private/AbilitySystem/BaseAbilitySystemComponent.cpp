@@ -4,11 +4,11 @@
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "GameplayTagsSingleton.h"
 #include "AbilitySystem/Abilities/MainGameplayAbility.h"
+#include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
 
 
 void UBaseAbilitySystemComponent::AbilityActorInfoSet()
 {
-	//Add Delegate When Affect Applies to self
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this,&UBaseAbilitySystemComponent::ClientEffectApplied);
 }
 
@@ -19,27 +19,21 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		FGameplayAbilitySpec* ExistingSpec = FindAbilitySpecFromClass(AbilityClass);
 		if(ExistingSpec == nullptr)
 		{
-			// init FGameplayAbilitySpec Struct
 			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass,1,INDEX_NONE,SourceObject);
 			
-			//if Ability is derived from MainGameplayAbility it will have InputTag Button 1 23 4 LMB RMB
 			if(const UMainGameplayAbility* MainGameplayAbility = Cast<UMainGameplayAbility>(AbilitySpec.Ability))
 			{
-				//Add InputTag from StartupInputTag from MainGameplayAbility To DynamicAbilityTags ( FGameplayContainer )
 				AbilitySpec.DynamicAbilityTags.AddTag(MainGameplayAbility->StartupInputTag);
 			}
-			//Add StartUp Abilities if it derives from MainGameplayAbility
 			FGameplayAbilitySpecHandle Handle = GiveAbility(AbilitySpec);
 				
 			if(bHaveAbilityWidget)
 			{
-				// Activate the ability once
 				if(Handle.IsValid())
 				{
 					TryActivateAbility(Handle);
 				}
 			}
-			//broadcast this if ability was granted
 			OnAbilityGranted.Broadcast();
 		}
 	}
@@ -99,10 +93,8 @@ void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputT
 {
 	if (!InputTag.IsValid()) return;
 
-	// Temporary array to store ability spec handles that match the input tag
 	TArray<FGameplayAbilitySpecHandle> MatchingAbilities;
 
-	// First pass: Identify abilities that match the criteria
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
@@ -111,10 +103,8 @@ void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputT
 		}
 	}
 
-	// Second pass: Act on the collected abilities
 	for (const FGameplayAbilitySpecHandle& AbilityHandle : MatchingAbilities)
 	{
-		// Retrieve the spec again; it's safe because we're not iterating over the collection here
 		FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromHandle(AbilityHandle);
 		if (AbilitySpec)
 		{
@@ -131,10 +121,8 @@ void UBaseAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 {
 	if (!InputTag.IsValid()) return;
 
-	// Temporary array to store matching ability specs
 	TArray<FGameplayAbilitySpec*> MatchingAbilitySpecs;
 
-	// First pass: collect abilities
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.IsActive() && AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
@@ -143,7 +131,6 @@ void UBaseAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 		}
 	}
 
-	// Second pass: perform actions on collected abilities
 	for (FGameplayAbilitySpec* AbilitySpec : MatchingAbilitySpecs)
 	{
 		AbilitySpecInputReleased(*AbilitySpec);

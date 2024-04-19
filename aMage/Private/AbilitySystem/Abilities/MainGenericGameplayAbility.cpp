@@ -11,31 +11,33 @@
 #include "UI/Widget/MainPaintWidget.h"
 #include "Net/UnrealNetwork.h"
 
-UMainGenericGameplayAbility::UMainGenericGameplayAbility()
-{
-	UsageTimes = MaxUsageTimes;
-}
 
 void UMainGenericGameplayAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UMainGenericGameplayAbility,UsageTimes,COND_OwnerOnly,REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION(UMainGenericGameplayAbility,UsageTimes,COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UMainGenericGameplayAbility,bIsCancel,COND_OwnerOnly);
 
 }
 
-void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+void UMainGenericGameplayAbility::PostInitProperties()
 {
-	if(UsageTimes<=0) return;
+	Super::PostInitProperties();
+	UsageTimes = MaxUsageTimes;
+}
+
+void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle,
+                                               const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
 	
+	if(UsageTimes<=0) return;
+
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	
 	CurrentSpecHandle = Handle;
 	CurrentActorInfo = ActorInfo;
 	CurrentActivationInfo = ActivationInfo;
-	
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &ThisClass::ActivateAbilityAfterHeld, InputHeldDuration,bIsHeldLoop);
 	
 }
@@ -155,8 +157,28 @@ void UMainGenericGameplayAbility::RemoveAbilityAfterEnd(const TArray<TSubclassOf
 	}
 }
 
-void UMainGenericGameplayAbility::OnRep_UsageTimes()
+void UMainGenericGameplayAbility::RefillUsageTime()
 {
-	OnUsageTimeChanged.Broadcast(UsageTimes);
+	if(UsageTimes >= MaxUsageTimes) return;
+	
+	UsageTimes += MaxUsageTimes * RefillPercentage;
+	
+	if(UsageTimes > MaxUsageTimes)
+	{
+		UsageTimes = MaxUsageTimes;
+	}
+	
+    if (GetOwningActorFromActorInfo()->GetLocalRole() == ROLE_Authority)
+    {
+	    ClientUpdateTriggerUsageTimeChanged(UsageTimes);
+    }
+    else
+    {
+    	OnUsageTimeChanged.Broadcast(UsageTimes);
+    }
+}
 
+void UMainGenericGameplayAbility::ClientUpdateTriggerUsageTimeChanged_Implementation(float NewUsageTime)
+{
+	OnUsageTimeChanged.Broadcast(NewUsageTime);
 }

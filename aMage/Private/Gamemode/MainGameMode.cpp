@@ -51,12 +51,6 @@ void AMainGameMode::PostLogin(APlayerController* NewPlayer)
 		
 		GS->InitPlayerInfo(UniqueID,PlayerName);
 		
-		if (GEngine)
-		{
-			// FString DebugMessage = FString::Printf(TEXT("Initializing Player Info for %s, ID: %d"), *PlayerName, UniqueID);
-			// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, DebugMessage);
-			//
-		}
 	}
 }
 
@@ -81,7 +75,7 @@ void AMainGameMode::StartNewWave()
 	}
 	
 	OnStartWave.Broadcast(true);
-	
+	 
 	if (SpawnManager && SpawnManager->GetClass()->ImplementsInterface(USpawnService::StaticClass()))
 	{
 		ISpawnService::Execute_DeleteAllChest(SpawnManager);
@@ -178,4 +172,5 @@ ERuneType AMainGameMode::RandomRuneType()
 	ERuneType RandomRuneType = static_cast<ERuneType>(RandomIndex);
 
 	return RandomRuneType;
+	
 }

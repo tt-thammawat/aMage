@@ -19,10 +19,11 @@ class AMAGE_API UMainGenericGameplayAbility : public UMainDamageGameplayAbility
 	GENERATED_BODY()
 
 public:
-	UMainGenericGameplayAbility();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
-
+	
+	virtual void PostInitProperties();
+	
 	UPROPERTY(BlueprintAssignable,Category=Spell)
 	FOnUsageTimeChangedSignature OnUsageTimeChanged;
 	
@@ -31,6 +32,8 @@ public:
 	{
 		OnUsageTimeChanged.Broadcast(NewUsageTime);
 	}
+	UFUNCTION(Client,Reliable)
+	void ClientUpdateTriggerUsageTimeChanged(float NewUsageTime);
 	
 	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo);
 
@@ -59,12 +62,13 @@ protected:
 	//Ability 
 	UPROPERTY(Replicated,EditAnywhere,BlueprintReadOnly,Category=Spell)
 	bool bIsCancel=false;
-	UPROPERTY(ReplicatedUsing=OnRep_UsageTimes,EditAnywhere,BlueprintReadWrite,Category=Spell)
-	float UsageTimes = 0;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Spell)
 	float MaxUsageTimes = 0;
-	UFUNCTION()
-	void OnRep_UsageTimes();
+	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite,Category=Spell)
+	float UsageTimes=0;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Spell)
+	float RefillPercentage = 0.33f;
+	
 	//Camera
 	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
 	float DefaultFOV= 90.f;
@@ -92,5 +96,5 @@ protected:
 	float InputHeldDuration = 3.0f; // Hold duration in seconds
 	
 public:
-	void SetUsageTimeToMax() {UsageTimes = MaxUsageTimes;}
+	void RefillUsageTime();
 };

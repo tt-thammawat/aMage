@@ -448,21 +448,25 @@ void AMainPlayerCharacter::ServerRequestClearRuneSpell_Implementation()
 void AMainPlayerCharacter::ProcessClearRuneSpellRequest()
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent());
-		
-	TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove;
-
-	for (const FGameplayAbilitySpec& Spec : BaseAbilitySystemComponent->GetActivatableAbilities())
+	if (!BaseAbilitySystemComponent)
 	{
-		//Remove Normal Spell
-		if (Spec.Ability && Spec.Ability->AbilityTags.HasTagExact(FMainGameplayTags::Get().Ability_Rune_NormalSpell))
-		{
-			AbilitiesToRemove.Add(Spec.Handle);
-		}
+		UE_LOG(LogTemp, Warning, TEXT("AbilitySystemComponent is not found."));
+		return;
 	}
+	
+	FGameplayTagContainer TagContainer;
+	TagContainer.AddTag(FMainGameplayTags::Get().Ability_Rune_NormalSpell);
 
-	for (const FGameplayAbilitySpecHandle& Handle : AbilitiesToRemove)
+	TArray<FGameplayAbilitySpec*> MatchingAbilitySpecs;
+
+	BaseAbilitySystemComponent->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, MatchingAbilitySpecs, true);
+
+	for (FGameplayAbilitySpec* Spec : MatchingAbilitySpecs)
 	{
-		BaseAbilitySystemComponent->ClearAbility(Handle);
+		if (Spec)
+		{
+			BaseAbilitySystemComponent->ClearAbility(Spec->Handle);
+		}
 	}
 }
 
@@ -487,17 +491,36 @@ void AMainPlayerCharacter::ServerRequestReloadRuneSpell_Implementation()
 void AMainPlayerCharacter::ProcessReloadRuneSpellRequest()
 {
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent());
-	
-	for (const FGameplayAbilitySpec& Spec : BaseAbilitySystemComponent->GetActivatableAbilities())
+	if (!BaseAbilitySystemComponent)
 	{
-		
-		if (Spec.Ability && Spec.Ability->AbilityTags.HasTagExact(FMainGameplayTags::Get().Ability_Rune_NormalSpell))
+		UE_LOG(LogTemp, Warning, TEXT("AbilitySystemComponent is not found."));
+		return;
+	}
+
+	FGameplayTagContainer TagContainer;
+	TagContainer.AddTag(FMainGameplayTags::Get().Ability_Rune_NormalSpell);
+	TArray<FGameplayAbilitySpec*> MatchingAbilitySpecs;
+
+	BaseAbilitySystemComponent->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, MatchingAbilitySpecs, true);
+    
+	for (FGameplayAbilitySpec* Spec : MatchingAbilitySpecs)
+	{
+		if (Spec && Spec->Ability)
 		{
-			UMainGenericGameplayAbility* MainGenericGameplayAbility = CastChecked<UMainGenericGameplayAbility>(Spec.Ability);
-			MainGenericGameplayAbility->SetUsageTimeToMax();
+			TArray<UGameplayAbility*> AbilitiesInstance = Spec->GetAbilityInstances();
+			
+			for (UGameplayAbility* Ability : AbilitiesInstance)
+			{
+				UMainGenericGameplayAbility* MainGameplayAbility = Cast<UMainGenericGameplayAbility>(Ability);
+				if(MainGameplayAbility)
+				{
+					MainGameplayAbility->RefillUsageTime();
+				}
+			}
 		}
 	}
 }
+
 
 void AMainPlayerCharacter::SetInteractObjectActor(AActor* Actor)
 {

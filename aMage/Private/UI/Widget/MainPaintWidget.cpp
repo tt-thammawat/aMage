@@ -37,7 +37,7 @@ void UMainPaintWidget::CheckDrawSpell()
 			}
 			else if (Result.NameTag.MatchesTagExact(FMainGameplayTags::Get().Rune_Tag_99_Reload))
 			{
-				OnDrawingReloadSpellSuccess.Broadcast();
+				OnReloadSpellSuccess.Broadcast();
 				PlaySound(ReloadSound);
 			}
 			else

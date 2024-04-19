@@ -80,7 +80,7 @@ void UMainCastingGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		{
 			PaintWidget->OnDrawingRuneSuccess.AddDynamic(this, &ThisClass::CheckRuneTags);
 			PaintWidget->OnClearSpellSuccess.AddDynamic(this, &ThisClass::ClearRuneTags);
-			PaintWidget->OnDrawingReloadSpellSuccess.AddDynamic(this,&ThisClass::ReloadRuneTags);
+			PaintWidget->OnReloadSpellSuccess.AddDynamic(this,&ThisClass::ReloadRuneTags);
 			CheckNormalSpellAbilityTag();
 		}
 	}
@@ -292,7 +292,7 @@ void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	{
 		PaintWidget->OnDrawingRuneSuccess.RemoveDynamic(this, &ThisClass::CheckRuneTags);
 		PaintWidget->OnClearSpellSuccess.RemoveDynamic(this,&ThisClass::ClearRuneTags);
-		PaintWidget->OnDrawingRuneSuccess.RemoveDynamic(this,&ThisClass::ReloadRuneTags);
+		PaintWidget->OnReloadSpellSuccess.RemoveDynamic(this,&ThisClass::ReloadRuneTags);
 	}
 
 	UBaseAbilitySystemComponent* BaseAbilitySystemComponent = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());

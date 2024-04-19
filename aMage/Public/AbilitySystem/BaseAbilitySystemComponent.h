@@ -37,7 +37,6 @@ public:
 	//Input Tags For Abilities
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);
-	
 protected:
 	//Apply Effect For Delegate Function
 	UFUNCTION(Client, Reliable)
