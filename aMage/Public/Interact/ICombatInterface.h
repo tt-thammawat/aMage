@@ -61,9 +61,13 @@ public:
 	//For Multiple Target
 	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
 	AActor* GetAvatar();
+
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
+	USceneComponent* GetSceneComponent();
 	
 	// Declare the function as a BlueprintImplementableEvent //FAcing Enemy
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Targeting")
 	void UpdateFacingTarget(const FVector& TargetVector);
+
 	
 };

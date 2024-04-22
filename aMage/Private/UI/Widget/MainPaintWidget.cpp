@@ -5,8 +5,8 @@
 
 #include "GameplayTagsSingleton.h"
 #include "MainAssetManager.h"
+#include "NiagaraSystemWidget.h"
 #include "Abilities/GameplayAbility.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Character/MainPlayerController.h"
 #include "DrawMagic/UnistrokeRecognizer.h"
 #include "DrawMagic/UnistrokeResult.h"
@@ -33,6 +33,8 @@ void UMainPaintWidget::CheckDrawSpell()
 			if (Result.NameTag.MatchesTagExact(FMainGameplayTags::Get().Rune_Tag_99_Clear))
 			{
 				OnClearSpellSuccess.Broadcast();
+				LineNiagaraUISystemWidget->ActivateSystem(true);
+				LineNiagaraUISystemWidget->DeactivateSystem();
 				PlaySound(FailSound);
 			}
 			else if (Result.NameTag.MatchesTagExact(FMainGameplayTags::Get().Rune_Tag_99_Reload))
@@ -99,6 +101,7 @@ FReply UMainPaintWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FP
 	if (bIsDrawing && MainPlayerController->GetIsDrawingSpell() && bIsStartFocus)
 	{
 		FVector2D LocalMousePosition = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+		LineNiagaraUISystemWidget->ActivateSystem(false);
 		AddPoint(LocalMousePosition);
 		return FReply::Handled();
 	}
@@ -111,6 +114,7 @@ FReply UMainPaintWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, cons
 	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && bIsStartFocus)
 	{
 		bIsDrawing = false;
+		LineNiagaraUISystemWidget->DeactivateSystem();
 		CheckDrawSpell();
 		return FReply::Handled();
 	}
@@ -124,7 +128,6 @@ bool UMainPaintWidget::AreRuneTagsEqualInOrder(const TArray<FGameplayTag>& Mappi
 		return false;
 	}
 
-	// Iterate through the arrays, comparing each pair of elements
 	for (int32 i = 0; i < RuneTags.Num(); i++)
 	{
 		if (RuneTags[i] != MappingTags[i])
@@ -185,6 +188,14 @@ void UMainPaintWidget::K2_CallClearSpellFunction()
 {
 	PlaySound(FailSound);
 	OnClearSpellSuccess.Broadcast();
+	LineNiagaraUISystemWidget->DeactivateSystem();
+}
+
+
+void UMainPaintWidget::K2_CallReloadSpellFunction()
+{
+	PlaySound(ReloadSound);
+	OnReloadSpellSuccess.Broadcast();
 }
 
 TArray<FHintTagMatch> UMainPaintWidget::SetHintTagMatchMapping()
@@ -228,24 +239,24 @@ TArray<FHintTagMatch> UMainPaintWidget::SetHintTagMatchMapping()
 }
 
 //Drawing Canvas Line
-int32 UMainPaintWidget::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry,
-                                    const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
-{
-	Super::NativePaint(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
-	FPaintContext Context(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
-	UWidgetBlueprintLibrary::DrawLines(Context, Points, FLinearColor::White, true, 10.0f);
-
-	// for (const TArray<FVector2D>& Segment : LineSegments)
-	// {
-	// 	if (Segment.Num() > 1) // Ensure we have at least two points to draw a line
-	// 	{
-	// 		FPaintContext Context(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
-	// 		UWidgetBlueprintLibrary::DrawLines(Context, Segment, FLinearColor::Blue, true, 10.0f);
-	// 	}
-	// }
-
-	return LayerId + 1;
-}
+// int32 UMainPaintWidget::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry,
+//                                     const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
+// {
+// 	Super::NativePaint(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+// 	FPaintContext Context(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+// 	UWidgetBlueprintLibrary::DrawLines(Context, Points, FLinearColor::White, true, 10.0f);
+//
+// 	// for (const TArray<FVector2D>& Segment : LineSegments)
+// 	// {
+// 	// 	if (Segment.Num() > 1) // Ensure we have at least two points to draw a line
+// 	// 	{
+// 	// 		FPaintContext Context(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+// 	// 		UWidgetBlueprintLibrary::DrawLines(Context, Segment, FLinearColor::Blue, true, 10.0f);
+// 	// 	}
+// 	// }
+//
+// 	return LayerId + 1;
+// }
 
 void UMainPaintWidget::AddPoint(const FVector2D& Point)
 {

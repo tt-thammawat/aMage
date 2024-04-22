@@ -91,6 +91,7 @@ protected:
 	void LookUp(const FInputActionValue& Value);
 	void InteractButtonPressed();
 	void DropButtonPressed();
+	UFUNCTION(BlueprintCallable)
 	void ScoreBoardButtonPressed();
 	void InventoryButtonPressed();
 	void OptionButtonPressed();

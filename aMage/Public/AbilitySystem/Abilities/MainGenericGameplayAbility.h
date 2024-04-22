@@ -12,7 +12,7 @@ class UMainPlayerWidget;
 /**
  * 
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUsageTimeChangedSignature,float,UsageTimes);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUsageTimeChangedSignature,int,UsageTimes);
 UCLASS()
 class AMAGE_API UMainGenericGameplayAbility : public UMainDamageGameplayAbility
 {
@@ -32,6 +32,7 @@ public:
 	{
 		OnUsageTimeChanged.Broadcast(NewUsageTime);
 	}
+	
 	UFUNCTION(Client,Reliable)
 	void ClientUpdateTriggerUsageTimeChanged(float NewUsageTime);
 	
@@ -53,6 +54,9 @@ public:
 	//Ability
 	UFUNCTION(BlueprintCallable)
 	void RemoveAbilityAfterEnd(const TArray<TSubclassOf<UGameplayAbility>>& RemoveAbilities);
+
+	//Cue
+	void K2_RemoveGameplayCue(FGameplayTag GameplayCueTag) override;
 	
 protected:
 	
@@ -68,13 +72,17 @@ protected:
 	float UsageTimes=0;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category=Spell)
 	float RefillPercentage = 0.33f;
+
+	//Cue When First Get Ability
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(GameplayTagFilter="GameplayCue"),Category=Cue)
+	FGameplayTag ActivationGameplayCueTag;
 	
 	//Camera
-	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	UPROPERTY(EditDefaultsOnly,Category = Camera,meta=(AllowPrivateAccess=true))
 	float DefaultFOV= 90.f;
-	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	UPROPERTY(EditDefaultsOnly,Category = Camera,meta=(AllowPrivateAccess=true))
 	float NewFOV= 90.f;
-	UPROPERTY(EditDefaultsOnly,Category = Default,meta=(AllowPrivateAccess=true))
+	UPROPERTY(EditDefaultsOnly,Category = Camera,meta=(AllowPrivateAccess=true))
 	float Duration = 0.5f;
 	TObjectPtr<UInterpolateFOV> InterpFOVTask;
 	

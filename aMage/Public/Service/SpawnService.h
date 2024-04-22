@@ -27,7 +27,11 @@ public:
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void SpawnChests(int32 CurrentWaves,int32 Difficulty);
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void SpawnStaffs(int32 CurrentWaves,int32 Difficulty);
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void DeleteAllChest();
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void DeleteAllStaff();
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	int32 GetCurrentEnemyCount() const;
 };

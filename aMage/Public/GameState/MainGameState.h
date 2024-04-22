@@ -16,6 +16,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedCurrentWaveSignature, int3
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedEnemiesThisWaveSignature,int32,CurrentEnemies);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSetTimeBeforeSpawnWavesSignature,float,TimeBeforeSpawnWaves);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerInfoUpdatedSignature,const TArray<FPlayerInfo>&,PlayerInfoArray);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameEndSignature, bool, bIsEndGame);
 
 
 UCLASS()
@@ -37,9 +38,16 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerInfoUpdatedSignature OnPlayerInfoUpdated;
-
-
 	
+	UPROPERTY(BlueprintAssignable)
+	FOnGameEndSignature OnGameEnd;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Game")
+	bool bHasGameEnded = false;
+
+	void EndGame();
+	UFUNCTION(NetMulticast,Reliable)
+	void MulticastEndGame();
 	UFUNCTION()
 	void OnRep_CurrentWave();
 	UFUNCTION()
@@ -76,6 +84,9 @@ public:
 
 	UFUNCTION()
 	void SetWhoKilled(const AActor* InstigatorActor);
+
+	UFUNCTION()
+	void SetWhoDead(const AActor* DeadPlayer);
 	
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurrentWave() const { return CurrentWave; }

@@ -17,7 +17,20 @@ void AMainGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AMainGameState,CurrentEnemies);
 	DOREPLIFETIME(AMainGameState,TimeBeforeSpawnWaves);
 	DOREPLIFETIME(AMainGameState,PlayerInfoArray);
+}
 
+void AMainGameState::EndGame()
+{
+	if (HasAuthority())
+	{
+		MulticastEndGame();
+	}
+}
+
+void AMainGameState::MulticastEndGame_Implementation()
+{
+	bHasGameEnded = true;
+	OnGameEnd.Broadcast(bHasGameEnded);
 }
 
 void AMainGameState::OnRep_CurrentWave()
@@ -42,17 +55,19 @@ void AMainGameState::OnRep_PlayerInfoArray()
 
 void AMainGameState::InitPlayerInfo(const int32& UniqueID,const FString& PlayerName)
 {
-	const FName PlayerFName = FName(*PlayerName);
-
-	for(const FPlayerInfo& Info : PlayerInfoArray)
+	if (!PlayerInfoArray.IsEmpty())
 	{
-		if(Info.PlayerUniqueID == UniqueID)
+		for(const FPlayerInfo& Info : PlayerInfoArray)
 		{
-			return;
+			if(Info.PlayerUniqueID == UniqueID)
+			{
+				return;
+			}
 		}
 	}
 	
 	FPlayerInfo NewPlayerInfo;
+	const FName PlayerFName = FName(*PlayerName);
 	NewPlayerInfo.PlayerUniqueID = UniqueID;
 	NewPlayerInfo.PlayerName = PlayerFName;
 	PlayerInfoArray.Add(NewPlayerInfo);
@@ -92,26 +107,62 @@ void AMainGameState::SetWhoKilled(const AActor* InstigatorActor)
 	if(!InstigatorActor) return;
 	
 	const APlayerController* PlayerController = Cast<APlayerController>(InstigatorActor->GetInstigatorController());
-	
-	if(PlayerController)
+	if (!PlayerController)
 	{
-		if(const APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>())
+		UE_LOG(LogTemp, Warning, TEXT("SetWhoDead: DeadPlayer does not have a valid PlayerController."));
+		return;
+	}
+
+	const APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
+	if (!PlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SetWhoDead: PlayerController does not have a valid PlayerState."));
+		return;
+	}
+
+	const FString PlayerName = PlayerState->GetPlayerName();
+
+	for (FPlayerInfo& Info : PlayerInfoArray)
+	{
+		if (Info.PlayerName == PlayerName)
 		{
-			const FString PlayerName = PlayerState->GetPlayerName();
-
-			for(FPlayerInfo& Info : PlayerInfoArray)
-			{
-				if(Info.PlayerName == PlayerName)
-				{
-					Info.EnemyKills++;
-				}
-			}
-
-			if(HasAuthority())
-			{
-				OnPlayerInfoUpdated.Broadcast(PlayerInfoArray);
-			}
+			Info.EnemyKills++;
+			break;
 		}
 	}
+
+	OnPlayerInfoUpdated.Broadcast(PlayerInfoArray);
+}
+
+void AMainGameState::SetWhoDead(const AActor* DeadPlayer)
+{
+	if(!DeadPlayer) return;
+
+	const APlayerController* PlayerController = Cast<APlayerController>(DeadPlayer->GetInstigatorController());
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SetWhoDead: DeadPlayer does not have a valid PlayerController."));
+		return;
+	}
+
+	const APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
+	if (!PlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SetWhoDead: PlayerController does not have a valid PlayerState."));
+		return;
+	}
+
+	const FString PlayerName = PlayerState->GetPlayerName();
+
+	for (FPlayerInfo& Info : PlayerInfoArray)
+	{
+		if (Info.PlayerName == PlayerName)
+		{
+			Info.Deaths++;
+			break;
+		}
+	}
+
+	OnPlayerInfoUpdated.Broadcast(PlayerInfoArray);
 }
 

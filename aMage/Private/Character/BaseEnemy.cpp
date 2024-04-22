@@ -185,7 +185,6 @@ void ABaseEnemy::MulticastHandleUpdateCapsuleAndRecoverLocation_Implementation()
 		{
 			AIController->GetBrainComponent()->RestartLogic();
 			AIController->GetPathFollowingComponent()->ResumeMove();
-
 		}
 	}
 }

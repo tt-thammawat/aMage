@@ -63,11 +63,11 @@ private:
 	bool bRemoveEffectOnEnd=false;
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true))
-	TObjectPtr<USceneComponent> CustomRootComponent;
+	TObjectPtr<UCapsuleComponent> CapsuleComponent;
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true))
-	TObjectPtr<UCapsuleComponent> CapsuleComponent;
-
+	TObjectPtr<UCapsuleComponent> BouncingCapsuleComponent;
+	
 	UPROPERTY(EditAnyWhere)
 	TObjectPtr<UNiagaraSystem> ImpactEffect;
 

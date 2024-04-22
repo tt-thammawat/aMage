@@ -8,6 +8,7 @@
 #include "MainPaintWidget.generated.h"
 
 
+class UNiagaraSystemWidget;
 class UGameplayAbility;
 class UAbilitySystemComponent;
 
@@ -91,7 +92,9 @@ protected:
 	//Clear In Blueprint
 	UFUNCTION(BlueprintCallable)
 	void K2_CallClearSpellFunction();
-
+	//Reload In Blueprint
+	UFUNCTION(BlueprintCallable)
+	void K2_CallReloadSpellFunction();
 	
 	UFUNCTION(BlueprintCallable)
 	TArray<FHintTagMatch> SetHintTagMatchMapping();
@@ -103,7 +106,10 @@ private:
 	bool bIsDrawing=false;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=Player,meta=(AllowPrivateAccess=true))
 	TObjectPtr<AMainPlayerController> MainPlayerController;
-
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category=Player,meta=(AllowPrivateAccess=true,BindWidget))
+	TObjectPtr<UNiagaraSystemWidget>  LineNiagaraUISystemWidget;
+	
 	//Initial Tag Lists
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Rune,meta=(AllowPrivateAccess=true))
 	TArray<FAbilitiesTagList> RuneAbilitiesTagMatchesLists;
@@ -120,11 +126,12 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category=Sound,meta=(AllowPrivateAccess=true))
 	TObjectPtr<USoundBase> FailSound;
+
 	
 //Drawing Canvas Line
 	 
 protected:
-	virtual int32 NativePaint(const FPaintArgs &Args, const FGeometry &AllottedGeometry, const FSlateRect &MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle &InWidgetStyle, bool bParentEnabled) const override;
+	// virtual int32 NativePaint(const FPaintArgs &Args, const FGeometry &AllottedGeometry, const FSlateRect &MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle &InWidgetStyle, bool bParentEnabled) const override;
 
 public:
 	

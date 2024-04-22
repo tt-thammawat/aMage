@@ -12,9 +12,9 @@ void AMainGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(!GS)
+	if(!MainGameState)
 	{
-		GS = GetGameState<AMainGameState>();
+		MainGameState = GetGameState<AMainGameState>();
 	}
 	
 	for (TActorIterator<AASpawnManager> It(GetWorld()); It; ++It)
@@ -39,18 +39,18 @@ void AMainGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	if(APlayerState* PlayerState = NewPlayer->GetPlayerState<APlayerState>())
+	if(!MainGameState)
 	{
-		FString PlayerName = PlayerState->GetPlayerName();
-		int32 UniqueID = PlayerState->GetUniqueID();
-		
-		if(!GS)
-		{
-			GS = GetGameState<AMainGameState>();
-		}
-		
-		GS->InitPlayerInfo(UniqueID,PlayerName);
-		
+		MainGameState = GetGameState<AMainGameState>();
+	}
+	
+
+	if (const APlayerState* PlayerState = NewPlayer->GetPlayerState<APlayerState>())
+	{
+		const FString PlayerName = PlayerState->GetPlayerName();
+		const int32 UniqueID = PlayerState->GetUniqueID();
+        
+		MainGameState->InitPlayerInfo(UniqueID, PlayerName);
 	}
 }
 
@@ -61,41 +61,45 @@ void AMainGameMode::Logout(AController* Exiting)
 
 int32 AMainGameMode::GetCurrentPlayerCount() const
 {
-	return GS->PlayerArray.Num();
+	return MainGameState->PlayerArray.Num();
 }
 
 void AMainGameMode::StartNewWave()
 {
-	CurrentWave++;
+	if(CurrentWave <= MaxWave)
+	{
+		CurrentWave++;
 
-	if (GS)
-	{
-		GS->SetCurrentWave(CurrentWave);
-		GS->SetTimeBeforeSpawnWaves(0);
-	}
-	
-	OnStartWave.Broadcast(true);
-	 
-	if (SpawnManager && SpawnManager->GetClass()->ImplementsInterface(USpawnService::StaticClass()))
-	{
-		ISpawnService::Execute_DeleteAllChest(SpawnManager);
-		
-		const int32 Difficulty =BaseDifficulty * GetCurrentPlayerCount();;
-		
-		WaveIncrement = Difficulty * FMath::Pow(GrowthFactor, CurrentWave);
-    
-		int32 EnemiesPerWaves = BaseEnemiesPerWave + WaveIncrement;
-		
-		CurrentEnemies = EnemiesPerWaves;
-		
-		if (GS)
+		if (MainGameState)
 		{
-			GS->SetEnemiesThisWave(CurrentEnemies);
+			MainGameState->SetCurrentWave(CurrentWave);
+			MainGameState->SetTimeBeforeSpawnWaves(0);
 		}
+	
+		OnStartWave.Broadcast(true);
+	 
+		if (SpawnManager && SpawnManager->GetClass()->ImplementsInterface(USpawnService::StaticClass()))
+		{
+			ISpawnService::Execute_DeleteAllChest(SpawnManager);
+			ISpawnService::Execute_DeleteAllStaff(SpawnManager);
+
+			const int32 Difficulty =BaseDifficulty * GetCurrentPlayerCount();;
 		
-		EnemiesPerWaves = FMath::Clamp(EnemiesPerWaves, BaseEnemiesPerWave, 64);
+			WaveIncrement += Difficulty * FMath::Pow(GrowthFactor, CurrentWave);
+    
+			int32 EnemiesPerWaves = BaseEnemiesPerWave + WaveIncrement;
 		
-		ISpawnService::Execute_SpawnEnemies(SpawnManager,GetCurrentWave(), EnemiesPerWaves);
+			CurrentEnemies = EnemiesPerWaves;
+		
+			if (MainGameState)
+			{
+				MainGameState->SetEnemiesThisWave(CurrentEnemies);
+			}
+		
+			EnemiesPerWaves = FMath::Clamp(EnemiesPerWaves, BaseEnemiesPerWave, 64);
+		
+			ISpawnService::Execute_SpawnEnemies(SpawnManager,GetCurrentWave(), EnemiesPerWaves);
+		}
 	}
 }
 
@@ -105,11 +109,12 @@ void AMainGameMode::WaitBeforeStartNewWaves(bool bIsFirstTime)
 	{
 		//Spawn Chest
 		SpawnChest();
+		SpawnStaff();
 	}
 	
-	if(GS)
+	if(MainGameState)
 	{
-		GS->SetTimeBeforeSpawnWaves(TimeBeforeSpawnWaves);
+		MainGameState->SetTimeBeforeSpawnWaves(TimeBeforeSpawnWaves);
 	}
 	
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_WaitBeforeStartWaves, this, &AMainGameMode::StartNewWave, TimeBeforeSpawnWaves, false);
@@ -125,20 +130,45 @@ void AMainGameMode::SpawnChest()
 	}
 }
 
+void AMainGameMode::SpawnStaff()
+{
+	if (SpawnManager && SpawnManager->GetClass()->ImplementsInterface(USpawnService::StaticClass()))
+	{
+		const int32 PlayerCount = GetCurrentPlayerCount();
+        
+		ISpawnService::Execute_SpawnStaffs(SpawnManager,CurrentWave, BaseDifficulty + PlayerCount);
+	}
+}
+
 void AMainGameMode::EnemyKilled(const AActor* InstigatorActor)
 {
 	CurrentEnemies--;
 
-	if (GS)
+	if (MainGameState)
 	{
-		GS->SetEnemiesThisWave(CurrentEnemies);
-		GS->SetWhoKilled(InstigatorActor);
+		MainGameState->SetEnemiesThisWave(CurrentEnemies);
+		MainGameState->SetWhoKilled(InstigatorActor);
 	}
 	
 	if (CurrentEnemies <= 0)
 	{
-		OnStartWave.Broadcast(false);
-		WaitBeforeStartNewWaves();
+		if (CurrentWave >= MaxWave)
+		{
+			MainGameState->EndGame();
+		}
+		else
+		{
+			OnStartWave.Broadcast(false);
+			WaitBeforeStartNewWaves();
+		}
+	}
+}
+
+void AMainGameMode::PlayerDead(const AActor* DeadPlayer)
+{
+	if(MainGameState)
+	{
+		MainGameState->SetWhoDead(DeadPlayer);
 	}
 }
 

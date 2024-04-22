@@ -30,6 +30,7 @@ public:
 	virtual void Die(const AActor* InstigatorActor) override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
+	virtual USceneComponent* GetSceneComponent_Implementation() override;
 	virtual TArray<FTaggedMontage> GetAttackMontage_Implementation() override;
 	//GetWeaponTipSocketName And Make FVector out of it
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
@@ -52,7 +53,10 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<UFootStepsComponent> FootStepsComponent;
-
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TObjectPtr<USceneComponent> TargetSceneComponent;
+	
 	UPROPERTY()
 	FTimerHandle CapsuleTimerHandle;
 	void UpdateCapsuleAndRecoverLocation();

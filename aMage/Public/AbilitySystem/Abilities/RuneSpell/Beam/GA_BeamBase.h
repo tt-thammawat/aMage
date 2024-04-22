@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayCueInterface.h"
 #include "AbilitySystem/Abilities/MainGenericGameplayAbility.h"
 #include "GA_BeamBase.generated.h"
 
@@ -37,7 +38,7 @@ public:
 protected:
 	
 	bool bIsInputHeld=false;
-
+	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	TSubclassOf<AMainBeam> BeamClass;
 	
@@ -45,5 +46,5 @@ protected:
 	virtual void SpawnBeam(const FVector& BeamEndLocation);
 	UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadWrite)
 	TObjectPtr<AMainBeam> BeamREF;
-
+	
 };

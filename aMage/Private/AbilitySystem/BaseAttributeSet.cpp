@@ -191,16 +191,19 @@ void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props,float Da
 	//Check if Damage To Self
 	if(Props.SourceCharacter != Props.TargetCharacter)
 	{
-		//PC Hit Other
-		if(AMainPlayerController* PC=Cast<AMainPlayerController>(Props.SourceCharacter->Controller))
+		if (Props.SourceCharacter && Props.SourceCharacter->Controller)
 		{
-			PC->ShowDamageNumber(Damage,Props.TargetCharacter,bIsFireDamage,bIsLightningDamage,bIsIceDamage,bIsPhysicDamage);
-			return;
-		}
-		//PC Got Hit
-		if(AMainPlayerController* PC=Cast<AMainPlayerController>(Props.TargetCharacter->Controller))
-		{
-			PC->ShowDamageNumber(Damage,Props.TargetCharacter,bIsFireDamage,bIsLightningDamage,bIsIceDamage,bIsPhysicDamage);
+			//PC Hit Other
+			if(AMainPlayerController* PC=Cast<AMainPlayerController>(Props.SourceCharacter->Controller))
+			{
+				PC->ShowDamageNumber(Damage,Props.TargetCharacter,bIsFireDamage,bIsLightningDamage,bIsIceDamage,bIsPhysicDamage);
+				return;
+			}
+			//PC Got Hit
+			if(AMainPlayerController* PC=Cast<AMainPlayerController>(Props.TargetCharacter->Controller))
+			{
+				PC->ShowDamageNumber(Damage,Props.TargetCharacter,bIsFireDamage,bIsLightningDamage,bIsIceDamage,bIsPhysicDamage);
+			}
 		}
 	}
 }

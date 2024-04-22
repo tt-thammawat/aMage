@@ -38,6 +38,7 @@ void UMainGenericGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 	CurrentSpecHandle = Handle;
 	CurrentActorInfo = ActorInfo;
 	CurrentActivationInfo = ActivationInfo;
+	
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_InputHeld, this, &ThisClass::ActivateAbilityAfterHeld, InputHeldDuration,bIsHeldLoop);
 	
 }
@@ -53,6 +54,12 @@ void UMainGenericGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		if (Character)
 		{
 			MainPlayerCharacter = Character;
+		}
+		
+		if(ActivationGameplayCueTag.IsValid())
+		{
+			const FGameplayEffectContextHandle Context = MakeEffectContext(CurrentSpecHandle, CurrentActorInfo);
+			K2_AddGameplayCue(ActivationGameplayCueTag,Context,true);
 		}
 	}
 	
@@ -155,6 +162,12 @@ void UMainGenericGameplayAbility::RemoveAbilityAfterEnd(const TArray<TSubclassOf
 	{
 		BaseAbilitySystemComponent->RemoveCharacterAbilities(RemoveAbilities);
 	}
+} 
+
+void UMainGenericGameplayAbility::K2_RemoveGameplayCue(FGameplayTag GameplayCueTag)
+{
+	
+	Super::K2_RemoveGameplayCue(GameplayCueTag);
 }
 
 void UMainGenericGameplayAbility::RefillUsageTime()

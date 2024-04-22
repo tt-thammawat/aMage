@@ -8,6 +8,7 @@
 #include "Service/SpawnService.h"
 #include "ASpawnManager.generated.h"
 
+class AMainItemInteractActor;
 class ABaseEnemy;
 
 
@@ -33,8 +34,9 @@ public:
 	//Start ISpawnService Interface
 	void SpawnEnemies_Implementation(int32 CurrentWaves,int32 BatchEnemiesSpawn) override;
 	void SpawnChests_Implementation(int32 CurrentWaves,int32 Difficulty) override;
+	void SpawnStaffs_Implementation(int32 CurrentWaves, int32 Difficulty) override;
 	void DeleteAllChest_Implementation() override;
-
+	void DeleteAllStaff_Implementation() override;
 	int32 GetCurrentEnemyCount_Implementation() const override;
 	//End ISpawnService
 
@@ -57,13 +59,19 @@ protected:
 	TSubclassOf<AMainInteractActor> ChestClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Management",meta=(MakeEditWidget="true"))
-	TArray<FVector> ChestsSpawnPoints;
+	TArray<FTransform> ChestsSpawnPointss;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Management",meta=(MakeEditWidget="true"))
+	TArray<FTransform> StaffSpawnPoints;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Wave Management")
-	int32 ChestsToSpawn;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Management")
+	TArray<TSubclassOf<AMainItemInteractActor>> StaffClassArray;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Wave Management")
 	TArray<TObjectPtr<AActor>> SpawnChestArray;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Wave Management")
+	TArray<TObjectPtr<AMainItemInteractActor>> SpawnStaffArray;
 	
 	FTimerHandle TimerHandle_WaitBeforeStartWaves;
 	

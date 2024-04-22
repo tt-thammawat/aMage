@@ -277,6 +277,16 @@ void UMainCastingGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle
 	ClientCancelAbilities();
 }
 
+void UMainCastingGameplayAbility::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilitySpec& Spec)
+{
+	if(PaintWidget)
+	{
+		PaintWidget->Destruct();
+	}
+	Super::OnRemoveAbility(ActorInfo, Spec);
+}
+
 
 void UMainCastingGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
                                              const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,

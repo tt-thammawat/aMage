@@ -76,6 +76,11 @@ void AMainPlayerCharacter::Die(const AActor* InstigatorActor)
 		FGameplayAbilitySpec GameplayAbilitySpec(DeathGameplayClass, 1, INDEX_NONE, this);
 		DeathSpecHandle = GetAbilitySystemComponent()->GiveAbilityAndActivateOnce(GameplayAbilitySpec);
 	}
+	AMainGameMode* MainGameMode = GetWorld()->GetAuthGameMode<AMainGameMode>();
+	if (MainGameMode)
+	{
+		MainGameMode->PlayerDead(this);
+	}
 	OnDeath.Broadcast();
 	
 	MulticastHandleDeath();
@@ -87,11 +92,13 @@ void AMainPlayerCharacter::MulticastHandleDeath_Implementation()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
 
 	GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
-
+	GetMesh()->SetRenderCustomDepth(true);
+	
 	if (OverheaderWidgetName)
 	{
 		OverheaderWidgetName->SetVisibility(false);
 	}
+	
 	bDead = true;
 }
 
@@ -120,6 +127,7 @@ void AMainPlayerCharacter::MulticastRevive_Implementation()
 	GetMesh()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 	GetMesh()->bPauseAnims = false;
+	GetMesh()->SetRenderCustomDepth(false);
 
 	const float MontageDuration = PlayAnimMontage(ReviveAnimMontage, 1);
 	

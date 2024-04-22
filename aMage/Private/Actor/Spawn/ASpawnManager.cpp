@@ -2,6 +2,8 @@
 
 
 #include "Actor/Spawn/ASpawnManager.h"
+
+#include "Actor/InteractActor/MainItemInteractActor.h"
 #include "Character/BaseEnemy.h"
 #include "Gamemode/MainGameMode.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -41,6 +43,8 @@ bool AASpawnManager::EnoughPlayerPressedStart(AActor* PressingActor)
 
 void AASpawnManager::DelayedSpawnEnemy(ECharacterClass EnemyType, FVector SpawnLocation, FRotator SpawnRotation)
 {
+	if(!HasAuthority()) return;
+	
 	if (TSubclassOf<ABaseEnemy>* EnemyClass = EnemyToSpawnClass.Find(EnemyType))
 	{
 		FActorSpawnParameters SpawnParams;
@@ -52,6 +56,8 @@ void AASpawnManager::DelayedSpawnEnemy(ECharacterClass EnemyType, FVector SpawnL
 
 void AASpawnManager::DeleteAllChest_Implementation()
 {
+	if(!HasAuthority()) return;
+
 	if(SpawnChestArray.IsEmpty()) return;
 
 	for(const TObjectPtr<AActor>& Chest : SpawnChestArray)
@@ -106,31 +112,90 @@ void AASpawnManager::SpawnEnemies_Implementation(int32 CurrentWaves,int32 BatchE
 
 void AASpawnManager::SpawnChests_Implementation(int32 CurrentWaves,int32 Difficulty)
 {
-	TArray<FVector> TempChestSpawnPoints = ChestsSpawnPoints;
-
-	int32 BaseChestsToSpawn = FMath::Clamp(CurrentWaves / Difficulty, 1, ChestsSpawnPoints.Num());
-	int32 MaxChestsCanSpawn = TempChestSpawnPoints.Num();
-	ChestsToSpawn = FMath::Min(BaseChestsToSpawn, MaxChestsCanSpawn);
+	if(!HasAuthority()) return;
+	if(!ChestClass) return;
 	
-	for(int32 i = 0; i < ChestsToSpawn; ++i)
+	TArray<FTransform> TempChestSpawnPoints = ChestsSpawnPointss;
+
+	int32 BaseChestsToSpawn = FMath::Clamp((CurrentWaves * Difficulty) / 1.2, 1, ChestsSpawnPointss.Num());
+	int32 MaxChestsCanSpawn = TempChestSpawnPoints.Num();
+	int32 ChestsToSpawn = FMath::Min(BaseChestsToSpawn, MaxChestsCanSpawn);
+    
+	for (int32 i = 0; i < ChestsToSpawn; ++i)
 	{
-		if (TempChestSpawnPoints.Num())
+		if (TempChestSpawnPoints.Num() > 0)
 		{
 			const int32 PointIndex = FMath::RandRange(0, TempChestSpawnPoints.Num() - 1);
-			
-			FVector SpawnLocation = UKismetMathLibrary::TransformLocation(GetActorTransform(),TempChestSpawnPoints[PointIndex]);
-			FRotator SpawnRotation = FRotator::ZeroRotator;
+
+			FVector SpawnLocation = UKismetMathLibrary::TransformLocation(GetActorTransform(), TempChestSpawnPoints[PointIndex].GetLocation());
+			FRotator SpawnRotation = UKismetMathLibrary::TransformRotation(GetActorTransform(), TempChestSpawnPoints[PointIndex].GetRotation().Rotator());
 
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			
+            
 			AActor* ChestActor = GetWorld()->SpawnActor<AMainInteractActor>(ChestClass, SpawnLocation, SpawnRotation, SpawnParams);
-			
+            
 			SpawnChestArray.Add(ChestActor);
-			
+            
 			TempChestSpawnPoints.RemoveAtSwap(PointIndex, 1, false);
 		}
 	}
+}
+
+void AASpawnManager::SpawnStaffs_Implementation(int32 CurrentWaves, int32 Difficulty)
+{
+	if (!HasAuthority() || CurrentWaves <= 1) return;
+    if(StaffClassArray.IsEmpty()) return;
+	
+	TArray<FTransform> TempStaffSpawnPoints = StaffSpawnPoints;
+
+	int32 BaseStaffToSpawn = FMath::Clamp((CurrentWaves * Difficulty) / 2, 0, StaffSpawnPoints.Num());
+	
+	int32 MaxStaffCanSpawn = TempStaffSpawnPoints.Num();
+	int32 StaffToSpawn = FMath::Min(BaseStaffToSpawn, MaxStaffCanSpawn);
+    
+	for (int32 i = 0; i < StaffToSpawn; ++i)
+	{
+		if (TempStaffSpawnPoints.Num() > 0)
+		{
+			const int32 PointIndex = FMath::RandRange(0, TempStaffSpawnPoints.Num() - 1);
+            
+			FVector SpawnLocation = UKismetMathLibrary::TransformLocation(GetActorTransform(), TempStaffSpawnPoints[PointIndex].GetLocation());
+			FRotator SpawnRotation = UKismetMathLibrary::TransformRotation(GetActorTransform(), TempStaffSpawnPoints[PointIndex].GetRotation().Rotator());
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+            
+			const int32 StaffIndex = FMath::RandRange(0, StaffClassArray.Num() - 1);
+            
+			AMainItemInteractActor* StaffActor = GetWorld()->SpawnActor<AMainItemInteractActor>(StaffClassArray[StaffIndex], SpawnLocation, SpawnRotation, SpawnParams);
+			if (StaffActor->GetClass()->ImplementsInterface(UInteractInterface::StaticClass()))
+			{
+				IInteractInterface::Execute_HighlightActor(StaffActor);
+			}
+			
+			SpawnStaffArray.Add(StaffActor);
+            
+			TempStaffSpawnPoints.RemoveAtSwap(PointIndex, 1, false);
+		}
+	}
+}
+
+void AASpawnManager::DeleteAllStaff_Implementation()
+{
+	if(!HasAuthority()) return;
+
+	if(SpawnStaffArray.IsEmpty()) return;
+
+	for(const TObjectPtr<AMainItemInteractActor>& Staff : SpawnStaffArray)
+	{
+		if(!Staff->GetIsPickup())
+		{
+			Staff->Destroy();
+		}
+	}
+
+	SpawnStaffArray.Empty();
 }
 
 int32 AASpawnManager::GetCurrentEnemyCount_Implementation() const

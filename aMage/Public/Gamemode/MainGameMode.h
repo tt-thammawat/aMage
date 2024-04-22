@@ -58,9 +58,12 @@ public:
 	void WaitBeforeStartNewWaves(bool bIsFirstTime = false);
 	
 	void SpawnChest();
+	void SpawnStaff();
 	
 	UFUNCTION(BlueprintCallable)
 	void EnemyKilled(const AActor* InstigatorActor);
+	UFUNCTION(BlueprintCallable)
+	void PlayerDead(const AActor* DeadPlayer);
 
 public:
 	int32 GetCurrentWave() const { return CurrentWave; }
@@ -80,10 +83,13 @@ private:
 	TObjectPtr<AASpawnManager> SpawnManager;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
-	TObjectPtr<AMainGameState> GS;
+	TObjectPtr<AMainGameState> MainGameState;
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
 	int32 CurrentWave = 0;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
+	int32 MaxWave = 1;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess=true),Category = "Wave Management")
 	int32 BaseDifficulty = 1;
@@ -94,9 +100,9 @@ private:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
 	int32 CurrentEnemies = 0;
 
-	//1.33 means that the number of additional enemies increases by 33% per wave
+	//1.22 means that the number of additional enemies increases by 22% per wave
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
-	float GrowthFactor = 1.33f;
+	float GrowthFactor = 1.22f;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
 	int32 WaveIncrement = 0;
@@ -105,7 +111,7 @@ private:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta=(AllowPrivateAccess=true),Category = "Wave Management")
 	float TimeBeforeSpawnWaves=15.f;
-
+	
 	
 public:
 	UPROPERTY(EditDefaultsOnly,Category = "Character Class Defaults")

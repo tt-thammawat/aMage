@@ -16,9 +16,11 @@ AChargeProjectile::AChargeProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates=true;
-
-	CustomRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("CustomRootComponent"));
-	CustomRootComponent->SetupAttachment(RootComponent);
+	
+	BouncingCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("BouncingCapsuleComponent");
+	BouncingCapsuleComponent->SetCollisionObjectType(ECC_WorldDynamic);
+	BouncingCapsuleComponent->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	RootComponent = BouncingCapsuleComponent;
 	
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComponent");
 	CapsuleComponent->SetCollisionObjectType(ECC_PROJECTILE);
@@ -27,14 +29,15 @@ AChargeProjectile::AChargeProjectile()
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Overlap);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
-	CapsuleComponent->SetupAttachment(CustomRootComponent);
+	CapsuleComponent->SetupAttachment(RootComponent);
+
 	
 	ProjectileMovementComponent =CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
 	ProjectileMovementComponent->InitialSpeed = 550.f;
 	ProjectileMovementComponent->MaxSpeed = 550.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 	// Ensure the projectile movement component updates its position based on the root component
-	ProjectileMovementComponent->UpdatedComponent = CustomRootComponent;
+	ProjectileMovementComponent->UpdatedComponent = BouncingCapsuleComponent;
 }
 
 void AChargeProjectile::Destroyed()
@@ -44,6 +47,26 @@ void AChargeProjectile::Destroyed()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this,ImpactSound,GetActorLocation(),FRotator::ZeroRotator);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,ImpactEffect,GetActorLocation());
+	}
+	
+	if(HasAuthority())
+	{
+		for (int32 i = 0; i < ActiveEffectActors.Num(); ++i)
+		{
+			UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(ActiveEffectActors[i].Actor);
+        
+			if (TargetASC)
+			{
+				for (const FActiveGameplayEffectHandle& Handle : ActiveEffectActors[i].ActiveGameplayEffectHandles)
+				{
+					TargetASC->RemoveActiveGameplayEffect(Handle);
+				}
+            
+				ActiveEffectActors[i].ActiveGameplayEffectHandles.Empty();
+			}
+		}
+
+		ActiveEffectActors.Empty();
 	}
 	Super::Destroyed();
 }
@@ -128,7 +151,7 @@ void AChargeProjectile::RemoveEffectsForActor(AActor* RemoveEffectTarget)
 	if (!IsValid(TargetASC)) return;
 
 	// Find the FEffectInActor structure for RemoveEffectTarget
-	FEffectInActor* EffectActor = ActiveEffectActors.FindByPredicate([&](const FEffectInActor& Item)
+	FEffectInActor* EffectActor = ActiveEffectActors.FindByPredicate([&RemoveEffectTarget](const FEffectInActor& Item)
 	{
 		return Item.Actor == RemoveEffectTarget;
 	});
@@ -144,7 +167,7 @@ void AChargeProjectile::RemoveEffectsForActor(AActor* RemoveEffectTarget)
 			}
 		}
 		// Remove the FEffectInActor from the array after processing
-		ActiveEffectActors.RemoveAll([&](const FEffectInActor& Item)
+		ActiveEffectActors.RemoveAll([&RemoveEffectTarget](const FEffectInActor& Item)
 		{
 			return Item.Actor == RemoveEffectTarget;
 		});

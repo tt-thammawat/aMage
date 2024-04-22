@@ -16,7 +16,10 @@ AMainProjectile::AMainProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates=true;
-
+	
+	CustomRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("CustomRootComponent"));
+	CustomRootComponent->SetupAttachment(RootComponent);
+	
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComponent");
 	CapsuleComponent->SetCollisionObjectType(ECC_PROJECTILE);
 	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -24,14 +27,14 @@ AMainProjectile::AMainProjectile()
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Overlap);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Overlap);
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
-	SetRootComponent(CapsuleComponent);
+	CapsuleComponent->SetupAttachment(CustomRootComponent);
 	
 	ProjectileMovementComponent =CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
 	ProjectileMovementComponent->InitialSpeed = 550.f;
 	ProjectileMovementComponent->MaxSpeed = 550.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 	// Ensure the projectile movement component updates its position based on the root component
-	ProjectileMovementComponent->UpdatedComponent = CapsuleComponent;
+	ProjectileMovementComponent->UpdatedComponent = CustomRootComponent;
 }
 
 void AMainProjectile::Destroyed()
@@ -70,12 +73,17 @@ void AMainProjectile::OnSphereOverlap(UPrimitiveComponent* OverlapComponent, AAc
 			//ApplyGameplayEffectSpecToThe OtherActor
 			TargetAsc->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
 		}
-		Destroy();
+		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &AMainProjectile::DelayedDestroy);
 	}
 	else // Set This For Client
 	{
 		bHit = true;
 	}
+}
+
+void AMainProjectile::DelayedDestroy()
+{
+	Destroy();
 }
 
 void AMainProjectile::BeginPlay()

@@ -18,6 +18,7 @@ public class aMage : ModuleRules
 			"GameplayAbilities",
 			"OnlineSubsystemSteam", 
 			"OnlineSubsystem"
+			
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
@@ -27,9 +28,19 @@ public class aMage : ModuleRules
 			"Slate",
 			"SlateCore", 
 			"Niagara",
-			"AIModule", "WebRTC"
+			"AIModule", 
+			"WebRTC",
+			"NiagaraUIRenderer"
 		});
-
+		
+		if (Target.bBuildEditor)
+		{
+			PrivateDependencyModuleNames.AddRange(new string[]
+			{
+				"NiagaraUIRendererEditor"
+				
+			});
+		}
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 		

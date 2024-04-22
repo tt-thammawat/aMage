@@ -20,6 +20,9 @@ ABaseCharacter::ABaseCharacter()
 	//Important To Get Overlap Event
 	GetMesh()->SetGenerateOverlapEvents(true);
 	
+	TargetSceneComponent = CreateDefaultSubobject<USceneComponent>("TargetSceneComponent");
+	TargetSceneComponent->SetupAttachment(GetMesh());
+	
 	Weapon=CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(),FName("WeaponHandSocket"));
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -161,6 +164,11 @@ bool ABaseCharacter::IsDead_Implementation() const
 AActor* ABaseCharacter::GetAvatar_Implementation()
 {
 	return this;
+}
+
+USceneComponent* ABaseCharacter::GetSceneComponent_Implementation()
+{
+	return TargetSceneComponent;
 }
 
 TArray<FTaggedMontage> ABaseCharacter::GetAttackMontage_Implementation()
