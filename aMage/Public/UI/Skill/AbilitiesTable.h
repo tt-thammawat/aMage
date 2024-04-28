@@ -34,6 +34,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void TableTagMapSet();
 protected:
+	//TODO: Change This TO TMap or Something
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TArray<FAbilitiesTagListGroup> AllGroups;
 };

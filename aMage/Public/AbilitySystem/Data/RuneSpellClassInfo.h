@@ -34,17 +34,21 @@ UCLASS()
 class AMAGE_API URuneSpellClassInfo : public UDataAsset
 {
 	GENERATED_BODY()
-
+	
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Rune Spell")
 	TArray<FRuneAbilityMapping> AllRuneAbilities;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Staff Spell")
-	TArray<FRuneAbilityMapping> StaffAbilities;
-	
+	TMap<uint32, TSubclassOf<UGameplayAbility>> TagHashToRuneAbilityMap;
+	void InitializeHashRuneAbilitiesMapping();
 	UFUNCTION(BlueprintCallable,Category = "Rune Spell")
 	TSubclassOf<UGameplayAbility> GetRuneSpellMatchingAbility(const TArray<FGameplayTag>& ReceivedRuneSpellTags);
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Staff Spell")
+	TArray<FRuneAbilityMapping> StaffAbilities;
+	TMap<uint32, TSubclassOf<UGameplayAbility>> TagHashToStaffAbilityMap;
+	void InitializeHashStaffAbilitiesMapping();
 	UFUNCTION(BlueprintCallable,Category = "Staff Spell")
 	TSubclassOf<UGameplayAbility> GetStaffSpellMatchingAbility(const TArray<FGameplayTag>& ReceivedRuneSpellTags);
+
+
 };

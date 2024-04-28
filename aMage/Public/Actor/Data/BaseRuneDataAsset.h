@@ -28,7 +28,7 @@ struct FRuneMatchingInfo
 {
 	GENERATED_BODY()
 
-	//TODO : Will Change This in to Point Struct From Data Table Later
+	//TODO : Will Change This in to Struct From Data Table Later
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")
 	FName MatchingName;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rune")

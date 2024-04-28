@@ -3,6 +3,7 @@
 
 #include "Gamemode/MainGameMode.h"
 #include "EngineUtils.h"
+#include "AbilitySystem/Data/RuneSpellClassInfo.h"
 #include "Actor/Spawn/ASpawnManager.h"
 #include "GameFramework/PlayerState.h"
 #include "GameState/MainGameState.h"
@@ -16,7 +17,8 @@ void AMainGameMode::BeginPlay()
 	{
 		MainGameState = GetGameState<AMainGameState>();
 	}
-	
+
+	//Only One Spawner Exist in the world
 	for (TActorIterator<AASpawnManager> It(GetWorld()); It; ++It)
 	{
 		AASpawnManager* FoundSpawnManager = *It;
@@ -25,6 +27,13 @@ void AMainGameMode::BeginPlay()
 			SpawnManager = FoundSpawnManager;
 			break;
 		}
+	}
+
+	if (RuneSpellClassInfos)
+	{
+		RuneSpellClassInfos->InitializeHashRuneAbilitiesMapping();
+		RuneSpellClassInfos->InitializeHashStaffAbilitiesMapping();
+
 	}
 
 }

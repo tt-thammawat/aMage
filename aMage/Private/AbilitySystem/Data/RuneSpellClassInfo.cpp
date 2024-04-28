@@ -3,27 +3,31 @@
 
 #include "AbilitySystem/Data/RuneSpellClassInfo.h"
 
+void URuneSpellClassInfo::InitializeHashRuneAbilitiesMapping()
+{
+    for (const FRuneAbilityMapping& RuneSpell : AllRuneAbilities)
+    {
+        uint32 Hash = GetTypeHash(RuneSpell.RuneSpellTags);
+        TagHashToRuneAbilityMap.Add(Hash, RuneSpell.RuneSpellAbility);
+    }
+}
+
+void URuneSpellClassInfo::InitializeHashStaffAbilitiesMapping()
+{
+    for (const FRuneAbilityMapping& RuneSpell : StaffAbilities)
+    {
+        uint32 Hash = GetTypeHash(RuneSpell.RuneSpellTags);
+        TagHashToStaffAbilityMap.Add(Hash, RuneSpell.RuneSpellAbility);
+    }
+}
+
 TSubclassOf<UGameplayAbility> URuneSpellClassInfo::GetRuneSpellMatchingAbility(const TArray<FGameplayTag>& ReceivedRuneSpellTags)
 {
-    for (const auto& RuneSpell : AllRuneAbilities)
+    uint32 ReceivedHash = GetTypeHash(ReceivedRuneSpellTags);
+    TSubclassOf<UGameplayAbility>* FoundAbility = TagHashToRuneAbilityMap.Find(ReceivedHash);
+    if (FoundAbility)
     {
-        if (RuneSpell.RuneSpellTags.Num() == ReceivedRuneSpellTags.Num())
-        {
-            bool bAllTagsMatch = true;
-
-            for (int32 i = 0; i < RuneSpell.RuneSpellTags.Num(); ++i)
-            {
-                if (RuneSpell.RuneSpellTags[i] != ReceivedRuneSpellTags[i])
-                {
-                    bAllTagsMatch = false;
-                    break;
-                }
-            }
-            if (bAllTagsMatch)
-            {
-                return RuneSpell.RuneSpellAbility;
-            }
-        }
+        return *FoundAbility;
     }
     return nullptr;
 }
@@ -31,25 +35,13 @@ TSubclassOf<UGameplayAbility> URuneSpellClassInfo::GetRuneSpellMatchingAbility(c
 TSubclassOf<UGameplayAbility> URuneSpellClassInfo::GetStaffSpellMatchingAbility(
     const TArray<FGameplayTag>& ReceivedRuneSpellTags)
 {
-    for (const auto& RuneSpell : StaffAbilities)
     {
-        if (RuneSpell.RuneSpellTags.Num() == ReceivedRuneSpellTags.Num())
+        uint32 ReceivedHash = GetTypeHash(ReceivedRuneSpellTags);
+        TSubclassOf<UGameplayAbility>* FoundAbility = TagHashToStaffAbilityMap.Find(ReceivedHash);
+        if (FoundAbility)
         {
-            bool bAllTagsMatch = true;
-
-            for (int32 i = 0; i < RuneSpell.RuneSpellTags.Num(); ++i)
-            {
-                if (RuneSpell.RuneSpellTags[i] != ReceivedRuneSpellTags[i])
-                {
-                    bAllTagsMatch = false;
-                    break;
-                }
-            }
-            if (bAllTagsMatch)
-            {
-                return RuneSpell.RuneSpellAbility;
-            }
+            return *FoundAbility;
         }
+        return nullptr;
     }
-    return nullptr;
 }

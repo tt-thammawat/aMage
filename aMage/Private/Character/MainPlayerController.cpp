@@ -2,7 +2,6 @@
 
 
 #include "Character/MainPlayerController.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -12,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "Gamemode/MainGameMode.h"
 #include "Input/MainEnhancedInputComponent.h"
+#include "Subsystem/KeyBindingManager.h"
 #include "UI/Widget/DamageTextComponent.h"
 
 AMainPlayerController::AMainPlayerController() :
@@ -116,74 +116,100 @@ void AMainPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	UMainEnhancedInputComponent* MainEnhancedInputComponent = CastChecked<UMainEnhancedInputComponent>(InputComponent);
-	MainEnhancedInputComponent->BindAction(MoveInput,ETriggerEvent::Triggered,this,&ThisClass::MoveAction);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(MoveForward,ETriggerEvent::Triggered,this,&ThisClass::MoveForwardAction);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(MoveBackward,ETriggerEvent::Triggered,this,&ThisClass::MoveBackwardAction);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(MoveRight,ETriggerEvent::Triggered,this,&ThisClass::MoveRightAction);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(MoveLeft,ETriggerEvent::Triggered,this,&ThisClass::MoveLeftAction);
+	
 	MainEnhancedInputComponent->BindAction(LookXAction,ETriggerEvent::Triggered,this,&ThisClass::Turn);
 	MainEnhancedInputComponent->BindAction(LookYAction,ETriggerEvent::Triggered,this,&ThisClass::LookUp);
-	MainEnhancedInputComponent->BindAction(Button01Action,ETriggerEvent::Completed,this,&ThisClass::Button01Pressed);
-	MainEnhancedInputComponent->BindAction(Button02Action,ETriggerEvent::Completed,this,&ThisClass::Button02Pressed);
-	MainEnhancedInputComponent->BindAction(Button03Action,ETriggerEvent::Completed,this,&ThisClass::Button03Pressed);
-	MainEnhancedInputComponent->BindAction(Button04Action,ETriggerEvent::Completed,this,&ThisClass::Button04Pressed);
-	MainEnhancedInputComponent->BindAction(OptionButton,ETriggerEvent::Completed,this,&ThisClass::OptionButtonPressed);
 	
-	MainEnhancedInputComponent->BindAction(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
-	MainEnhancedInputComponent->BindAction(DropButton,ETriggerEvent::Completed,this,&ThisClass::DropButtonPressed);
-	MainEnhancedInputComponent->BindAction(ScoreBoardButton,ETriggerEvent::Completed,this,&ThisClass::ScoreBoardButtonPressed);
-	MainEnhancedInputComponent->BindAction(InventoryButton,ETriggerEvent::Completed,this,&ThisClass::InventoryButtonPressed);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(Button01Action,ETriggerEvent::Completed,this,&ThisClass::Button01Pressed);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(Button02Action,ETriggerEvent::Completed,this,&ThisClass::Button02Pressed);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(Button03Action,ETriggerEvent::Completed,this,&ThisClass::Button03Pressed);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(Button04Action,ETriggerEvent::Completed,this,&ThisClass::Button04Pressed);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(OptionButton,ETriggerEvent::Completed,this,&ThisClass::OptionButtonPressed);
+	
+	MainEnhancedInputComponent->BindActionWithMappingSettings(InteractButton,ETriggerEvent::Completed,this,&ThisClass::InteractButtonPressed);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(DropButton,ETriggerEvent::Completed,this,&ThisClass::DropButtonPressed);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(ScoreBoardButton,ETriggerEvent::Completed,this,&ThisClass::ScoreBoardButtonPressed);
+	MainEnhancedInputComponent->BindActionWithMappingSettings(InventoryButton,ETriggerEvent::Completed,this,&ThisClass::InventoryButtonPressed);
 
 	//Abilities
 	MainEnhancedInputComponent->BindAbilityActions(InputConfig,this,&AMainPlayerController::AbilityInputTagPressed,&AMainPlayerController::AbilityInputTagReleased,&AMainPlayerController::AbilityInputTagHeld);
 }
 
 // Check with the FMainGameplayTags Singleton if the InputTag = InputTag.LMB,RMB
-void AMainPlayerController::AbilityInputTagPressed(const FGameplayTag InputTag)
+void AMainPlayerController::AbilityInputTagPressed(const FInputAbilityMapping InputAbilityMapping)
 {
-	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
+	
+	FInputAbilityMapping Temp = InputAbilityMapping;
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = Temp.MappingName ;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+	
+	if(!Temp.ActionInputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
 	{
 		if(GetBaseAbilitySystemComponent())
 		{
-			GetBaseAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+			GetBaseAbilitySystemComponent()->AbilityInputTagHeld(Temp.ActionInputTag);
 		}
 		return;
 	}
 	
 	if(GetBaseAbilitySystemComponent())
 	{
-		GetBaseAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+		GetBaseAbilitySystemComponent()->AbilityInputTagHeld(Temp.ActionInputTag);
 	}
 }
 
-void AMainPlayerController::AbilityInputTagHeld(const FGameplayTag InputTag)
+void AMainPlayerController::AbilityInputTagHeld(const FInputAbilityMapping InputAbilityMapping)
 {
-	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
+	FInputAbilityMapping Temp = InputAbilityMapping;
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = Temp.MappingName ;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+	
+	if(!Temp.ActionInputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
 	{
 		if(GetBaseAbilitySystemComponent())
 		{
-			GetBaseAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+			GetBaseAbilitySystemComponent()->AbilityInputTagHeld(Temp.ActionInputTag);
 		}
 		return;
 	}
 	
 	if(GetBaseAbilitySystemComponent())
 	{
-		GetBaseAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+		GetBaseAbilitySystemComponent()->AbilityInputTagHeld(Temp.ActionInputTag);
 	}
 }
 
-void AMainPlayerController::AbilityInputTagReleased(const FGameplayTag InputTag)
+void AMainPlayerController::AbilityInputTagReleased(const FInputAbilityMapping InputAbilityMapping)
 {
+	FInputAbilityMapping Temp = InputAbilityMapping;
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = Temp.MappingName ;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
 	
-	if(!InputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
+	if(!Temp.ActionInputTag.MatchesTagExact(FMainGameplayTags::Get().InputTag_LMB))
 	{
 		if(GetBaseAbilitySystemComponent())
 		{
-			GetBaseAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
+			GetBaseAbilitySystemComponent()->AbilityInputTagReleased(Temp.ActionInputTag);
 		}
 		return;
 	}
 
 	if(GetBaseAbilitySystemComponent())
 	{
-		GetBaseAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
+		GetBaseAbilitySystemComponent()->AbilityInputTagReleased(Temp.ActionInputTag);
 	}
 }
 
@@ -196,19 +222,87 @@ UBaseAbilitySystemComponent* AMainPlayerController::GetBaseAbilitySystemComponen
 	return BaseAbilitySystemComponent;
 }
 
-
-void AMainPlayerController::MoveAction(const FInputActionValue& InputActionValue)
+void AMainPlayerController::MoveForwardAction(const FInputActionValue& InputActionValue,const FName InputMappingName)
 {
-	const FVector InputAxisVector = InputActionValue.Get<FVector>();
-
+	const float InputValue = InputActionValue.Get<float>();
 	const FRotator YawRotation(0,GetControlRotation().Yaw,0);
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	//Send Button Pressed To KeyManager
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+
+	if (!FMath::IsNearlyZero(InputValue))
+	{
+		if(APawn* ControlledPawn = GetPawn<APawn>())
+		{
+			ControlledPawn->AddMovementInput(ForwardDirection,InputValue);
+		}
+	}
+}
+
+void AMainPlayerController::MoveBackwardAction(const FInputActionValue& InputActionValue,const FName  InputMappingName)
+{
+	const float InputValue = InputActionValue.Get<float>();
+	const FRotator YawRotation(0,GetControlRotation().Yaw,0);
+	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+	
+	if (!FMath::IsNearlyZero(InputValue))
+	{
+		if(APawn* ControlledPawn = GetPawn<APawn>())
+		{
+			ControlledPawn->AddMovementInput(ForwardDirection,-InputValue);
+		}
+	}
+}
+
+void AMainPlayerController::MoveLeftAction(const FInputActionValue& InputActionValue,const FName  InputMappingName)
+{
+	const float InputValue = InputActionValue.Get<float>();
+	const FRotator YawRotation(0,GetControlRotation().Yaw,0);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	if(APawn* ControlledPawn = GetPawn<APawn>())
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
 	{
-		ControlledPawn->AddMovementInput(ForwardDirection,InputAxisVector.Y);
-		ControlledPawn->AddMovementInput(RightDirection,InputAxisVector.X);
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+	
+	if (!FMath::IsNearlyZero(InputValue))
+	{
+		if(APawn* ControlledPawn = GetPawn<APawn>())
+		{
+			ControlledPawn->AddMovementInput(RightDirection,-InputValue);
+		}
+	}
+}
+
+void AMainPlayerController::MoveRightAction(const FInputActionValue& InputActionValue,const FName  InputMappingName)
+{
+	const float InputValue = InputActionValue.Get<float>();
+	const FRotator YawRotation(0,GetControlRotation().Yaw,0);
+	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+	
+	if (!FMath::IsNearlyZero(InputValue))
+	{
+		if(APawn* ControlledPawn = GetPawn<APawn>())
+		{
+			ControlledPawn->AddMovementInput(RightDirection,InputValue);
+		}
 	}
 }
 
@@ -238,8 +332,15 @@ void AMainPlayerController::LookUp(const FInputActionValue& Value)
 	}
 }
 
-void AMainPlayerController::InteractButtonPressed()
+void AMainPlayerController::InteractButtonPressed(const FInputActionValue& InputActionValue,const FName  InputMappingName)
 {
+
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+	
 	if(ACharacter* PlayerCharacter = this->GetCharacter())
 	{
 		if(PlayerCharacter)
@@ -249,44 +350,115 @@ void AMainPlayerController::InteractButtonPressed()
 	}
 }
 
-void AMainPlayerController::DropButtonPressed()
+void AMainPlayerController::DropButtonPressed(const FInputActionValue& InputActionValue,const FName  InputMappingName)
 {
-	OnDropButtonPressed.Broadcast();
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+	if(OnDropButtonPressed.IsBound())
+	{
+		OnDropButtonPressed.Broadcast();
+	}
 }
 
-void AMainPlayerController::ScoreBoardButtonPressed()
+void AMainPlayerController::ScoreBoardButtonPressed(const FInputActionValue& InputActionValue,const FName  InputMappingName)
 {
-	OnScoreBoardButtonPressed.Broadcast();
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+
+	if(OnScoreBoardButtonPressed.IsBound())
+	{
+		OnScoreBoardButtonPressed.Broadcast();
+	}
 }
 
-void AMainPlayerController::InventoryButtonPressed()
+void AMainPlayerController::InventoryButtonPressed(const FInputActionValue& InputActionValue,const FName  InputMappingName)
 {
-	OnInventoryButtonPressed.Broadcast();
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+	
+	if (OnInventoryButtonPressed.IsBound())
+	{
+		OnInventoryButtonPressed.Broadcast();
+	}
 }
 
-void AMainPlayerController::OptionButtonPressed()
+void AMainPlayerController::OptionButtonPressed(const FInputActionValue& InputActionValue,const FName  InputMappingName)
 {
-	OnOptionButtonPressed.Broadcast();
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+	
+	if (OnOptionButtonPressed.IsBound())
+	{
+		OnOptionButtonPressed.Broadcast();
+	}
 }
 
-void AMainPlayerController::Button01Pressed()
+void AMainPlayerController::Button01Pressed(const FInputActionValue& InputActionValue,const FName  InputMappingName)
 {
-	OnToolbarButtonPressed.Broadcast(0);
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+
+	if(OnToolbarButtonPressed.IsBound())
+	{
+		OnToolbarButtonPressed.Broadcast(0);
+	}
 }
 
-void AMainPlayerController::Button02Pressed()
+void AMainPlayerController::Button02Pressed(const FInputActionValue& InputActionValue,const FName  InputMappingName)
 {
-	OnToolbarButtonPressed.Broadcast(1);
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+
+	if(OnToolbarButtonPressed.IsBound())
+	{
+		OnToolbarButtonPressed.Broadcast(1);
+	}
 }
 
-void AMainPlayerController::Button03Pressed()
+void AMainPlayerController::Button03Pressed(const FInputActionValue& InputActionValue,const FName  InputMappingName)
 {
-	OnToolbarButtonPressed.Broadcast(2);
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+
+	if(OnToolbarButtonPressed.IsBound())
+	{
+		OnToolbarButtonPressed.Broadcast(2);
+	}
 }
 
-void AMainPlayerController::Button04Pressed()
+void AMainPlayerController::Button04Pressed(const FInputActionValue& InputActionValue,const FName  InputMappingName)
 {
-	OnToolbarButtonPressed.Broadcast(3);
+	if (UKeyBindingManager* KeyManager = GetGameInstance()->GetSubsystem<UKeyBindingManager>())
+	{
+		const FName InputPressName = InputMappingName;
+		KeyManager->OnKeyPressed(InputPressName);
+	}
+
+	if(OnToolbarButtonPressed.IsBound())
+	{
+		OnToolbarButtonPressed.Broadcast(3);
+	}
 
 }
 

@@ -8,6 +8,8 @@
 #include "GameFramework/PlayerController.h"
 #include "MainPlayerController.generated.h"
 
+struct FInputAbilityMapping;
+class UPlayerMappableKeySettings;
 class UMainInputConfig;
 class UDamageTextComponent;
 class UInputAction;
@@ -86,27 +88,31 @@ protected:
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
 	virtual void PostInitializeComponents() override;
-	void MoveAction(const FInputActionValue& InputActionValue) ;
+	void MoveForwardAction(const FInputActionValue& InputActionValue,const FName  InputMappingName);
+	void MoveBackwardAction(const FInputActionValue& InputActionValue,const FName InputMappingName);
+	void MoveLeftAction(const FInputActionValue& InputActionValue,const FName InputMappingName);
+	void MoveRightAction(const FInputActionValue& InputActionValue,const FName InputMappingName);
+
 	void Turn(const FInputActionValue& Value);
 	void LookUp(const FInputActionValue& Value);
-	void InteractButtonPressed();
-	void DropButtonPressed();
+	void InteractButtonPressed(const FInputActionValue& InputActionValue,const FName  InputMappingName);
+	void DropButtonPressed(const FInputActionValue& InputActionValue,const FName  InputMappingName);
 	UFUNCTION(BlueprintCallable)
-	void ScoreBoardButtonPressed();
-	void InventoryButtonPressed();
-	void OptionButtonPressed();
+	void ScoreBoardButtonPressed(const FInputActionValue& InputActionValue,const FName  InputMappingName);
+	void InventoryButtonPressed(const FInputActionValue& InputActionValue,const FName  InputMappingName);
+	void OptionButtonPressed(const FInputActionValue& InputActionValue,const FName  InputMappingName);
 	
 	//For Equipping
-	void Button01Pressed();
-	void Button02Pressed();
-	void Button03Pressed();
-	void Button04Pressed();
+	void Button01Pressed(const FInputActionValue& InputActionValue,const FName  InputMappingName);
+	void Button02Pressed(const FInputActionValue& InputActionValue,const FName  InputMappingName);
+	void Button03Pressed(const FInputActionValue& InputActionValue,const FName  InputMappingName);
+	void Button04Pressed(const FInputActionValue& InputActionValue,const FName  InputMappingName);
 	//End For Equipping
 
 	//Activate Abilities By Compare Tag
-	void AbilityInputTagPressed(const FGameplayTag InputTag);
-	void AbilityInputTagReleased(const FGameplayTag InputTag);
-	void AbilityInputTagHeld(const FGameplayTag InputTag);
+	void AbilityInputTagPressed(const FInputAbilityMapping InputAbilityMapping);
+	void AbilityInputTagReleased(const FInputAbilityMapping InputAbilityMapping);
+	void AbilityInputTagHeld(const FInputAbilityMapping InputAbilityMapping);
 
 	UPROPERTY(EditDefaultsOnly,Category = "Input")
 	TObjectPtr<UMainInputConfig> InputConfig;
@@ -115,8 +121,16 @@ private:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> MainInputContext;
+	//Movement
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> MoveInput;
+	TObjectPtr<UInputAction> MoveForward;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> MoveBackward;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> MoveLeft;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> MoveRight;
+	//Look
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> LookXAction;
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Input , meta = (AllowPrivateAccess = "true"))

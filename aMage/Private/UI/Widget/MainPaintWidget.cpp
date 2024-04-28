@@ -151,8 +151,6 @@ void UMainPaintWidget::CheckCurrentlyActiveSpell(TSubclassOf<UGameplayAbility>& 
 	}
 }
 
-
-
 bool UMainPaintWidget::CheckIfRuneTagMatchInList()
 {
 	if (RuneTags.IsEmpty())

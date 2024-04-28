@@ -30,7 +30,8 @@ public class aMage : ModuleRules
 			"Niagara",
 			"AIModule", 
 			"WebRTC",
-			"NiagaraUIRenderer"
+			"NiagaraUIRenderer", 
+			"SimplySettings"
 		});
 		
 		if (Target.bBuildEditor)

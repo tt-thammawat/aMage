@@ -34,6 +34,5 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="Data")
 	TMap<FName, FText> SpellDescriptions;
-private:
-	
+
 };
